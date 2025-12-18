@@ -3,12 +3,11 @@ import Layout from "./Layout.astro";
 ---
 
 <Layout title="SparkForge Electrical · Demo">
-  <header class="el-topnav">
-    <div class="el-container el-topnav__inner">
+  <header class="sf-topnav" role="banner">
+    <div class="sf-container sf-topnav__inner">
       <!-- Brand -->
-      <a class="el-brand" href="#" aria-label="SparkForge Electrical">
-        <span class="el-mark" aria-hidden="true">
-          <!-- bolt icon -->
+      <a class="sf-brand" href="#" aria-label="SparkForge Electrical">
+        <span class="sf-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
             <path
               d="M13 2 4 13h7l-1 9 10-13h-7l0-7Z"
@@ -19,14 +18,14 @@ import Layout from "./Layout.astro";
           </svg>
         </span>
 
-        <span class="el-brand__text">
-          <span class="el-brand__name">SPARKFORGE</span>
-          <span class="el-brand__sub">ELECTRICAL</span>
+        <span class="sf-brand__text">
+          <span class="sf-brand__name">SPARKFORGE</span>
+          <span class="sf-brand__sub">ELECTRICAL</span>
         </span>
       </a>
 
       <!-- Center nav -->
-      <nav class="el-nav" aria-label="Primary">
+      <nav class="sf-nav" aria-label="Primary">
         <a href="#services">SERVICES</a>
         <a href="#ev">EV CHARGERS</a>
         <a href="#emergency">EMERGENCY</a>
@@ -37,9 +36,9 @@ import Layout from "./Layout.astro";
       </nav>
 
       <!-- Actions -->
-      <div class="el-actions">
-        <a class="el-btn el-btn--call" href="tel:+442012345678">
-          <span class="el-btn__ico" aria-hidden="true">
+      <div class="sf-actions">
+        <a class="sf-btn sf-btn--call" href="tel:+442012345678">
+          <span class="sf-btn__ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
               <path
                 d="M7 3h4l1 5-2 1c1 3 4 6 7 7l1-2 5 1v4c0 1-1 2-2 2C11 21 3 13 3 5c0-1 1-2 2-2Z"
@@ -52,127 +51,128 @@ import Layout from "./Layout.astro";
           CALL 24/7
         </a>
 
-        <a class="el-btn el-btn--quote" href="#quote">GET QUOTE</a>
+        <a class="sf-btn sf-btn--quote" href="#quote">GET QUOTE</a>
       </div>
     </div>
   </header>
 
-  <!-- placeholder tylko żeby było co scrollować podczas testów -->
-  <main class="el-page">
-    <section class="sf-hero" aria-label="Hero">
-  <div class="sf-wrap">
-    <div class="sf-hero__grid">
-      <!-- LEFT: copy -->
+<main class="sf-page">
+  <section class="sf-hero" aria-label="Emergency electrician hero">
+    <div class="sf-container sf-hero__inner">
+      <!-- LEFT -->
       <div class="sf-hero__copy">
-        <div class="sf-kicker">
-          <span class="sf-dot" aria-hidden="true"></span>
-          <span>24/7 EMERGENCY RESPONSE</span>
+        <div class="sf-badge">
+          <span class="sf-badge__dot" aria-hidden="true"></span>
+          24/7 EMERGENCY RESPONSE
         </div>
 
         <h1 class="sf-hero__title">
-          24/7 EMERGENCY<br />
-          <span class="sf-lime">ELECTRICIAN</span> IN<br />
-          BOURNEMOUTH
+          <span class="sf-hero__t1">24/7 EMERGENCY</span>
+          <span class="sf-hero__t2">ELECTRICIAN IN</span>
+          <span class="sf-hero__t3">BOURNEMOUTH</span>
         </h1>
 
-        <p class="sf-hero__sub">
+        <p class="sf-hero__meta">
           Rapid response • NICEIC certified • Transparent fixed pricing • No hidden fees
         </p>
 
         <div class="sf-hero__ctas">
-          <a class="sf-btn sf-btn--call" href="tel:01202555000">
-            <span class="sf-btn__icon" aria-hidden="true">
+          <a class="sf-cta sf-cta--call" href="tel:01202555000">
+            <span class="sf-cta__ico" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                <path d="M7 3h3l2 5-2 1c1.2 2.5 3.3 4.6 5.8 5.8l1.2-2 5 2v3c0 1.1-.9 2-2 2C10 21 3 14 3 5c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path
+                  d="M7 3h4l1 5-2 1c1 3 4 6 7 7l1-2 5 1v4c0 1-1 2-2 2C11 21 3 13 3 5c0-1 1-2 2-2Z"
+                  stroke="currentColor" stroke-width="2" stroke-linejoin="round"
+                />
               </svg>
             </span>
-            <span class="sf-btn__stack">
-              <span class="sf-btn__small">CALL NOW</span>
-              <span class="sf-btn__big">01202 555 000</span>
+            <span class="sf-cta__stack">
+              <span class="sf-cta__kicker">CALL NOW</span>
+              <span class="sf-cta__value">01202 555 000</span>
             </span>
           </a>
 
-          <a class="sf-btn sf-btn--quote" href="#quote">
-            <span class="sf-btn__icon" aria-hidden="true">
+          <a class="sf-cta sf-cta--instant" href="#quote">
+            <span class="sf-cta__box" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                <path d="M4 5h16v10H7l-3 3V5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path
+                  d="M7 7h10v7H9l-2 2V7Z"
+                  stroke="currentColor" stroke-width="2" stroke-linejoin="round"
+                />
               </svg>
             </span>
-            <span>GET INSTANT QUOTE</span>
+            GET INSTANT QUOTE
           </a>
         </div>
 
-        <div class="sf-hero__proof" aria-label="Proof points">
-          <div class="sf-proof sf-proof--lime">
-            <span class="sf-proof__icon" aria-hidden="true">
+        <div class="sf-hero__proof">
+          <div class="sf-proof">
+            <span class="sf-proof__ico sf-proof__ico--lime" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                <path d="M12 3l8 4v6c0 5-3.5 8.5-8 8.5S4 18 4 13V7l8-4z" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 2 20 6v6c0 5-3.4 9-8 10-4.6-1-8-5-8-10V6l8-4Z" stroke="currentColor" stroke-width="2" />
               </svg>
             </span>
-            <div class="sf-proof__text">
+            <div class="sf-proof__txt">
               <div class="sf-proof__top">NICEIC</div>
-              <div class="sf-proof__bot">Part P compliant</div>
+              <div class="sf-proof__sub">Part P compliant</div>
             </div>
           </div>
 
-          <div class="sf-proof sf-proof--cyan">
-            <span class="sf-proof__icon" aria-hidden="true">
+          <div class="sf-proof">
+            <span class="sf-proof__ico sf-proof__ico--orange" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                <path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2-5.5-2.9-5.5 2.9 1-6.2L3 9.6l6.2-.9L12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="2"/>
               </svg>
             </span>
-            <div class="sf-proof__text">
-              <div class="sf-proof__top">4.9★ RATING</div>
-              <div class="sf-proof__bot">Google reviews</div>
+            <div class="sf-proof__txt">
+              <div class="sf-proof__top sf-proof__top--orange">SAME-DAY</div>
+              <div class="sf-proof__sub">Slots available</div>
             </div>
           </div>
 
-          <div class="sf-proof sf-proof--orange">
-            <span class="sf-proof__icon" aria-hidden="true">
+          <div class="sf-proof">
+            <span class="sf-proof__ico sf-proof__ico--cyan" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                <path d="M12 8v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M21 12a9 9 0 1 1-9-9 9 9 0 0 1 9 9z" stroke="currentColor" stroke-width="2"/>
+                <path d="m12 3 2.6 5.4 6 .9-4.3 4.2 1 6-5.3-2.8-5.3 2.8 1-6L3.4 9.3l6-.9L12 3Z"
+                  stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
               </svg>
             </span>
-            <div class="sf-proof__text">
-              <div class="sf-proof__top">SAME-DAY</div>
-              <div class="sf-proof__bot">Slots available</div>
+            <div class="sf-proof__txt">
+              <div class="sf-proof__top"><span class="sf-proof__rating">4.9★</span> RATING</div>
+              <div class="sf-proof__sub">Google reviews</div>
             </div>
           </div>
 
-          <div class="sf-proof sf-proof--lime">
-            <span class="sf-proof__icon" aria-hidden="true">
+          <div class="sf-proof">
+            <span class="sf-proof__ico sf-proof__ico--lime" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                <path d="M12 3l8 4v6c0 5-3.5 8.5-8 8.5S4 18 4 13V7l8-4z" stroke="currentColor" stroke-width="2"/>
-                <path d="M8 12l2.2 2.2L16.5 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </span>
-            <div class="sf-proof__text">
+            <div class="sf-proof__txt">
               <div class="sf-proof__top">FULLY</div>
-              <div class="sf-proof__bot">Insured</div>
+              <div class="sf-proof__sub">Insured</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT: image -->
-      <div class="sf-hero__media" aria-label="Service photo">
-        <div class="sf-frame">
-          <!-- podmień src na swoje -->
+      <!-- RIGHT -->
+      <div class="sf-hero__media">
+        <figure class="sf-photo">
+          <!-- możesz podmienić src na lokalny asset -->
           <img
-            src="https://images.unsplash.com/photo-1581092334494-1b5b1b6f0b13?auto=format&fit=crop&w=1200&q=80"
-            alt="Electrical panel and wiring"
+            src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=60"
+            alt="Electrical fuse board and wiring"
             loading="lazy"
           />
-          <span class="sf-corner sf-corner--tl" aria-hidden="true"></span>
-          <span class="sf-corner sf-corner--br" aria-hidden="true"></span>
-          <span class="sf-accent sf-accent--lime" aria-hidden="true"></span>
-          <span class="sf-accent sf-accent--cyan" aria-hidden="true"></span>
-        </div>
+          <span class="sf-photo__corner sf-photo__corner--lime" aria-hidden="true"></span>
+          <span class="sf-photo__corner sf-photo__corner--cyan" aria-hidden="true"></span>
+        </figure>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</main>
 
-  </main>
 </Layout>
