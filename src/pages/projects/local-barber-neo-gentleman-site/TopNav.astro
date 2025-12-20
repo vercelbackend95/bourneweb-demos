@@ -1,0 +1,122 @@
+---
+const {
+  brand = "Neo Gentleman",
+  tagline = "Premium Barbershop",
+} = Astro.props;
+---
+
+<a class="bm-skip" href="#top">Skip to content</a>
+
+<header class="bm-navWrap" data-bm-nav>
+  <nav class="bm-nav" aria-label="Top navigation">
+    <div class="bm-nav__inner">
+      <a class="bm-brand" href="#top" aria-label={`${brand} home`}>
+        <span class="bm-mark" aria-hidden="true">NG</span>
+        <span class="bm-brandTxt">
+          <span class="bm-brandName">{brand}</span>
+          <span class="bm-brandTag">{tagline}</span>
+        </span>
+      </a>
+
+      <div class="bm-links" aria-label="Primary">
+        <a class="bm-link" href="#gallery">Gallery</a>
+        <a class="bm-link" href="#services">Services</a>
+        <a class="bm-link" href="#products">Products</a>
+        <a class="bm-link" href="#book">Book</a>
+      </div>
+
+      <div class="bm-navRight">
+        <a class="bm-miniCall" href="tel:+440000000000" aria-label="Call us">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8.6 10.6c1.2 2.3 2.5 3.6 4.8 4.8l1.6-1.6c.3-.3.8-.4 1.2-.2 1 .4 2.1.7 3.2.8.5.1.9.5.9 1v2.6c0 .6-.5 1-1.1 1C10.8 20 4 13.2 4 4.8 4 4.3 4.4 3.8 5 3.8h2.6c.5 0 .9.4 1 .9.1 1.1.4 2.2.8 3.2.1.4 0 .9-.3 1.2l-1.5 1.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          <span class="bm-miniCall__txt">Call</span>
+        </a>
+
+        <a class="bm-navCta" href="#book">
+          Book now
+          <span class="bm-navCta__shine" aria-hidden="true"></span>
+        </a>
+
+        <button class="bm-burger" type="button" aria-label="Open menu" aria-expanded="false" data-bm-burger>
+          <span class="bm-burger__line"></span>
+          <span class="bm-burger__line"></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile drawer -->
+  <div class="bm-drawer" aria-hidden="true" data-bm-drawer>
+    <div class="bm-drawer__backdrop" data-bm-close></div>
+
+    <div class="bm-drawer__panel" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="bm-drawer__top">
+        <div class="bm-drawer__title">Menu</div>
+        <button class="bm-x" type="button" aria-label="Close menu" data-bm-close>×</button>
+      </div>
+
+      <div class="bm-drawer__links" aria-label="Mobile links">
+        <a class="bm-dLink" href="#gallery" data-bm-navlink>Gallery</a>
+        <a class="bm-dLink" href="#services" data-bm-navlink>Services</a>
+        <a class="bm-dLink" href="#products" data-bm-navlink>Products</a>
+        <a class="bm-dLink" href="#book" data-bm-navlink>Book</a>
+      </div>
+
+      <div class="bm-drawer__ctaRow">
+        <a class="bm-drawerCta" href="#book" data-bm-navlink>
+          Request booking
+          <span class="bm-drawerCta__shine" aria-hidden="true"></span>
+        </a>
+        <a class="bm-drawerGhost" href="tel:+440000000000">
+          Call +44 0000 000000
+        </a>
+      </div>
+
+      <p class="bm-drawer__fine">
+        Central · Open today 10:00–19:00
+      </p>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function(){
+      const wrap = document.querySelector('[data-bm-nav]');
+      if (!wrap) return;
+
+      const burger = wrap.querySelector('[data-bm-burger]');
+      const drawer = wrap.querySelector('[data-bm-drawer]');
+      const closeEls = Array.from(wrap.querySelectorAll('[data-bm-close]'));
+      const navLinks = Array.from(wrap.querySelectorAll('[data-bm-navlink]'));
+
+      function setOpen(open){
+        if (!drawer || !burger) return;
+        drawer.classList.toggle('is-on', open);
+        drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+        burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        document.documentElement.classList.toggle('bm-noScroll', open);
+        document.body.classList.toggle('bm-noScroll', open);
+      }
+
+      burger?.addEventListener('click', () => {
+        const open = !(drawer?.classList.contains('is-on'));
+        setOpen(open);
+      });
+
+      closeEls.forEach((el) => el.addEventListener('click', () => setOpen(false)));
+      navLinks.forEach((a) => a.addEventListener('click', () => setOpen(false)));
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') setOpen(false);
+      });
+
+      // scroll state
+      function onScroll(){
+        const y = window.scrollY || 0;
+        wrap.classList.toggle('is-scrolled', y > 10);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+</header>

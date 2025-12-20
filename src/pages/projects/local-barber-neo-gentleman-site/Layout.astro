@@ -5,6 +5,7 @@ const {
 } = Astro.props;
 
 import "./_local-barber-neo-gentleman-site.css";
+import TopNav from "./TopNav.astro";
 ---
 
 <!doctype html>
@@ -17,6 +18,7 @@ import "./_local-barber-neo-gentleman-site.css";
   </head>
 
   <body class="bm-root">
+    <TopNav />
     <slot />
   </body>
 </html>

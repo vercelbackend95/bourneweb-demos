@@ -1,0 +1,289 @@
+---
+const {
+  id = "gallery",
+  title = "Lookbook",
+  subtitle = "Fades, beards, classics — real work. Tap to view. Filter to feel the vibe.",
+} = Astro.props;
+---
+
+<section class="bm-gal" id={id} aria-label="Gallery" data-bm-gal>
+  <div class="bm-gal__inner">
+    <header class="bm-gal__head">
+      <div>
+        <p class="bm-gal__kicker">GALLERY</p>
+        <h2 class="bm-gal__title">{title}</h2>
+        <p class="bm-gal__sub">{subtitle}</p>
+      </div>
+
+      <div class="bm-gal__filters" role="tablist" aria-label="Gallery filters">
+        <button class="bm-gal__tab is-active" type="button" role="tab" aria-selected="true" data-bm-tab="all">All</button>
+        <button class="bm-gal__tab" type="button" role="tab" aria-selected="false" data-bm-tab="fades">Fades</button>
+        <button class="bm-gal__tab" type="button" role="tab" aria-selected="false" data-bm-tab="beards">Beards</button>
+        <button class="bm-gal__tab" type="button" role="tab" aria-selected="false" data-bm-tab="classic">Classic</button>
+      </div>
+    </header>
+
+    <div class="bm-gal__grid" aria-label="Work gallery grid" data-bm-grid>
+      <!-- Big hero tile -->
+      <button
+        class="bm-galTile bm-galTile--hero"
+        type="button"
+        data-bm-item
+        data-cat="fades"
+        data-full="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=2400&q=80"
+        aria-label="Open photo: Fade detail"
+      >
+        <span class="bm-galTile__img bm-galImg1" aria-hidden="true"></span>
+        <span class="bm-galTile__meta">
+          <span class="bm-galTag">Fade</span>
+          <span class="bm-galCap">Skin fade · clean blend</span>
+        </span>
+      </button>
+
+      <button
+        class="bm-galTile"
+        type="button"
+        data-bm-item
+        data-cat="beards"
+        data-full="https://images.unsplash.com/photo-1517832606299-7ae9b720a186?auto=format&fit=crop&w=2400&q=80"
+        aria-label="Open photo: Beard line up"
+      >
+        <span class="bm-galTile__img bm-galImg2" aria-hidden="true"></span>
+        <span class="bm-galTile__meta">
+          <span class="bm-galTag">Beard</span>
+          <span class="bm-galCap">Line-up · sharp edges</span>
+        </span>
+      </button>
+
+      <button
+        class="bm-galTile"
+        type="button"
+        data-bm-item
+        data-cat="classic"
+        data-full="https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&w=2400&q=80"
+        aria-label="Open photo: Classic cut"
+      >
+        <span class="bm-galTile__img bm-galImg3" aria-hidden="true"></span>
+        <span class="bm-galTile__meta">
+          <span class="bm-galTag">Classic</span>
+          <span class="bm-galCap">Scissor work · texture</span>
+        </span>
+      </button>
+
+      <button
+        class="bm-galTile bm-galTile--tall"
+        type="button"
+        data-bm-item
+        data-cat="fades"
+        data-full="https://images.unsplash.com/photo-1520975958225-72a6b94f1f5b?auto=format&fit=crop&w=2400&q=80"
+        aria-label="Open photo: Fade back"
+      >
+        <span class="bm-galTile__img bm-galImg4" aria-hidden="true"></span>
+        <span class="bm-galTile__meta">
+          <span class="bm-galTag">Fade</span>
+          <span class="bm-galCap">Back blend · crisp finish</span>
+        </span>
+      </button>
+
+      <button
+        class="bm-galTile bm-galTile--wide"
+        type="button"
+        data-bm-item
+        data-cat="beards"
+        data-full="https://images.unsplash.com/photo-1621605810050-a2b6b5c5ef57?auto=format&fit=crop&w=2400&q=80"
+        aria-label="Open photo: Beard care"
+      >
+        <span class="bm-galTile__img bm-galImg5" aria-hidden="true"></span>
+        <span class="bm-galTile__meta">
+          <span class="bm-galTag">Beard</span>
+          <span class="bm-galCap">Beard sculpt · tidy & full</span>
+        </span>
+      </button>
+
+      <button
+        class="bm-galTile"
+        type="button"
+        data-bm-item
+        data-cat="classic"
+        data-full="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=2400&q=80"
+        aria-label="Open photo: Classic chair"
+      >
+        <span class="bm-galTile__img bm-galImg6" aria-hidden="true"></span>
+        <span class="bm-galTile__meta">
+          <span class="bm-galTag">Classic</span>
+          <span class="bm-galCap">Clean cut · gentleman vibe</span>
+        </span>
+      </button>
+
+      <button
+        class="bm-galTile"
+        type="button"
+        data-bm-item
+        data-cat="fades"
+        data-full="https://images.unsplash.com/photo-1599351431618-3174d19c93a5?auto=format&fit=crop&w=2400&q=80"
+        aria-label="Open photo: Fade side"
+      >
+        <span class="bm-galTile__img bm-galImg7" aria-hidden="true"></span>
+        <span class="bm-galTile__meta">
+          <span class="bm-galTag">Fade</span>
+          <span class="bm-galCap">Side profile · smooth</span>
+        </span>
+      </button>
+
+      <button
+        class="bm-galTile bm-galTile--tall"
+        type="button"
+        data-bm-item
+        data-cat="beards"
+        data-full="https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=2400&q=80"
+        aria-label="Open photo: Beard trim"
+      >
+        <span class="bm-galTile__img bm-galImg8" aria-hidden="true"></span>
+        <span class="bm-galTile__meta">
+          <span class="bm-galTag">Beard</span>
+          <span class="bm-galCap">Trim · symmetry</span>
+        </span>
+      </button>
+
+      <!-- CTA tile -->
+      <a class="bm-galCta" href="#book" aria-label="Book now from gallery">
+        <div class="bm-galCta__top">
+          <div class="bm-galCta__k">Ready?</div>
+          <div class="bm-galCta__h">Book your cut</div>
+        </div>
+        <div class="bm-galCta__btn">
+          Pick a slot →
+          <span class="bm-galCta__shine" aria-hidden="true"></span>
+        </div>
+        <div class="bm-galCta__sub">Fast booking · instant confirmation vibe</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="bm-lightbox" aria-hidden="true" data-bm-lightbox>
+    <div class="bm-lightbox__backdrop" data-bm-close></div>
+
+    <figure class="bm-lightbox__panel" role="dialog" aria-modal="true" aria-label="Image viewer">
+      <button class="bm-lightbox__x" type="button" aria-label="Close" data-bm-close>×</button>
+      <img class="bm-lightbox__img" alt="Selected gallery photo" data-bm-fullimg />
+      <figcaption class="bm-lightbox__cap" data-bm-cap></figcaption>
+
+      <div class="bm-lightbox__nav" aria-label="Lightbox navigation">
+        <button class="bm-lightbox__arrow" type="button" aria-label="Previous" data-bm-prev>←</button>
+        <button class="bm-lightbox__arrow" type="button" aria-label="Next" data-bm-next>→</button>
+      </div>
+    </figure>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const root = document.querySelector('[data-bm-gal]');
+      if (!root) return;
+
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // reveal
+      if (!reduce) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              root.classList.add('is-in');
+              io.disconnect();
+            }
+          });
+        }, { threshold: 0.12 });
+        io.observe(root);
+      } else {
+        root.classList.add('is-in');
+      }
+
+      // filter
+      const tabs = Array.from(root.querySelectorAll('[data-bm-tab]'));
+      const items = Array.from(root.querySelectorAll('[data-bm-item]'));
+
+      function setTab(key){
+        tabs.forEach((t) => {
+          const on = t.getAttribute('data-bm-tab') === key;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+
+        items.forEach((el, idx) => {
+          const cat = el.getAttribute('data-cat') || 'all';
+          const show = key === 'all' || cat === key;
+          el.classList.toggle('is-off', !show);
+          el.style.setProperty('--i', String(idx));
+        });
+      }
+
+      tabs.forEach((t) => t.addEventListener('click', () => setTab(t.getAttribute('data-bm-tab') || 'all')));
+      setTab('all');
+
+      // lightbox
+      const lb = root.querySelector('[data-bm-lightbox]');
+      const closeEls = Array.from(root.querySelectorAll('[data-bm-close]'));
+      const fullImg = root.querySelector('[data-bm-fullimg]');
+      const cap = root.querySelector('[data-bm-cap]');
+      const prevBtn = root.querySelector('[data-bm-prev]');
+      const nextBtn = root.querySelector('[data-bm-next]');
+
+      let openList = [];
+      let idx = 0;
+
+      function visibleItems(){
+        return items.filter((el) => !el.classList.contains('is-off'));
+      }
+
+      function openAt(i){
+        openList = visibleItems();
+        idx = Math.max(0, Math.min(i, openList.length - 1));
+        const el = openList[idx];
+        if (!el || !lb || !fullImg) return;
+
+        fullImg.src = el.getAttribute('data-full') || '';
+        if (cap) cap.textContent = el.querySelector('.bm-galCap')?.textContent || '—';
+
+        lb.classList.add('is-on');
+        lb.setAttribute('aria-hidden', 'false');
+        document.documentElement.classList.add('bm-noScroll');
+        document.body.classList.add('bm-noScroll');
+      }
+
+      function close(){
+        if (!lb || !fullImg) return;
+        lb.classList.remove('is-on');
+        lb.setAttribute('aria-hidden', 'true');
+        document.documentElement.classList.remove('bm-noScroll');
+        document.body.classList.remove('bm-noScroll');
+        fullImg.src = '';
+      }
+
+      function step(dir){
+        if (!openList.length) openList = visibleItems();
+        idx = (idx + dir + openList.length) % openList.length;
+        const el = openList[idx];
+        if (!el || !fullImg) return;
+        fullImg.src = el.getAttribute('data-full') || '';
+        if (cap) cap.textContent = el.querySelector('.bm-galCap')?.textContent || '—';
+      }
+
+      items.forEach((el) => el.addEventListener('click', () => {
+        const list = visibleItems();
+        const i = list.indexOf(el);
+        openAt(i >= 0 ? i : 0);
+      }));
+
+      closeEls.forEach((c) => c.addEventListener('click', close));
+      prevBtn?.addEventListener('click', () => step(-1));
+      nextBtn?.addEventListener('click', () => step(1));
+
+      window.addEventListener('keydown', (e) => {
+        if (!lb || lb.getAttribute('aria-hidden') === 'true') return;
+        if (e.key === 'Escape') close();
+        if (e.key === 'ArrowLeft') step(-1);
+        if (e.key === 'ArrowRight') step(1);
+      });
+    })();
+  </script>
+</section>
