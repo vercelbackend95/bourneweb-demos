@@ -96,6 +96,9 @@ const {
         burger.setAttribute('aria-expanded', open ? 'true' : 'false');
         document.documentElement.classList.toggle('bm-noScroll', open);
         document.body.classList.toggle('bm-noScroll', open);
+
+        // never hide nav while menu open
+        if (open) wrap.classList.remove('is-hidden');
       }
 
       burger?.addEventListener('click', () => {
@@ -110,13 +113,81 @@ const {
         if (e.key === 'Escape') setOpen(false);
       });
 
-      // scroll state
-      function onScroll(){
-        const y = window.scrollY || 0;
+      // premium scroll behaviour: hide after 120px on down, show on up
+      const HIDE_AFTER = 120;   // start behaving after this
+      const HIDE_DELTA = 18;    // how much down scroll needed to hide
+      const SHOW_DELTA = 14;    // how much up scroll needed to show
+
+      let lastY = window.scrollY || 0;
+      let lastDir = 0;          // 1 = down, -1 = up
+      let anchorY = lastY;      // where direction last changed
+      let hidden = false;
+      let ticking = false;
+
+      function applyState(y){
         wrap.classList.toggle('is-scrolled', y > 10);
+        wrap.classList.toggle('is-float', y > HIDE_AFTER && !hidden);
       }
+
+      function update(){
+        const y = window.scrollY || 0;
+
+        const drawerOpen = drawer && drawer.classList.contains('is-on');
+        if (drawerOpen){
+          hidden = false;
+          wrap.classList.remove('is-hidden');
+          applyState(y);
+          lastY = y;
+          return;
+        }
+
+        if (y <= HIDE_AFTER){
+          hidden = false;
+          wrap.classList.remove('is-hidden');
+          applyState(y);
+          lastY = y;
+          anchorY = y;
+          lastDir = 0;
+          return;
+        }
+
+        const dir = y > lastY ? 1 : (y < lastY ? -1 : 0);
+
+        // direction change => reset anchor
+        if (dir !== 0 && dir !== lastDir){
+          anchorY = y;
+          lastDir = dir;
+        }
+
+        if (dir === 1 && !hidden){
+          if ((y - anchorY) > HIDE_DELTA){
+            hidden = true;
+            wrap.classList.add('is-hidden');
+            anchorY = y;
+          }
+        } else if (dir === -1 && hidden){
+          if ((anchorY - y) > SHOW_DELTA){
+            hidden = false;
+            wrap.classList.remove('is-hidden');
+            anchorY = y;
+          }
+        }
+
+        applyState(y);
+        lastY = y;
+      }
+
+      function onScroll(){
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          update();
+          ticking = false;
+        });
+      }
+
       window.addEventListener('scroll', onScroll, { passive: true });
-      onScroll();
+      update();
     })();
   </script>
 </header>

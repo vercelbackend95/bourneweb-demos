@@ -1,23 +1,40 @@
 ---
+import "./_hero.css";
+
 const {
-  id = "top",
+  kicker = "NEO GENTLEMAN · PREMIUM BARBERSHOP",
+  punchline = "Precision, not speed.",
+  titleLine1 = "Sharp fades.",
+  titleLine2 = "Calm ritual.",
+
+  // Hot towel przeniesione do lead’a (included)
+  lead = "Crafted cuts, clean lines — hot towel finish included. Pick a service and we’ll line up the best slot.",
+
+  location = "Central • 2 min walk",
+  openHours = "10–19",
+
+  proof1 = "3000+ cuts",
+
+  photoUrl = "https://images.unsplash.com/photo-1599351431618-3174d19c93a5?auto=format&fit=crop&w=2400&q=80",
+  textureUrl = "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=2400&q=80",
 } = Astro.props;
 ---
 
-<main class="bm-hero" id={id} aria-label="Barber hero" data-bm-hero>
+<main class="bm-hero" aria-label="Barber hero" data-bm-hero>
+  <div class="bm-hero__bg" aria-hidden="true"></div>
+
   <div class="bm-hero__grid">
     <!-- LEFT -->
     <section class="bm-hero__copy">
-      <p class="bm-kicker">NEO GENTLEMAN · PREMIUM BARBERSHOP</p>
+      <p class="bm-kicker">{kicker}</p>
+      <p class="bm-punchline">{punchline}</p>
 
       <h1 class="bm-title">
-        More than<br />
-        just a haircut
+        {titleLine1}<br />
+        {titleLine2}
       </h1>
 
-      <p class="bm-lead">
-        Precision fades, clean beard lines, hot towel finishes. Book in seconds — walk out sharper.
-      </p>
+      <p class="bm-lead">{lead}</p>
 
       <div class="bm-actions">
         <a class="bm-cta" href="#book">
@@ -25,111 +42,327 @@ const {
           <span class="bm-cta__shine" aria-hidden="true"></span>
         </a>
 
-        <a class="bm-ctaGhost" href="#services">
-          View services
+        <a class="bm-linkPlain" href="#services">
+          View services <span class="bm-linkPlain__arrow" aria-hidden="true">↗</span>
         </a>
       </div>
 
       <div class="bm-chips" aria-label="Popular services">
-        <span class="bm-chip">Skin fade <strong>£28</strong></span>
-        <span class="bm-chip">Haircut + beard <strong>£30</strong></span>
-        <span class="bm-chip">Hot towel shave <strong>£18</strong></span>
+        <button class="bm-chip is-active" type="button" data-bm-service="skinfade">
+          Skin fade <strong>£28</strong>
+        </button>
+        <button class="bm-chip" type="button" data-bm-service="haircutbeard">
+          Haircut + beard <strong>£30</strong>
+        </button>
+        <button class="bm-chip" type="button" data-bm-service="hottowel">
+          Hot towel shave <strong>£18</strong>
+        </button>
       </div>
 
-      <div class="bm-divider" aria-hidden="true"></div>
+      <!-- Trust row: 3 rzeczy max -->
+      <div class="bm-rating" aria-label="Google rating & proof">
+        <span class="bm-rating__stars" aria-hidden="true">★★★★★</span>
+        <span class="bm-rating__val"><strong>4.9</strong> (300+ reviews)</span>
 
-      <div class="bm-proof" aria-label="Google rating">
-        <div class="bm-stars" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.4 7 .6-5.3 4.6 1.7 6.8L12 17.6 5.7 20.4l1.7-6.8L2.1 9l7-.6L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.4 7 .6-5.3 4.6 1.7 6.8L12 17.6 5.7 20.4l1.7-6.8L2.1 9l7-.6L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.4 7 .6-5.3 4.6 1.7 6.8L12 17.6 5.7 20.4l1.7-6.8L2.1 9l7-.6L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.4 7 .6-5.3 4.6 1.7 6.8L12 17.6 5.7 20.4l1.7-6.8L2.1 9l7-.6L12 2z"/></svg>
-          <svg class="is-part" viewBox="0 0 24 24">
-            <defs>
-              <linearGradient id="bmHalf" x1="0" x2="1">
-                <stop offset="55%" stop-color="currentColor"/>
-                <stop offset="55%" stop-color="rgba(255,255,255,.18)"/>
-              </linearGradient>
-            </defs>
-            <path fill="url(#bmHalf)" d="M12 2l2.9 6.4 7 .6-5.3 4.6 1.7 6.8L12 17.6 5.7 20.4l1.7-6.8L2.1 9l7-.6L12 2z"/>
-          </svg>
-        </div>
+        <span class="bm-rating__sep" aria-hidden="true">·</span>
 
-        <div class="bm-proof__txt">
-          <div class="bm-proof__top"><strong>4.9/5</strong> on Google</div>
-          <div class="bm-proof__sub">300+ happy clients · real reviews</div>
-        </div>
+        <span class="bm-proofLine">
+          <span class="bm-proofItem">
+            <span class="bm-proofIco" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M8 7h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M7 10h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M6 13h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M8 17h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </span>
+            {proof1}
+          </span>
+
+          <span class="bm-proofDot" aria-hidden="true">·</span>
+
+          <span class="bm-proofItem">
+            <span class="bm-proofIco" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M6 7h12v10H6V7Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                <path d="M8 10h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M9 14h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </span>
+            Pay at shop
+          </span>
+        </span>
       </div>
 
-      <div class="bm-metrics" aria-label="Quick facts">
-        <div class="bm-metric">
-          <div class="bm-metric__icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <div class="bm-pills" aria-label="Quick info">
+        <span class="bm-pill">
+          <span class="bm-pill__ico" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
               <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M12 22a10 10 0 1 0-10-10 10 10 0 0 0 10 10Z" stroke="currentColor" stroke-width="1.6"/>
             </svg>
-          </div>
-          <div class="bm-metric__body">
-            <div class="bm-metric__top">Next available</div>
-            <div class="bm-metric__val">Today · 16:10</div>
-          </div>
-        </div>
+          </span>
+          <span class="bm-pill__k">Next slot</span>
+          <span class="bm-pill__v" data-bm-nextslot>16:10</span>
+        </span>
 
-        <div class="bm-metric">
-          <div class="bm-metric__icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <span class="bm-pill">
+          <span class="bm-pill__ico" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
               <path d="M12 21s7-4.6 7-11a7 7 0 1 0-14 0c0 6.4 7 11 7 11Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
               <path d="M12 10.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" stroke="currentColor" stroke-width="1.6"/>
             </svg>
-          </div>
-          <div class="bm-metric__body">
-            <div class="bm-metric__top">Location</div>
-            <div class="bm-metric__val">Central · 2 min walk</div>
-          </div>
-        </div>
+          </span>
+          <span class="bm-pill__k">Location</span>
+          <span class="bm-pill__v">{location}</span>
+        </span>
 
-        <div class="bm-metric">
-          <div class="bm-metric__icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <span class="bm-pill">
+          <span class="bm-pill__ico" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
               <path d="M4 7h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
               <path d="M7 4v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
               <path d="M17 4v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
               <path d="M6 20h12a2 2 0 0 0 2-2V9H4v9a2 2 0 0 0 2 2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
             </svg>
-          </div>
-          <div class="bm-metric__body">
-            <div class="bm-metric__top">Open today</div>
-            <div class="bm-metric__val">10:00 – 19:00</div>
-          </div>
-        </div>
+          </span>
+          <span class="bm-pill__k">Open today</span>
+          <span class="bm-pill__v">{openHours}</span>
+        </span>
       </div>
     </section>
 
     <!-- RIGHT -->
-    <aside class="bm-hero__media" aria-label="Studio photo">
-      <div class="bm-hero__ring" aria-hidden="true"></div>
+    <aside class="bm-hero__media" aria-label="Hero stage + booking">
+      <div
+        class="bm-hero__stage"
+        style={`--bm-hero-photo: url("${photoUrl}"); --bm-hero-texture: url("${textureUrl}")`}
+        aria-hidden="true"
+      ></div>
 
-      <div class="bm-photo" role="img" aria-label="Barber shaving client"></div>
-      <div class="bm-photo__vignette" aria-hidden="true"></div>
-
-      <div class="bm-floatCard" aria-label="Booking card">
-        <div class="bm-floatCard__top">
-          <div class="bm-floatCard__title">Book in seconds</div>
-          <div class="bm-floatCard__pill">No app</div>
+      <div class="bm-booking" aria-label="Booking card">
+        <div class="bm-booking__top">
+          <div class="bm-booking__title">Book in seconds</div>
+          <div class="bm-booking__pill">No app</div>
         </div>
 
-        <div class="bm-floatCard__row">
-          <span class="bm-floatLabel">Haircut</span>
-          <span class="bm-floatValue">45 min</span>
-        </div>
-        <div class="bm-floatCard__row">
-          <span class="bm-floatLabel">Beard</span>
-          <span class="bm-floatValue">15 min</span>
+        <div class="bm-bookingMeta" aria-label="Selected service meta">
+          <span class="bm-bookingMeta__dot" aria-hidden="true"></span>
+          <span data-bm-svcmeta>Skin fade · 30 min · £28</span>
         </div>
 
-        <a class="bm-floatBtn" href="#book">Pick a slot</a>
-        <div class="bm-floatHint">Instant confirmation · free cancellation</div>
+        <div class="bm-slotTop">
+          <span class="bm-slotTop__k">Available today</span>
+          <span class="bm-slotTop__k bm-slotTop__soft">Choose one</span>
+        </div>
+
+        <div class="bm-slotRow" role="group" aria-label="Available times">
+          <button class="bm-slot is-soonest is-active" type="button" data-bm-slot-btn data-bm-slot="16:10">
+            <span class="bm-slot__badge">Soonest</span>
+            <span class="bm-slot__time">16:10</span>
+          </button>
+
+          <button class="bm-slot" type="button" data-bm-slot-btn data-bm-slot="16:40">
+            <span class="bm-slot__time">16:40</span>
+          </button>
+
+          <button class="bm-slot" type="button" data-bm-slot-btn data-bm-slot="17:20">
+            <span class="bm-slot__time">17:20</span>
+          </button>
+        </div>
+
+        <a class="bm-bookBtn" href="#book" data-bm-confirm>
+          Book 16:10 — Skin fade
+          <span class="bm-bookBtn__sheen" aria-hidden="true"></span>
+        </a>
+
+        <div class="bm-bookHint">Instant confirmation · free cancellation</div>
       </div>
     </aside>
   </div>
+
+  <!-- Mobile sticky + sheet -->
+  <button class="bm-stickyBook" type="button" data-bm-sticky>
+    <span class="bm-stickyBook__k">Book next slot</span>
+    <span class="bm-stickyBook__v" data-bm-sticky-time>16:10</span>
+  </button>
+
+  <div class="bm-sheet" role="dialog" aria-modal="true" aria-label="Booking" data-bm-sheet>
+    <div class="bm-sheet__backdrop" data-bm-sheet-close aria-hidden="true"></div>
+
+    <div class="bm-sheet__panel" role="document">
+      <div class="bm-sheet__head">
+        <div class="bm-sheet__title">Pick your time</div>
+        <button class="bm-sheet__close" type="button" data-bm-sheet-close aria-label="Close">✕</button>
+      </div>
+
+      <div class="bm-sheet__meta" data-bm-sheet-meta>Skin fade · 30 min · £28</div>
+
+      <div class="bm-sheet__slots" role="group" aria-label="Available times" data-bm-sheet-slots></div>
+
+      <a class="bm-sheet__cta" href="#book" data-bm-sheet-cta>
+        Book 16:10 — Skin fade
+        <span class="bm-bookBtn__sheen" aria-hidden="true"></span>
+      </a>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const root = document.querySelector("[data-bm-hero]");
+      if (!root) return;
+
+      const reduce =
+        window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (!reduce) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              root.classList.add("is-in");
+              io.disconnect();
+            }
+          });
+        }, { threshold: 0.2 });
+        io.observe(root);
+      } else {
+        root.classList.add("is-in");
+      }
+
+      const services = {
+        skinfade: { label: "Skin fade", mins: 30, price: "£28", slots: ["16:10","16:40","17:20"] },
+        haircutbeard: { label: "Haircut + beard", mins: 60, price: "£30", slots: ["16:40","17:40","18:30"] },
+        hottowel: { label: "Hot towel shave", mins: 25, price: "£18", slots: ["16:10","16:30","17:05"] },
+      };
+
+      const chipBtns = Array.from(root.querySelectorAll("[data-bm-service]"));
+      const slotBtns = Array.from(root.querySelectorAll("[data-bm-slot-btn]"));
+      const meta = root.querySelector("[data-bm-svcmeta]");
+      const next = root.querySelector("[data-bm-nextslot]");
+      const cta = root.querySelector("[data-bm-confirm]");
+      const stickyTime = root.querySelector("[data-bm-sticky-time]");
+
+      const sticky = root.querySelector("[data-bm-sticky]");
+      const sheet = root.querySelector("[data-bm-sheet]");
+      const sheetSlots = root.querySelector("[data-bm-sheet-slots]");
+      const sheetMeta = root.querySelector("[data-bm-sheet-meta]");
+      const sheetCta = root.querySelector("[data-bm-sheet-cta]");
+      const sheetClosers = Array.from(root.querySelectorAll("[data-bm-sheet-close]"));
+
+      let activeServiceKey = "skinfade";
+      let activeTime = services[activeServiceKey].slots[0];
+
+      function setActiveSlot(time, desktopBtn) {
+        slotBtns.forEach((b) => b.classList.remove("is-active"));
+        if (desktopBtn) desktopBtn.classList.add("is-active");
+
+        activeTime = time;
+
+        if (next) next.textContent = time;
+        if (stickyTime) stickyTime.textContent = time;
+
+        const s = services[activeServiceKey];
+        const shortCTA = `Book ${time} — ${s.label}`;
+
+        if (cta) cta.childNodes[0].textContent = shortCTA;
+        if (sheetCta) sheetCta.childNodes[0].textContent = shortCTA;
+
+        if (sheetSlots) {
+          const all = Array.from(sheetSlots.querySelectorAll("[data-time]"));
+          all.forEach((b) => b.classList.toggle("is-active", b.getAttribute("data-time") === time));
+        }
+      }
+
+      function paintSoonestLabel() {
+        slotBtns.forEach((b, i) => {
+          b.classList.toggle("is-soonest", i === 0);
+          const badge = b.querySelector(".bm-slot__badge");
+          if (badge) badge.remove();
+          if (i === 0) {
+            const el = document.createElement("span");
+            el.className = "bm-slot__badge";
+            el.textContent = "Soonest";
+            b.prepend(el);
+          }
+        });
+      }
+
+      function renderSheetSlots(times) {
+        if (!sheetSlots) return;
+        sheetSlots.innerHTML = "";
+
+        times.forEach((t, idx) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "bm-sheetSlot" + (idx === 0 ? " is-soonest" : "");
+          b.setAttribute("data-time", t);
+          b.innerHTML = `
+            ${idx === 0 ? '<span class="bm-sheetSlot__badge">Soonest</span>' : ""}
+            <span class="bm-sheetSlot__time">${t}</span>
+          `;
+          b.addEventListener("click", () => setActiveSlot(t));
+          sheetSlots.appendChild(b);
+        });
+
+        setActiveSlot(activeTime);
+      }
+
+      function renderService(key) {
+        const s = services[key] || services.skinfade;
+        activeServiceKey = key;
+
+        chipBtns.forEach((b) => b.classList.toggle("is-active", b.getAttribute("data-bm-service") === key));
+
+        const metaText = `${s.label} · ${s.mins} min · ${s.price}`;
+        if (meta) meta.textContent = metaText;
+        if (sheetMeta) sheetMeta.textContent = metaText;
+
+        const times = s.slots;
+
+        slotBtns.forEach((btn, i) => {
+          const t = times[i] || times[times.length - 1];
+          btn.setAttribute("data-bm-slot", t);
+          const timeEl = btn.querySelector(".bm-slot__time");
+          if (timeEl) timeEl.textContent = t;
+        });
+
+        paintSoonestLabel();
+
+        activeTime = times[0];
+        setActiveSlot(activeTime, slotBtns[0]);
+
+        renderSheetSlots(times);
+      }
+
+      chipBtns.forEach((btn) => {
+        btn.addEventListener("click", () => renderService(btn.getAttribute("data-bm-service") || "skinfade"));
+      });
+
+      slotBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const t = btn.getAttribute("data-bm-slot") || (btn.textContent || "").trim();
+          setActiveSlot(t, btn);
+        });
+      });
+
+      function openSheet() {
+        if (!sheet) return;
+        sheet.classList.add("is-open");
+        document.documentElement.classList.add("bm-noScroll");
+      }
+      function closeSheet() {
+        if (!sheet) return;
+        sheet.classList.remove("is-open");
+        document.documentElement.classList.remove("bm-noScroll");
+      }
+
+      sticky?.addEventListener("click", openSheet);
+      sheetClosers.forEach((c) => c.addEventListener("click", closeSheet));
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeSheet();
+      });
+
+      renderService(activeServiceKey);
+    })();
+  </script>
 </main>
