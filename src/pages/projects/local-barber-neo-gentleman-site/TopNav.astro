@@ -26,6 +26,13 @@ const {
       </div>
 
       <div class="bm-navRight">
+        <!-- ✅ Open status (10–22) -->
+        <div class="bm-openBadge" aria-label="Opening status" data-bm-openbadge>
+          <span class="bm-openBadge__dot" aria-hidden="true"></span>
+          <span class="bm-openBadge__txt" data-bm-openTxt>Open now</span>
+          <span class="bm-openBadge__hrs" data-bm-openHrs>10:00–22:00</span>
+        </div>
+
         <a class="bm-miniCall" href="tel:+440000000000" aria-label="Call us">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M8.6 10.6c1.2 2.3 2.5 3.6 4.8 4.8l1.6-1.6c.3-.3.8-.4 1.2-.2 1 .4 2.1.7 3.2.8.5.1.9.5.9 1v2.6c0 .6-.5 1-1.1 1C10.8 20 4 13.2 4 4.8 4 4.3 4.4 3.8 5 3.8h2.6c.5 0 .9.4 1 .9.1 1.1.4 2.2.8 3.2.1.4 0 .9-.3 1.2l-1.5 1.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
@@ -73,8 +80,11 @@ const {
         </a>
       </div>
 
+      <!-- ✅ dynamic line (red when closed) -->
       <p class="bm-drawer__fine">
-        Central · Open today 10:00–19:00
+        <span class="bm-openLine__loc">Central</span>
+        <span class="bm-openLine" data-bm-openLine>Open now</span>
+        <span class="bm-openLine__hrs" data-bm-openLineHrs>10:00–22:00</span>
       </p>
     </div>
   </div>
@@ -89,6 +99,52 @@ const {
       const closeEls = Array.from(wrap.querySelectorAll('[data-bm-close]'));
       const navLinks = Array.from(wrap.querySelectorAll('[data-bm-navlink]'));
 
+      // ===== OPEN STATUS (10–22) =====
+      const OPEN_FROM = 10; // 10:00
+      const OPEN_TO = 22;   // 22:00
+
+      const badge = wrap.querySelector('[data-bm-openbadge]');
+      const badgeTxt = wrap.querySelector('[data-bm-openTxt]');
+      const badgeHrs = wrap.querySelector('[data-bm-openHrs]');
+
+      const line = wrap.querySelector('[data-bm-openLine]');
+      const lineHrs = wrap.querySelector('[data-bm-openLineHrs]');
+
+      const hrsText = "10:00–22:00";
+
+      function isOpenNow(d){
+        const h = d.getHours();
+        const m = d.getMinutes();
+        const mins = h * 60 + m;
+        const from = OPEN_FROM * 60;
+        const to = OPEN_TO * 60;
+        return mins >= from && mins < to;
+      }
+
+      function renderOpen(){
+        const now = new Date();
+        const open = isOpenNow(now);
+
+        if (badgeHrs) badgeHrs.textContent = hrsText;
+        if (lineHrs) lineHrs.textContent = hrsText;
+
+        if (open){
+          badge?.classList.remove('is-closed');
+          if (badgeTxt) badgeTxt.textContent = "Open now";
+          line?.classList.remove('is-closed');
+          if (line) line.textContent = "Open now";
+        } else {
+          badge?.classList.add('is-closed');
+          if (badgeTxt) badgeTxt.textContent = "Closed";
+          line?.classList.add('is-closed');
+          if (line) line.textContent = "Closed";
+        }
+      }
+
+      renderOpen();
+      setInterval(renderOpen, 30 * 1000);
+
+      // ===== drawer open/close =====
       function setOpen(open){
         if (!drawer || !burger) return;
         drawer.classList.toggle('is-on', open);
@@ -97,7 +153,6 @@ const {
         document.documentElement.classList.toggle('bm-noScroll', open);
         document.body.classList.toggle('bm-noScroll', open);
 
-        // never hide nav while menu open
         if (open) wrap.classList.remove('is-hidden');
       }
 
@@ -113,14 +168,14 @@ const {
         if (e.key === 'Escape') setOpen(false);
       });
 
-      // premium scroll behaviour: hide after 120px on down, show on up
-      const HIDE_AFTER = 120;   // start behaving after this
-      const HIDE_DELTA = 18;    // how much down scroll needed to hide
-      const SHOW_DELTA = 14;    // how much up scroll needed to show
+      // ===== premium hide/show wrapper =====
+      const HIDE_AFTER = 120;
+      const HIDE_DELTA = 18;
+      const SHOW_DELTA = 14;
 
       let lastY = window.scrollY || 0;
-      let lastDir = 0;          // 1 = down, -1 = up
-      let anchorY = lastY;      // where direction last changed
+      let lastDir = 0;
+      let anchorY = lastY;
       let hidden = false;
       let ticking = false;
 
@@ -153,7 +208,6 @@ const {
 
         const dir = y > lastY ? 1 : (y < lastY ? -1 : 0);
 
-        // direction change => reset anchor
         if (dir !== 0 && dir !== lastDir){
           anchorY = y;
           lastDir = dir;
