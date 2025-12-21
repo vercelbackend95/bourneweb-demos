@@ -1,0 +1,111 @@
+---
+import "./_social-proof.css";
+
+const {
+  rating = "4.9",
+  reviews = "300+",
+  cuts = "3000+ cuts",
+  openHours = "Open today · 10:00–20:00",
+  promise = "Pay at shop · Cancel anytime",
+} = Astro.props;
+
+const badges = [
+  {
+    title: "Top-rated locally",
+    meta: `${rating} · ${reviews} reviews`,
+    icon: "star",
+  },
+  {
+    title: "Craft over rush",
+    meta: cuts,
+    icon: "scissors",
+  },
+  {
+    title: "Walk-in vibe, booked flow",
+    meta: openHours,
+    icon: "clock",
+  },
+  {
+    title: "No prepayment",
+    meta: promise,
+    icon: "shield",
+  },
+];
+
+const quotes = [
+  { q: "“Best fade in town. Clean lines, calm place.”", a: "Google review" },
+  { q: "“Hot towel finish is pure luxury.”", a: "Client note" },
+  { q: "“Booked in seconds — in and out, perfect.”", a: "Google review" },
+  { q: "“Attention to detail is unreal.”", a: "Regular" },
+];
+---
+
+<section class="bm-proof" aria-label="Social proof">
+  <div class="bm-proof__wrap">
+    <div class="bm-proof__head">
+      <p class="bm-proof__kicker">TRUST SIGNALS</p>
+      <h2 class="bm-proof__title">Real people. Real precision.</h2>
+      <p class="bm-proof__sub">A few receipts — no shouting, just proof.</p>
+    </div>
+
+    <!-- badges row -->
+    <div class="bm-proof__strip" role="group" aria-label="Highlights">
+      <div class="bm-proof__fade bm-proof__fade--l" aria-hidden="true"></div>
+      <div class="bm-proof__fade bm-proof__fade--r" aria-hidden="true"></div>
+
+      <div class="bm-proof__track">
+        {badges.map((b) => (
+          <div class="bm-proofCard" aria-label={`${b.title} — ${b.meta}`}>
+            <span class="bm-proofCard__ico" aria-hidden="true">
+              {b.icon === "star" && (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 3.6l2.6 5.5 6 .9-4.3 4.2 1 6-5.3-2.9-5.3 2.9 1-6L3.4 10l6-.9L12 3.6Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                </svg>
+              )}
+              {b.icon === "scissors" && (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M8.2 8.2a3 3 0 1 1-4.2 4.2 3 3 0 0 1 4.2-4.2Z" stroke="currentColor" stroke-width="1.6"/>
+                  <path d="M8.2 15.8a3 3 0 1 1-4.2 4.2 3 3 0 0 1 4.2-4.2Z" stroke="currentColor" stroke-width="1.6"/>
+                  <path d="M20 4L8.4 11.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                  <path d="M20 20L8.4 12.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+              )}
+              {b.icon === "clock" && (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 21a9 9 0 1 0-9-9 9 9 0 0 0 9 9Z" stroke="currentColor" stroke-width="1.6"/>
+                  <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              )}
+              {b.icon === "shield" && (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 3l8 4v6c0 5-3.2 8.6-8 10-4.8-1.4-8-5-8-10V7l8-4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                  <path d="M9.5 12.2l1.7 1.7 3.6-3.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              )}
+            </span>
+
+            <div class="bm-proofCard__txt">
+              <div class="bm-proofCard__t">{b.title}</div>
+              <div class="bm-proofCard__m">{b.meta}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- quotes row -->
+    <div class="bm-proof__quotes" role="group" aria-label="Client quotes">
+      <div class="bm-proof__fade bm-proof__fade--l" aria-hidden="true"></div>
+      <div class="bm-proof__fade bm-proof__fade--r" aria-hidden="true"></div>
+
+      <div class="bm-proof__track bm-proof__track--quotes">
+        {quotes.map((x) => (
+          <figure class="bm-quote" aria-label={x.a}>
+            <blockquote class="bm-quote__q">{x.q}</blockquote>
+            <figcaption class="bm-quote__a">{x.a}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

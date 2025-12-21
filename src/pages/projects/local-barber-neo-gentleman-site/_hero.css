@@ -8,7 +8,7 @@
 }
 
 .bm-hero__grid{
-  width:min(1120px, calc(100% - 40px));
+  width:min(1200px, calc(100% - 40px));
   margin: 0 auto;
   display:grid;
   grid-template-columns: 1.05fr .95fr;
