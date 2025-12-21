@@ -1,62 +1,69 @@
-/* ===== Base / global reset for this demo ===== */
+/* ===== Base / global reset (flat black, no section banding) ===== */
 
-:root{
-  color-scheme: dark;
-}
-
-/* Flat black everywhere */
-html, body{
-  background: #050505;
-  color: rgba(255,255,255,.88);
-}
+:root{ color-scheme: dark; }
 
 *{ box-sizing: border-box; }
 
-img, svg, video{
-  max-width: 100%;
-  height: auto;
-  display: block;
+html, body{
+  background: #050505 !important;
+  color: rgba(255,255,255,.88);
 }
 
+body{
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image: none !important;
+}
+
+img, svg, video{ max-width: 100%; height: auto; display:block; }
 a{ color: inherit; }
 
 .bm-root{
   min-height: 100vh;
-  background: #050505;
+  background: #050505 !important;
   color: rgba(255,255,255,.88);
 }
 
-/* Keep site content above any potential background layers */
+/* keep everything on one canvas */
 .bm-site{
   position: relative;
-  z-index: 1;
+  background: transparent !important;
 }
 
-/* ===== Kill “bands” between sections (common cause: gradients/shadows/pseudo layers) ===== */
+/* ===== STRIPE KILL: section wrappers, pseudo layers, separators ===== */
 
-/* Don’t let top-level wrappers paint their own background */
-.bm-site > header,
-.bm-site > main,
-.bm-site > section,
-.bm-site > footer{
+/* 1) remove backgrounds/shadows from any high-level containers */
+header, main, section, footer, nav, aside{
   background: transparent !important;
   background-image: none !important;
   box-shadow: none !important;
 }
 
-/* Remove separator pseudo-elements often used as “lights” */
-.bm-site > header::before,
-.bm-site > header::after,
-.bm-site > main::before,
-.bm-site > main::after,
-.bm-site > section::before,
-.bm-site > section::after,
-.bm-site > footer::before,
-.bm-site > footer::after{
+/* 2) remove pseudo-elements that often draw “soft separators” */
+header::before, header::after,
+main::before, main::after,
+section::before, section::after,
+footer::before, footer::after,
+nav::before, nav::after,
+aside::before, aside::after{
   content: none !important;
 }
 
-/* If your sections use common wrappers, keep them flat too */
+/* 3) remove explicit divider elements */
+hr{ display:none !important; }
+
+/* common divider class names (if any exist) */
+.bm-divider,
+.section-divider,
+.divider,
+.sep,
+.separator,
+.split{
+  display:none !important;
+}
+
+/* 4) ensure your demo wrappers are flat */
 .bm-hero,
 .bm-gallery,
 .bm-services,
@@ -66,12 +73,26 @@ a{ color: inherit; }
   background-image: none !important;
   box-shadow: none !important;
 }
+/* ===== NO STRIPES BETWEEN SECTIONS (flat black hard override) ===== */
 
-/* ===== Utilities ===== */
-.bm-noScroll{ overflow: hidden !important; }
-
-/* Optional: reduce subtle “line” artifacts from subpixel */
-body{
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* One canvas color */
+html, body, .bm-root, .bm-site{
+  background-color: #050505 !important;
+  background-image: none !important;
 }
+
+/* Remove typical “separator bands” */
+.bm-site > *{
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Some sections draw a top/bottom fade using pseudo-elements */
+.bm-site > *::before,
+.bm-site > *::after{
+  content: none !important;
+}
+
+/* If any horizontal rules exist */
+hr{ display: none !important; }

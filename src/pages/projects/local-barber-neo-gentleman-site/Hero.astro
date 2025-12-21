@@ -16,8 +16,6 @@ const {
 ---
 
 <main class="bm-hero" aria-label="Barber hero" data-bm-hero>
-  <div class="bm-hero__bg" aria-hidden="true"></div>
-
   <div class="bm-hero__grid">
     <!-- LEFT -->
     <section class="bm-hero__copy">
@@ -82,53 +80,13 @@ const {
       </div>
     </section>
 
-    <!-- RIGHT -->
-    <aside
-      class="bm-hero__media"
-      aria-label="Hero stage + booking"
-      style={`--bm-hero-photo: url("${photoUrl}"); --bm-hero-texture: url("${textureUrl}")`}
-    >
-      <div class="bm-booking" aria-label="Booking card">
-        <div class="bm-booking__top">
-          <div class="bm-booking__title">Book in seconds</div>
-          <div class="bm-booking__pill">No app</div>
-        </div>
-
-        <div class="bm-bookingMeta" aria-label="Selected service meta">
-          <span class="bm-bookingMeta__dot" aria-hidden="true"></span>
-          <span data-bm-svcmeta>Skin fade · 50 min · £28</span>
-        </div>
-
-        <div class="bm-chips bm-chips--card" aria-label="Popular services">
-          <button class="bm-chip is-active" type="button" data-bm-service="skinfade">
-            Skin fade <strong>£28</strong>
-          </button>
-          <button class="bm-chip" type="button" data-bm-service="haircutbeard">
-            Haircut + beard <strong>£30</strong>
-          </button>
-          <button class="bm-chip" type="button" data-bm-service="hottowel">
-            Hot towel shave <strong>£18</strong>
-          </button>
-        </div>
-
-        <div class="bm-slotTop">
-          <span class="bm-slotTop__k">Times today</span>
-          <span class="bm-slotTop__k bm-slotTop__soft">15 min slots</span>
-        </div>
-
-        <div class="bm-timeCarousel" role="group" aria-label="Available times" data-bm-carousel>
-          <div class="bm-timeCarousel__fade bm-timeCarousel__fade--l" aria-hidden="true"></div>
-          <div class="bm-timeCarousel__fade bm-timeCarousel__fade--r" aria-hidden="true"></div>
-          <div class="bm-timeCarousel__track" data-bm-track></div>
-        </div>
-
-        <a class="bm-bookBtn" href="#book" data-bm-confirm>
-          Book 10:00 — Skin fade
-          <span class="bm-bookBtn__sheen" aria-hidden="true"></span>
-        </a>
-
-        <p class="bm-bookHint">No payment required · cancel anytime</p>
-      </div>
+    <!-- RIGHT: stage only -->
+    <aside class="bm-hero__right" aria-label="Hero stage">
+      <div
+        class="bm-hero__media"
+        aria-hidden="true"
+        style={`--bm-hero-photo: url("${photoUrl}"); --bm-hero-texture: url("${textureUrl}")`}
+      ></div>
     </aside>
   </div>
 
@@ -140,7 +98,6 @@ const {
       const reduce =
         window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      // entrance
       if (!reduce) {
         try {
           const io = new IntersectionObserver(
@@ -152,122 +109,6 @@ const {
       } else {
         root.classList.add("is-in");
       }
-
-      // ===== time generation: 10:00 -> 19:45 (open until 20:00), step 15m =====
-      const START = 10 * 60;
-      const END = 20 * 60;
-      const STEP = 15;
-
-      const pad = (n) => String(n).padStart(2, "0");
-      const fmt = (mins) => `${pad(Math.floor(mins / 60))}:${pad(mins % 60)}`;
-
-      function buildTimes() {
-        const out = [];
-        for (let m = START; m < END; m += STEP) out.push(fmt(m));
-        return out;
-      }
-
-      const allTimes = buildTimes();
-
-      function computeSoonest() {
-        const now = new Date();
-        const cur = now.getHours() * 60 + now.getMinutes();
-
-        if (cur < START) return fmt(START);
-        if (cur >= END) return fmt(START);
-
-        const rounded = Math.ceil(cur / STEP) * STEP;
-        if (rounded >= END) return fmt(START);
-        return fmt(rounded);
-      }
-
-      const soonestTime = computeSoonest();
-
-      const services = {
-        skinfade: { label: "Skin fade", mins: 50, price: "£28" },
-        haircutbeard: { label: "Haircut + beard", mins: 60, price: "£30" },
-        hottowel: { label: "Hot towel shave", mins: 30, price: "£18" },
-      };
-
-      const chipBtns = Array.from(root.querySelectorAll("[data-bm-service]"));
-      const meta = root.querySelector("[data-bm-svcmeta]");
-      const cta = root.querySelector("[data-bm-confirm]");
-
-      const track = root.querySelector("[data-bm-track]");
-      if (!track) return;
-
-      let activeServiceKey = "skinfade";
-      let activeTime = soonestTime;
-
-      function setButtonText(aEl, text) {
-        if (!aEl) return;
-        const n = aEl.childNodes[0];
-        if (n) n.textContent = text;
-      }
-
-      function updateCTAText() {
-        const s = services[activeServiceKey];
-        const text = `Book ${activeTime} — ${s.label}`;
-        setButtonText(cta, text);
-      }
-
-      function setActiveTime(t) {
-        activeTime = t;
-
-        Array.from(track.querySelectorAll("[data-time]")).forEach((b) =>
-          b.classList.toggle("is-active", b.getAttribute("data-time") === t)
-        );
-
-        updateCTAText();
-
-        // keep active in view (smooth)
-        const btn = track.querySelector(`[data-time="${t}"]`);
-        if (btn && btn.scrollIntoView) {
-          btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-        }
-      }
-
-      function renderTimes() {
-        track.innerHTML = "";
-        allTimes.forEach((t) => {
-          const b = document.createElement("button");
-          b.type = "button";
-          b.className =
-            "bm-timeChip" +
-            (t === soonestTime ? " is-soonest" : "") +
-            (t === activeTime ? " is-active" : "");
-          b.setAttribute("data-time", t);
-
-          b.innerHTML = `
-            ${t === soonestTime ? '<span class="bm-timeChip__badge">Soonest</span>' : ""}
-            <span class="bm-timeChip__time">${t}</span>
-          `;
-
-          b.addEventListener("click", () => setActiveTime(t));
-          track.appendChild(b);
-        });
-
-        // initial center on soonest
-        requestAnimationFrame(() => setActiveTime(activeTime));
-      }
-
-      function renderService(key) {
-        activeServiceKey = key;
-        const s = services[key] || services.skinfade;
-
-        chipBtns.forEach((b) => b.classList.toggle("is-active", b.getAttribute("data-bm-service") === key));
-
-        if (meta) meta.textContent = `${s.label} · ${s.mins} min · ${s.price}`;
-        updateCTAText();
-      }
-
-      chipBtns.forEach((btn) => {
-        btn.addEventListener("click", () => renderService(btn.getAttribute("data-bm-service") || "skinfade"));
-      });
-
-      renderTimes();
-      renderService(activeServiceKey);
-      setActiveTime(activeTime);
     })();
   </script>
 </main>
