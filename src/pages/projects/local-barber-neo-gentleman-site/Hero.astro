@@ -83,54 +83,52 @@ const {
     </section>
 
     <!-- RIGHT -->
-    <aside class="bm-hero__media" aria-label="Hero stage + booking">
-      <!-- ✅ stage is the photo AND contains the booking card -->
-      <div
-        class="bm-hero__stage"
-        style={`--bm-hero-photo: url("${photoUrl}"); --bm-hero-texture: url("${textureUrl}")`}
-      >
-        <div class="bm-booking" aria-label="Booking card">
-          <div class="bm-booking__top">
-            <div class="bm-booking__title">Book in seconds</div>
-            <div class="bm-booking__pill">No app</div>
-          </div>
-
-          <div class="bm-bookingMeta" aria-label="Selected service meta">
-            <span class="bm-bookingMeta__dot" aria-hidden="true"></span>
-            <span data-bm-svcmeta>Skin fade · 50 min · £28</span>
-          </div>
-
-          <div class="bm-chips bm-chips--card" aria-label="Popular services">
-            <button class="bm-chip is-active" type="button" data-bm-service="skinfade">
-              Skin fade <strong>£28</strong>
-            </button>
-            <button class="bm-chip" type="button" data-bm-service="haircutbeard">
-              Haircut + beard <strong>£30</strong>
-            </button>
-            <button class="bm-chip" type="button" data-bm-service="hottowel">
-              Hot towel shave <strong>£18</strong>
-            </button>
-          </div>
-
-          <div class="bm-slotTop">
-            <span class="bm-slotTop__k">Times today</span>
-            <span class="bm-slotTop__k bm-slotTop__soft">15 min slots</span>
-          </div>
-
-          <!-- ✅ carousel -->
-          <div class="bm-timeCarousel" role="group" aria-label="Available times" data-bm-carousel>
-            <div class="bm-timeCarousel__fade bm-timeCarousel__fade--l" aria-hidden="true"></div>
-            <div class="bm-timeCarousel__fade bm-timeCarousel__fade--r" aria-hidden="true"></div>
-            <div class="bm-timeCarousel__track" data-bm-track></div>
-          </div>
-
-          <a class="bm-bookBtn" href="#book" data-bm-confirm>
-            Book 10:00 — Skin fade
-            <span class="bm-bookBtn__sheen" aria-hidden="true"></span>
-          </a>
-
-          <p class="bm-bookHint">No payment required · cancel anytime</p>
+    <aside
+      class="bm-hero__media"
+      aria-label="Hero stage + booking"
+      style={`--bm-hero-photo: url("${photoUrl}"); --bm-hero-texture: url("${textureUrl}")`}
+    >
+      <div class="bm-booking" aria-label="Booking card">
+        <div class="bm-booking__top">
+          <div class="bm-booking__title">Book in seconds</div>
+          <div class="bm-booking__pill">No app</div>
         </div>
+
+        <div class="bm-bookingMeta" aria-label="Selected service meta">
+          <span class="bm-bookingMeta__dot" aria-hidden="true"></span>
+          <span data-bm-svcmeta>Skin fade · 50 min · £28</span>
+        </div>
+
+        <div class="bm-chips bm-chips--card" aria-label="Popular services">
+          <button class="bm-chip is-active" type="button" data-bm-service="skinfade">
+            Skin fade <strong>£28</strong>
+          </button>
+          <button class="bm-chip" type="button" data-bm-service="haircutbeard">
+            Haircut + beard <strong>£30</strong>
+          </button>
+          <button class="bm-chip" type="button" data-bm-service="hottowel">
+            Hot towel shave <strong>£18</strong>
+          </button>
+        </div>
+
+        <div class="bm-slotTop">
+          <span class="bm-slotTop__k">Times today</span>
+          <span class="bm-slotTop__k bm-slotTop__soft">15 min slots</span>
+        </div>
+
+        <!-- ✅ carousel -->
+        <div class="bm-timeCarousel" role="group" aria-label="Available times" data-bm-carousel>
+          <div class="bm-timeCarousel__fade bm-timeCarousel__fade--l" aria-hidden="true"></div>
+          <div class="bm-timeCarousel__fade bm-timeCarousel__fade--r" aria-hidden="true"></div>
+          <div class="bm-timeCarousel__track" data-bm-track></div>
+        </div>
+
+        <a class="bm-bookBtn" href="#book" data-bm-confirm>
+          Book 10:00 — Skin fade
+          <span class="bm-bookBtn__sheen" aria-hidden="true"></span>
+        </a>
+
+        <p class="bm-bookHint">No payment required · cancel anytime</p>
       </div>
     </aside>
   </div>
@@ -216,9 +214,11 @@ const {
 
       function setActiveTime(t) {
         activeTime = t;
+
         Array.from(track.querySelectorAll("[data-time]")).forEach((b) =>
           b.classList.toggle("is-active", b.getAttribute("data-time") === t)
         );
+
         updateCTAText();
 
         // keep active in view (smooth)

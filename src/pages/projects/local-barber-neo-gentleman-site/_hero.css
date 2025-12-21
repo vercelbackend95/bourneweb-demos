@@ -1,4 +1,4 @@
-/* ===== HERO (Neo Gentleman) — centered booking + time carousel ===== */
+/* ===== HERO (Neo Gentleman) — no stage div, booking on media bg + time carousel ===== */
 
 .bm-hero{
   position: relative;
@@ -201,27 +201,27 @@
 }
 .bm-proofDot{ color: rgba(255,255,255,.26); }
 
-/* RIGHT */
-.bm-hero__media{ position: relative; }
-
-.bm-hero__stage{
-  height: clamp(320px, 42vw, 520px);
+/* RIGHT — media becomes the “stage” background */
+.bm-hero__media{
+  position: relative;
+  height: clamp(360px, 46vw, 560px);
   border-radius: 22px;
   border: 1px solid rgba(255,255,255,.10);
   overflow:hidden;
+
   background:
     radial-gradient(900px 560px at 50% 20%, rgba(255,255,255,.12), transparent 55%),
-    linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.55)),
+    linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.58)),
     var(--bm-hero-photo);
   background-size: cover;
   background-position: center;
+
   box-shadow:
     0 26px 70px rgba(0,0,0,.55),
     inset 0 1px 0 rgba(255,255,255,.10);
-  position: relative;
 }
 
-.bm-hero__stage::after{
+.bm-hero__media::after{
   content:"";
   position:absolute;
   inset:0;
@@ -231,7 +231,7 @@
   pointer-events:none;
 }
 
-.bm-hero__stage::before{
+.bm-hero__media::before{
   content:"";
   position:absolute;
   inset:-2px;
@@ -243,7 +243,7 @@
   pointer-events:none;
 }
 
-/* ✅ booking INSIDE stage — perfectly centered */
+/* booking centered in media */
 .bm-booking{
   position: absolute;
   left: 50%;
@@ -314,7 +314,6 @@
   flex-wrap: wrap;
   margin: 12px 0 8px;
 }
-.bm-chips--card{ opacity: 1; transform: none; }
 
 .bm-chip{
   appearance:none;
@@ -353,7 +352,7 @@
 }
 .bm-slotTop__soft{ opacity:.78; }
 
-/* ✅ TIME CAROUSEL */
+/* TIME CAROUSEL */
 .bm-timeCarousel{
   position: relative;
   margin-bottom: 12px;
@@ -392,7 +391,7 @@
   background: linear-gradient(270deg, rgba(0,0,0,.50), transparent);
 }
 
-/* time chip (carousel item) */
+/* time chip */
 .bm-timeChip{
   position: relative;
   flex: 0 0 auto;
@@ -489,13 +488,11 @@
   text-align:center;
 }
 
-/* entrance anim (shared) */
+/* entrance anim */
 @keyframes bmIn{
   from{ opacity: 0; transform: translateY(10px); }
   to{ opacity: 1; transform: translateY(0); }
 }
-
-/* booking entrance that preserves center */
 @keyframes bmBookingIn{
   from{ opacity: 0; transform: translate(-50%, calc(-50% + 14px)); }
   to{ opacity: 1; transform: translate(-50%, -50%); }
