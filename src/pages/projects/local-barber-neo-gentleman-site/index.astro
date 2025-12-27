@@ -6,7 +6,9 @@ import Services from "./Services.astro";
 import BookingForm from "./BookingForm.astro";
 import ProductsCarousel from "./ProductsCarousel.astro";
 import SocialProof from "./SocialProof.astro";
-
+import motionUrl from "./motion.ts?url";
+---
+<script type="module" src={motionUrl}></script>
 ---
 
 <Layout title="Neo Gentleman · Barber Demo">
