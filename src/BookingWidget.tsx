@@ -1,6 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import gsap from "gsap";
-import Lenis from "@studio-freight/lenis";
 
 type BarberKey = "mason" | "oliver" | "theo";
 type ServiceKey = "skinfade" | "haircutbeard" | "hottowel";
@@ -110,7 +108,7 @@ function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/** inline “photo” avatars (works out of the box, can be swapped for real JPG later) */
+/** inline avatars (swap later for real photos if you want) */
 function avatarDataURI(seed: string, accent: string) {
   const initial = seed.trim().slice(0, 1).toUpperCase();
   const svg = `
@@ -127,10 +125,8 @@ function avatarDataURI(seed: string, accent: string) {
     </defs>
     <rect width="128" height="128" rx="64" fill="url(#g)"/>
     <rect x="8" y="8" width="112" height="112" rx="56" fill="none" stroke="url(#s)"/>
-    <!-- silhouette -->
     <path d="M64 72c14 0 26 8 30 20 1 3-1 6-5 6H39c-4 0-6-3-5-6 4-12 16-20 30-20z" fill="#ffffff" opacity="0.12"/>
     <circle cx="64" cy="50" r="16" fill="#ffffff" opacity="0.14"/>
-    <!-- initial (subtle) -->
     <text x="64" y="114" text-anchor="middle" font-family="ui-sans-serif,system-ui" font-size="16" fill="#ffffff" opacity="0.35" font-weight="800">${initial}</text>
   </svg>`;
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
@@ -171,6 +167,9 @@ export default function BookingWidget() {
   const p2Ref = useRef<HTMLDivElement | null>(null);
   const p3Ref = useRef<HTMLDivElement | null>(null);
 
+  // dynamic libs
+  const gsapRef = useRef<any>(null);
+
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
   const [barberKey, setBarberKey] = useState<BarberKey | null>(null);
@@ -190,39 +189,78 @@ export default function BookingWidget() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
-  // Lenis (once)
+  // Load GSAP safely (browser only)
   useEffect(() => {
-    const w = window as any;
-    if (w.__bw_lenis) return;
-    const lenis = new Lenis({ smoothWheel: true, smoothTouch: false });
-    w.__bw_lenis = lenis;
-
-    const raf = (t: number) => {
-      lenis.raf(t);
-      requestAnimationFrame(raf);
-    };
-    requestAnimationFrame(raf);
+    (async () => {
+      if (typeof window === "undefined") return;
+      if (gsapRef.current) return;
+      const mod = await import("gsap");
+      gsapRef.current = (mod as any).default ?? mod;
+    })();
   }, []);
 
-  // Entrance
+  // Lenis safely (browser only) — using NEW package name: "lenis"
+  useEffect(() => {
+    let rafId = 0;
+
+    (async () => {
+      if (typeof window === "undefined") return;
+      const w = window as any;
+      if (w.__bw_lenis) return;
+
+      const { default: Lenis } = await import("lenis");
+      const lenis = new Lenis({ smoothWheel: true, smoothTouch: false });
+      w.__bw_lenis = lenis;
+
+      const raf = (t: number) => {
+        lenis.raf(t);
+        rafId = requestAnimationFrame(raf);
+      };
+      rafId = requestAnimationFrame(raf);
+    })();
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  // Entrance animation (optional)
   useEffect(() => {
     if (!rootRef.current) return;
     if (prefersReducedMotion()) return;
-    gsap.fromTo(rootRef.current, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" });
+    if (typeof window === "undefined") return;
+
+    const run = async () => {
+      if (!gsapRef.current) {
+        const mod = await import("gsap");
+        gsapRef.current = (mod as any).default ?? mod;
+      }
+      const gsap = gsapRef.current;
+      gsap.fromTo(rootRef.current, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" });
+    };
+    run();
   }, []);
 
   const panelRefFor = (s: 1 | 2 | 3) => (s === 1 ? p1Ref : s === 2 ? p2Ref : p3Ref);
 
-  const transitionTo = (next: 1 | 2 | 3) => {
+  const transitionTo = async (next: 1 | 2 | 3) => {
     if (next === step) return;
-
-    const reduce = prefersReducedMotion();
-    const curEl = panelRefFor(step).current;
-    const nextEl = panelRefFor(next).current;
-
     setSent(false);
 
-    if (!curEl || !nextEl || reduce) {
+    if (prefersReducedMotion() || typeof window === "undefined") {
+      setStep(next);
+      return;
+    }
+
+    if (!gsapRef.current) {
+      const mod = await import("gsap");
+      gsapRef.current = (mod as any).default ?? mod;
+    }
+    const gsap = gsapRef.current;
+
+    const curEl = panelRefFor(step).current;
+    const nextEl = panelRefFor(next).current;
+    if (!curEl || !nextEl) {
       setStep(next);
       return;
     }
@@ -230,7 +268,6 @@ export default function BookingWidget() {
     gsap.set(nextEl, { autoAlpha: 0, x: next > step ? 26 : -26, pointerEvents: "none" });
     gsap.set(curEl, { pointerEvents: "none" });
     gsap.set([p1Ref.current, p2Ref.current, p3Ref.current], { position: "absolute", inset: 0 });
-
     gsap.set(nextEl, { display: "block" });
 
     const tl = gsap.timeline({
@@ -256,15 +293,17 @@ export default function BookingWidget() {
     tl.to(nextEl, { autoAlpha: 1, x: 0, duration: 0.24, ease: "power2.out" }, 0.05);
   };
 
-  // Keep non-active panels hidden after first render
+  // initial hide/show
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const gsap = gsapRef.current;
     [p1Ref.current, p2Ref.current, p3Ref.current].forEach((el, idx) => {
       if (!el) return;
       const s = (idx + 1) as 1 | 2 | 3;
       if (s === step) {
-        gsap.set(el, { autoAlpha: 1, display: "block", pointerEvents: "auto" });
+        gsap?.set(el, { autoAlpha: 1, display: "block", pointerEvents: "auto" });
       } else {
-        gsap.set(el, { autoAlpha: 0, display: "none", pointerEvents: "none" });
+        gsap?.set(el, { autoAlpha: 0, display: "none", pointerEvents: "none" });
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -289,7 +328,7 @@ export default function BookingWidget() {
   const phoneOk = isPhoneValid(phone);
   const phoneSoftError = phone.length > 0 && !phoneOk ? "That number looks short" : "";
 
-  // Calendar view month
+  // Calendar
   const [viewMonth, setViewMonth] = useState<Date>(() => new Date(date.getFullYear(), date.getMonth(), 1));
   useEffect(() => {
     setViewMonth(new Date(date.getFullYear(), date.getMonth(), 1));
@@ -310,13 +349,19 @@ export default function BookingWidget() {
     setSent(false);
   };
 
-  const onPickService = (k: ServiceKey) => {
+  const onPickService = async (k: ServiceKey) => {
     setServiceKey(k);
     setSent(false);
-    if (!prefersReducedMotion() && rootRef.current) {
-      const el = rootRef.current.querySelector(`[data-service="${k}"]`);
-      if (el) gsap.fromTo(el, { scale: 0.99 }, { scale: 1, duration: 0.18, ease: "power2.out" });
+
+    if (prefersReducedMotion() || typeof window === "undefined") return;
+
+    if (!gsapRef.current) {
+      const mod = await import("gsap");
+      gsapRef.current = (mod as any).default ?? mod;
     }
+    const gsap = gsapRef.current;
+    const el = rootRef.current?.querySelector(`[data-service="${k}"]`);
+    if (el) gsap.fromTo(el, { scale: 0.99 }, { scale: 1, duration: 0.18, ease: "power2.out" });
   };
 
   const onPickTime = (t: string) => {
@@ -337,10 +382,9 @@ export default function BookingWidget() {
   const step1Ready = !!barber && !!service;
   const step2Ready = !!date;
   const step3Ready = !!time && phoneOk;
-
   const progress = step === 1 ? 0.33 : step === 2 ? 0.66 : 1;
 
-  /** bmw__subline — ONLY real selected data, progressively */
+  // Progressive subline: only selected data
   const sublineText = useMemo(() => {
     const parts: string[] = [];
     if (barber) parts.push(barber.name);
@@ -386,9 +430,7 @@ export default function BookingWidget() {
             </div>
 
             <div className="bmw__block">
-              <div className="bmw__labelRow">
-                <span className="bmw__label">Barber</span>
-              </div>
+              <div className="bmw__labelRow"><span className="bmw__label">Barber</span></div>
 
               <div className="bmw__chips" role="list">
                 {BARBERS.map((b) => {
@@ -418,9 +460,7 @@ export default function BookingWidget() {
             </div>
 
             <div className="bmw__block">
-              <div className="bmw__labelRow">
-                <span className="bmw__label">Service</span>
-              </div>
+              <div className="bmw__labelRow"><span className="bmw__label">Service</span></div>
 
               <div className="bmw__chips" role="list">
                 {SERVICES.map((s) => {
@@ -445,9 +485,7 @@ export default function BookingWidget() {
                 })}
               </div>
 
-              <div className="bmw__oneLine">
-                {service ? service.desc : "Choose a service to continue."}
-              </div>
+              <div className="bmw__oneLine">{service ? service.desc : "Choose a service to continue."}</div>
             </div>
 
             <div className="bmw__nav">
@@ -465,30 +503,14 @@ export default function BookingWidget() {
                 <div className="bmw__stepKicker">Step 2</div>
                 <div className="bmw__stepTitle">Choose a date</div>
               </div>
-              <div className="bmw__miniRight">
-                <span className="bmw__miniPill">{prettyDayLong(date)}</span>
-              </div>
+              <div className="bmw__miniRight"><span className="bmw__miniPill">{prettyDayLong(date)}</span></div>
             </div>
 
             <div className="bmw__calendar">
               <div className="bmw__calTop">
-                <button
-                  type="button"
-                  className="bmw__calArrow"
-                  onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
-                  aria-label="Previous month"
-                >
-                  ‹
-                </button>
+                <button type="button" className="bmw__calArrow" onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))} aria-label="Previous month">‹</button>
                 <div className="bmw__calMonth">{prettyMonth(viewMonth)}</div>
-                <button
-                  type="button"
-                  className="bmw__calArrow"
-                  onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
-                  aria-label="Next month"
-                >
-                  ›
-                </button>
+                <button type="button" className="bmw__calArrow" onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))} aria-label="Next month">›</button>
               </div>
 
               <div className="bmw__calWeek">
@@ -504,7 +526,6 @@ export default function BookingWidget() {
                   const disabled = isDisabledDay(d);
                   const active = isSameDay(d, date);
                   const today = isSameDay(d, new Date());
-
                   return (
                     <button
                       key={idx}
@@ -545,9 +566,7 @@ export default function BookingWidget() {
                 <div className="bmw__stepKicker">Step 3</div>
                 <div className="bmw__stepTitle">Pick a time</div>
               </div>
-              <div className="bmw__miniRight">
-                <span className="bmw__miniPill">{prettyDayLong(date)}</span>
-              </div>
+              <div className="bmw__miniRight"><span className="bmw__miniPill">{prettyDayLong(date)}</span></div>
             </div>
 
             {noSlots ? (
@@ -563,13 +582,7 @@ export default function BookingWidget() {
                   const best = t === nextLabelTime;
                   const end = service ? addMins(t, service.mins) : "";
                   return (
-                    <button
-                      key={t}
-                      type="button"
-                      className={`bmw__time ${active ? "is-active" : ""}`}
-                      onClick={() => onPickTime(t)}
-                      role="listitem"
-                    >
+                    <button key={t} type="button" className={`bmw__time ${active ? "is-active" : ""}`} onClick={() => onPickTime(t)} role="listitem">
                       <div className="bmw__timeTop">
                         <span className="bmw__sel" aria-hidden="true">{active ? "✓" : ""}</span>
                         {best ? <span className="bmw__badge">Next available</span> : null}
