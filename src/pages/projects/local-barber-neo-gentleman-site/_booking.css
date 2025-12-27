@@ -1,10 +1,17 @@
 /* =========================================================
-   BOOKING — clean single card + native date picker
+   BOOKING WIZARD — width aligned + barber photos + progressive subline
    ========================================================= */
 
-.bm3{ position:relative; }
+/* MATCH SITE WIDTH (1200) + same centering rhythm */
+.bmw{
+  width:100%;
+  max-width:1200px;
+  margin:0 auto;
+  padding:0 16px; /* keeps it aligned with other sections */
+  position:relative;
+}
 
-.bm3__card{
+.bmw__card{
   border-radius:22px;
   background:rgba(255,255,255,.03);
   border:1px solid rgba(255,255,255,.10);
@@ -12,22 +19,82 @@
   overflow:hidden;
 }
 
-/* sections: light separators only */
-.bm3__section{ padding:18px; }
-.bm3__section + .bm3__section{ border-top:1px solid rgba(255,255,255,.08); }
-
-.bm3__sectionHead{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-  margin-bottom:12px;
+/* header */
+.bmw__top{
+  padding:18px;
+  border-bottom:1px solid rgba(255,255,255,.08);
 }
-.bm3__kicker{ font-size:12px; letter-spacing:.14em; font-weight:900; color:rgba(255,255,255,.58); }
-.bm3__title{ margin-top:6px; font-size:18px; font-weight:950; color:rgba(255,255,255,.92); }
+.bmw__kicker{
+  font-size:12px;
+  letter-spacing:.14em;
+  font-weight:900;
+  color:rgba(255,255,255,.58);
+}
+.bmw__headline{
+  margin-top:6px;
+  font-size:18px;
+  font-weight:950;
+  color:rgba(255,255,255,.92);
+}
+.bmw__subline{
+  margin-top:10px;
+  color:rgba(255,255,255,.68);
+  font-size:12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 
-/* selected indicator */
-.bm3__sel{
+/* stage */
+.bmw__stage{
+  position:relative;
+  padding:18px;
+  /* removed min-height to kill empty void */
+}
+
+.bmw__panel{ display:block; }
+
+/* step header */
+.bmw__stepHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+.bmw__stepKicker{
+  font-size:12px;
+  letter-spacing:.14em;
+  font-weight:900;
+  color:rgba(255,255,255,.58);
+}
+.bmw__stepTitle{
+  margin-top:6px;
+  font-size:18px;
+  font-weight:950;
+  color:rgba(255,255,255,.92);
+}
+.bmw__miniRight{ display:flex; gap:8px; align-items:center; }
+.bmw__miniPill{
+  padding:8px 10px;
+  border-radius:999px;
+  background:rgba(0,0,0,.26);
+  border:1px solid rgba(255,255,255,.10);
+  color:rgba(255,255,255,.86);
+  font-weight:950;
+  font-size:12px;
+}
+
+.bmw__block{ margin-top:14px; }
+.bmw__labelRow{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+.bmw__label{
+  font-size:12px;
+  font-weight:950;
+  color:rgba(255,255,255,.82);
+}
+
+/* selection mark */
+.bmw__sel{
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -41,133 +108,179 @@
   font-size: 12px;
   flex: 0 0 auto;
 }
-.bm3__chip.is-active .bm3__sel,
-.bm3__time.is-active .bm3__sel{
-  border-color: rgba(210,170,110,.35);
-  background: rgba(210,170,110,.12);
-  box-shadow: 0 0 0 4px rgba(210,170,110,.10);
-}
 
-/* service chips */
-.bm3__chips{ display:flex; flex-wrap:wrap; gap:10px; }
-.bm3__chip{
+/* chips */
+.bmw__chips{ display:flex; flex-wrap:wrap; gap:10px; }
+
+.bmw__chip{
   display:flex;
-  align-items:baseline;
-  gap:10px;
+  align-items:center;              /* was baseline -> better with photos */
+  gap:12px;
   padding:10px 12px;
   border-radius:999px;
   background:rgba(255,255,255,.04);
   border:1px solid rgba(255,255,255,.10);
   color:rgba(255,255,255,.90);
   cursor:pointer;
-  min-height:44px;
+  min-height:52px;                /* slightly taller for avatar */
   transition:transform .14s ease, background .14s ease, border-color .14s ease;
 }
-.bm3__chip:hover{ transform:translateY(-1px); background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.14); }
-.bm3__chip.is-active{
+.bmw__chip:hover{ transform:translateY(-1px); background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.14); }
+
+.bmw__chip.is-active{
   border-color:rgba(210,170,110,.32);
   background:rgba(210,170,110,.10);
   box-shadow:0 0 0 4px rgba(210,170,110,.10);
   outline: 2px solid rgba(210,170,110,.16);
   outline-offset: 2px;
 }
-.bm3__chipMain{ font-weight:950; }
-.bm3__chipMeta{ font-size:12px; color:rgba(255,255,255,.62); font-weight:900; }
 
-.bm3__selectedLine{
-  margin-top:12px;
-  color:rgba(255,255,255,.68);
+.bmw__chip.is-active .bmw__sel{
+  border-color: rgba(210,170,110,.35);
+  background: rgba(210,170,110,.12);
+  box-shadow: 0 0 0 4px rgba(210,170,110,.10);
+}
+
+/* barber “photo” */
+.bmw__avatar{
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+  background: rgba(0,0,0,.25);
+  flex:0 0 auto;
+}
+.bmw__avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  filter:saturate(1.05) contrast(1.05);
+}
+
+/* chip text stack */
+.bmw__chipText{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+.bmw__chipMain{
+  font-weight:950;
+  line-height:1.05;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.bmw__chipMeta{
   font-size:12px;
-  max-width:64ch;
+  color:rgba(255,255,255,.62);
+  font-weight:900;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
-/* day capsule (Today label becomes picked date) */
-.bm3__dayCapsule{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:6px;
-  border-radius:999px;
-  background:rgba(0,0,0,.26);
-  border:1px solid rgba(255,255,255,.10);
+/* one-liner under services */
+.bmw__oneLine{
+  margin-top:10px;
+  color:rgba(255,255,255,.68);
+  font-size:12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
-.bm3__dayPill{
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  min-height:34px;
-  padding:8px 12px;
-  border-radius:999px;
+/* calendar */
+.bmw__calendar{
+  border-radius:16px;
+  background:rgba(0,0,0,.18);
   border:1px solid rgba(255,255,255,.10);
+  padding:12px;
+}
+.bmw__calTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.bmw__calMonth{
+  color:rgba(255,255,255,.92);
+  font-weight:950;
+  font-size:14px;
+}
+.bmw__calArrow{
+  width:38px;
+  height:38px;
+  border-radius:12px;
   background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.10);
+  color:rgba(255,255,255,.88);
+  cursor:pointer;
+}
+.bmw__calArrow:hover{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.14); }
+
+.bmw__calWeek{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:8px;
+  margin-bottom:8px;
+}
+.bmw__calW{
+  font-size:11px;
+  font-weight:900;
+  color:rgba(255,255,255,.55);
+  text-align:center;
+  padding:6px 0;
+}
+
+.bmw__calGrid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:8px;
+}
+.bmw__calEmpty{ height:38px; }
+
+.bmw__day{
+  height:38px;
+  border-radius:12px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.10);
   color:rgba(255,255,255,.86);
   font-weight:950;
   cursor:pointer;
   transition:transform .14s ease, background .14s ease, border-color .14s ease;
 }
-.bm3__dayPill:hover{ transform:translateY(-1px); background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.14); }
-.bm3__dayPill.is-active{
+.bmw__day:hover{ transform:translateY(-1px); background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.14); }
+.bmw__day:disabled{ opacity:.35; cursor:not-allowed; transform:none; }
+.bmw__day.is-today{ border-color:rgba(255,255,255,.18); }
+.bmw__day.is-active{
+  border-color:rgba(210,170,110,.34);
   background:rgba(210,170,110,.12);
-  border-color:rgba(210,170,110,.28);
   box-shadow:0 0 0 4px rgba(210,170,110,.10);
 }
 
-.bm3__dayDot{
-  width:8px; height:8px;
-  border-radius:999px;
-  background:rgba(255,255,255,.35);
-  box-shadow:0 0 0 3px rgba(255,255,255,.06);
-}
-.bm3__dayPill.is-active .bm3__dayDot{
-  background:rgba(210,170,110,.85);
-  box-shadow:0 0 0 3px rgba(210,170,110,.18);
-}
-.bm3__dayLabel{ font-size:12px; letter-spacing:.02em; white-space:nowrap; }
-
-.bm3__dayPick{
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  min-height:34px;
-  padding:8px 12px;
-  border-radius:999px;
-  background:transparent;
-  border:1px solid transparent;
-  color:rgba(255,255,255,.78);
-  font-weight:950;
-  cursor:pointer;
-  transition:background .14s ease, border-color .14s ease, transform .14s ease;
-}
-.bm3__dayPick:hover{
-  background:rgba(255,255,255,.06);
-  border-color:rgba(255,255,255,.12);
-  transform:translateY(-1px);
-}
-.bm3__cal{ opacity:.85; font-size:12px; }
-
-/* native date input hidden trigger */
-.bm3__dateInput{
-  width:0; height:0; opacity:0;
+.bmw__dateHidden{
   position:absolute;
-  pointer-events:none;
+  width:1px; height:1px;
+  opacity:0; pointer-events:none;
 }
 
-/* times row */
-.bm3__times{
+/* times */
+.bmw__times{
   display:flex;
   gap:10px;
   overflow:auto;
   padding-bottom:6px;
   scroll-snap-type:x mandatory;
 }
-.bm3__times::-webkit-scrollbar{ height:8px; }
-.bm3__times::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.10); border-radius:999px; }
+.bmw__times::-webkit-scrollbar{ height:8px; }
+.bmw__times::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.10); border-radius:999px; }
 
-.bm3__time{
+.bmw__time{
   flex:0 0 auto;
   scroll-snap-align:start;
   min-width:190px;
@@ -180,16 +293,21 @@
   text-align:left;
   transition:transform .14s ease, background .14s ease, border-color .14s ease;
 }
-.bm3__time:hover{ transform:translateY(-1px); background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.14); }
-.bm3__time.is-active{
+.bmw__time:hover{ transform:translateY(-1px); background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.14); }
+.bmw__time.is-active{
   border-color:rgba(210,170,110,.32);
   background:rgba(210,170,110,.10);
   box-shadow:0 0 0 4px rgba(210,170,110,.10);
   outline:2px solid rgba(210,170,110,.16);
   outline-offset:2px;
 }
-.bm3__timeTop{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
-.bm3__timeBadge{
+.bmw__time.is-active .bmw__sel{
+  border-color: rgba(210,170,110,.35);
+  background: rgba(210,170,110,.12);
+  box-shadow: 0 0 0 4px rgba(210,170,110,.10);
+}
+.bmw__timeTop{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.bmw__badge{
   display:inline-block;
   font-size:11px;
   font-weight:950;
@@ -199,46 +317,25 @@
   border:1px solid rgba(210,170,110,.22);
   color:rgba(255,255,255,.90);
 }
-.bm3__timeMain{ display:block; font-size:18px; font-weight:950; letter-spacing:.02em; }
-.bm3__timeSub{ display:block; margin-top:6px; font-size:12px; color:rgba(255,255,255,.66); }
+.bmw__timeMain{ display:block; font-size:18px; font-weight:950; letter-spacing:.02em; }
+.bmw__timeSub{ display:block; margin-top:6px; font-size:12px; color:rgba(255,255,255,.66); }
 
-/* empty state */
-.bm3__empty{
+/* empty */
+.bmw__empty{
   border-radius:16px;
   padding:14px;
   background:rgba(255,255,255,.03);
   border:1px solid rgba(255,255,255,.10);
 }
-.bm3__emptyT{ font-weight:950; color:rgba(255,255,255,.92); }
-.bm3__emptyS{ margin-top:6px; color:rgba(255,255,255,.66); font-size:12px; }
-.bm3__emptyActions{ margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; }
-.bm3__ghost{
-  min-height:34px;
-  padding:8px 12px;
-  border-radius:999px;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.10);
-  color:rgba(255,255,255,.86);
-  font-weight:950;
-  cursor:pointer;
-}
-.bm3__ghost:hover{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.14); }
+.bmw__emptyT{ font-weight:950; color:rgba(255,255,255,.92); }
+.bmw__emptyS{ margin-top:6px; color:rgba(255,255,255,.66); font-size:12px; }
 
-/* fields */
-.bm3__field{ display:block; }
-.bm3__label{
-  display:flex;
-  justify-content:space-between;
-  align-items:baseline;
-  font-size:12px;
-  font-weight:950;
-  color:rgba(255,255,255,.82);
-  margin-bottom:8px;
-}
+/* details */
+.bmw__detailsWrap{ margin-top:16px; }
+.bmw__field{ display:block; }
+.bmw__inputWrap{ position:relative; }
 
-.bm3__inputWrap{ position:relative; }
-
-.bm3__input{
+.bmw__input{
   width:100%;
   min-height:44px;
   padding:10px 12px;
@@ -249,15 +346,13 @@
   outline:none;
   transition:border-color .14s ease, box-shadow .14s ease, background .14s ease;
 }
-.bm3__input:focus{
+.bmw__input:focus{
   border-color:rgba(210,170,110,.34);
   box-shadow:0 0 0 4px rgba(210,170,110,.14);
 }
-.bm3__input.is-warnSoft{
-  border-color:rgba(255,255,255,.16);
-  box-shadow:none;
-}
-.bm3__okTick{
+.bmw__input.is-warnSoft{ border-color:rgba(255,255,255,.16); box-shadow:none; }
+
+.bmw__okTick{
   position:absolute;
   right:12px;
   top:50%;
@@ -272,23 +367,12 @@
   color:rgba(220,255,235,.95);
   font-weight:950;
 }
-.bm3__textarea{ min-height:96px; resize:vertical; }
+.bmw__textarea{ min-height:96px; resize:vertical; }
 
-.bm3__hint{
-  display:block;
-  margin-top:8px;
-  font-size:12px;
-  color:rgba(255,255,255,.62);
-}
-.bm3__softErr{
-  display:block;
-  margin-top:6px;
-  font-size:12px;
-  color:rgba(255,255,255,.62);
-}
+.bmw__hint{ display:block; margin-top:8px; font-size:12px; color:rgba(255,255,255,.62); }
+.bmw__softErr{ display:block; margin-top:6px; font-size:12px; color:rgba(255,255,255,.62); }
 
-/* optional details */
-.bm3__detailsToggle{
+.bmw__detailsToggle{
   margin-top:12px;
   width:100%;
   min-height:44px;
@@ -303,14 +387,14 @@
   align-items:center;
   justify-content:space-between;
 }
-.bm3__chev{ color:rgba(210,170,110,.95); }
+.bmw__chev{ color:rgba(210,170,110,.95); }
 
-.bm3__details{ margin-top:10px; display:none; }
-.bm3__details.is-open{ display:block; }
-.bm3__detailsInner{ padding-top:10px; display:grid; gap:12px; }
+.bmw__details{ margin-top:10px; display:none; }
+.bmw__details.is-open{ display:block; }
+.bmw__detailsInner{ padding-top:10px; display:grid; gap:12px; }
 
-.bm3__noteChips{ display:flex; gap:8px; flex-wrap:wrap; }
-.bm3__noteChip{
+.bmw__noteChips{ display:flex; gap:8px; flex-wrap:wrap; }
+.bmw__noteChip{
   min-height:34px;
   padding:8px 10px;
   border-radius:999px;
@@ -320,11 +404,10 @@
   font-weight:900;
   cursor:pointer;
 }
-.bm3__noteChip:hover{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.14); }
+.bmw__noteChip:hover{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.14); }
 
-/* sent */
-.bm3__sent{
-  margin:18px;
+.bmw__sent{
+  margin-top:12px;
   padding:12px 14px;
   border-radius:14px;
   background:rgba(120,255,180,.08);
@@ -334,38 +417,27 @@
   font-size:12px;
 }
 
-/* spacer so sticky doesn't cover content */
-.bm3__spacer{ height:92px; }
-
-/* sticky checkout (summary NOT clickable) */
-.bm3__sticky{
-  position:fixed;
-  left:0; right:0; bottom:0;
-  z-index:9999;
-  background:rgba(0,0,0,.82);
-  border-top:1px solid rgba(255,255,255,.10);
-  backdrop-filter:blur(10px);
-}
-.bm3__stickyInner{
-  max-width:1200px;
-  margin:0 auto;
-  padding:12px 14px;
+/* nav */
+.bmw__nav{
+  margin-top:16px;
   display:flex;
-  align-items:center;
-  gap:12px;
+  gap:10px;
+  justify-content:space-between;
 }
-.bm3__stickyText{
-  flex:1;
-  min-width:0;
-  color:rgba(255,255,255,.88);
+.bmw__btnGhost{
+  min-height:44px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.10);
+  color:rgba(255,255,255,.86);
   font-weight:950;
-  font-size:12px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  cursor:pointer;
 }
+.bmw__btnGhost:hover{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.14); }
+.bmw__btnGhost:disabled{ opacity:.4; cursor:not-allowed; }
 
-.bm3__stickyCta{
+.bmw__btn{
   min-height:44px;
   padding:10px 14px;
   border-radius:999px;
@@ -374,34 +446,76 @@
   color:rgba(255,255,255,.78);
   font-weight:950;
   cursor:not-allowed;
-  position:relative;
-  overflow:hidden;
   transition:transform .14s ease, background .14s ease, border-color .14s ease, color .14s ease;
   white-space:nowrap;
 }
-.bm3__stickyCta.is-ready{
+.bmw__btn.is-ready{
   cursor:pointer;
   background:rgba(210,170,110,.18);
   border-color:rgba(210,170,110,.28);
   color:rgba(255,255,255,.96);
 }
-.bm3__stickyCta.is-ready:hover{
+.bmw__btn.is-ready:hover{
   transform:translateY(-1px);
   background:rgba(210,170,110,.22);
 }
-.bm3__stickyCta.is-loading{ opacity:.9; }
+.bmw__btn:disabled{ opacity:.75; }
+.bmw__btn.is-loading{ opacity:.9; }
 
-.bm3__ctaGlow{
-  position:absolute;
-  inset:-60%;
-  background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), transparent 55%);
-  transform:translateX(-30%);
-  opacity:0;
-  transition:opacity .2s ease;
+/* progress bottom */
+.bmw__progress{
+  padding:14px 18px 18px;
+  border-top:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.14);
 }
-.bm3__stickyCta.is-ready .bm3__ctaGlow{ opacity:.85; }
+.bmw__progressTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.bmw__pLabel{ font-size:12px; font-weight:900; color:rgba(255,255,255,.62); letter-spacing:.10em; text-transform:uppercase; }
+.bmw__pVal{ font-size:12px; font-weight:950; color:rgba(255,255,255,.86); }
+
+.bmw__bar{
+  height:8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+  overflow:hidden;
+}
+.bmw__barFill{
+  height:100%;
+  border-radius:999px;
+  background:rgba(210,170,110,.40);
+  border-right:1px solid rgba(210,170,110,.38);
+  box-shadow:0 0 0 4px rgba(210,170,110,.10);
+  transition:width .22s ease;
+}
+.bmw__dots{
+  margin-top:10px;
+  display:flex;
+  gap:8px;
+}
+.bmw__dot{
+  width:8px; height:8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.18);
+}
+.bmw__dot.is-on{
+  background:rgba(210,170,110,.78);
+  box-shadow:0 0 0 3px rgba(210,170,110,.12);
+}
+
+/* responsive */
+@media (max-width:520px){
+  .bmw{ padding:0 12px; }
+  .bmw__chip{ width:100%; justify-content:space-between; }
+  .bmw__chipText{ max-width: calc(100% - 34px - 18px - 24px); }
+}
 
 /* reduced motion */
 @media (prefers-reduced-motion: reduce){
-  .bm3__chip, .bm3__time, .bm3__stickyCta, .bm3__dayPill, .bm3__dayPick{ transition:none !important; }
+  .bmw__chip, .bmw__time, .bmw__btn, .bmw__btnGhost, .bmw__barFill, .bmw__day{ transition:none !important; }
 }

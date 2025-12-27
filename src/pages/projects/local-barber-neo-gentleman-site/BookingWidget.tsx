@@ -2,14 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import Lenis from "@studio-freight/lenis";
 
+type BarberKey = "mason" | "oliver" | "theo";
 type ServiceKey = "skinfade" | "haircutbeard" | "hottowel";
-type Service = { key: ServiceKey; name: string; mins: number; price: number; desc: string };
 
-const SERVICES: Service[] = [
-  { key: "skinfade", name: "Skin fade", mins: 50, price: 28, desc: "Clean blend, crisp edges." },
-  { key: "haircutbeard", name: "Haircut + beard", mins: 60, price: 30, desc: "Full refresh, tidy finish." },
-  { key: "hottowel", name: "Hot towel shave", mins: 30, price: 18, desc: "Warm towel, smooth close." },
-];
+type Barber = { key: BarberKey; name: string; role: string; photo: string };
+type Service = { key: ServiceKey; name: string; mins: number; price: number; desc: string };
 
 const NOTE_CHIPS = ["Beard trim", "Skin fade length", "Sensitive skin", "No clipper zero"] as const;
 
@@ -33,6 +30,9 @@ function isSameDay(a: Date, b: Date) {
 }
 function prettyDayLong(d: Date) {
   return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "2-digit", month: "short" }).format(d);
+}
+function prettyMonth(d: Date) {
+  return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(d);
 }
 function isoForInput(d: Date) {
   const yyyy = d.getFullYear();
@@ -110,21 +110,82 @@ function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+/** inline “photo” avatars (works out of the box, can be swapped for real JPG later) */
+function avatarDataURI(seed: string, accent: string) {
+  const initial = seed.trim().slice(0, 1).toUpperCase();
+  const svg = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+    <defs>
+      <radialGradient id="g" cx="35%" cy="28%" r="80%">
+        <stop offset="0" stop-color="${accent}" stop-opacity="0.35"/>
+        <stop offset="1" stop-color="#0b0b0b" stop-opacity="1"/>
+      </radialGradient>
+      <linearGradient id="s" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ffffff" stop-opacity="0.14"/>
+        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect width="128" height="128" rx="64" fill="url(#g)"/>
+    <rect x="8" y="8" width="112" height="112" rx="56" fill="none" stroke="url(#s)"/>
+    <!-- silhouette -->
+    <path d="M64 72c14 0 26 8 30 20 1 3-1 6-5 6H39c-4 0-6-3-5-6 4-12 16-20 30-20z" fill="#ffffff" opacity="0.12"/>
+    <circle cx="64" cy="50" r="16" fill="#ffffff" opacity="0.14"/>
+    <!-- initial (subtle) -->
+    <text x="64" y="114" text-anchor="middle" font-family="ui-sans-serif,system-ui" font-size="16" fill="#ffffff" opacity="0.35" font-weight="800">${initial}</text>
+  </svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+const BARBERS: Barber[] = [
+  { key: "mason", name: "Mason", role: "Senior Barber", photo: avatarDataURI("Mason", "#d2aa6e") },
+  { key: "oliver", name: "Oliver", role: "Skin Fade Specialist", photo: avatarDataURI("Oliver", "#c8a46a") },
+  { key: "theo", name: "Theo", role: "Classic Cuts", photo: avatarDataURI("Theo", "#b99254") },
+];
+
+const SERVICES: Service[] = [
+  { key: "skinfade", name: "Skin fade", mins: 50, price: 28, desc: "Clean blend, crisp edges." },
+  { key: "haircutbeard", name: "Haircut + beard", mins: 60, price: 30, desc: "Full refresh, tidy finish." },
+  { key: "hottowel", name: "Hot towel shave", mins: 30, price: 18, desc: "Warm towel, smooth close." },
+];
+
+/** calendar grid */
+function getMonthGrid(view: Date) {
+  const y = view.getFullYear();
+  const m = view.getMonth();
+  const first = new Date(y, m, 1);
+  const last = new Date(y, m + 1, 0);
+  const startWeekday = (first.getDay() + 6) % 7; // Monday=0
+  const daysInMonth = last.getDate();
+
+  const cells: Array<{ date: Date | null; label: string }> = [];
+  for (let i = 0; i < startWeekday; i++) cells.push({ date: null, label: "" });
+  for (let d = 1; d <= daysInMonth; d++) cells.push({ date: new Date(y, m, d), label: String(d) });
+  while (cells.length % 7 !== 0) cells.push({ date: null, label: "" });
+
+  return { cells };
+}
+
 export default function BookingWidget() {
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const stickyRef = useRef<HTMLDivElement | null>(null);
-  const dateInputRef = useRef<HTMLInputElement | null>(null);
+  const p1Ref = useRef<HTMLDivElement | null>(null);
+  const p2Ref = useRef<HTMLDivElement | null>(null);
+  const p3Ref = useRef<HTMLDivElement | null>(null);
+
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const [barberKey, setBarberKey] = useState<BarberKey | null>(null);
+  const barber = useMemo(() => BARBERS.find((b) => b.key === barberKey) || null, [barberKey]);
 
   const [serviceKey, setServiceKey] = useState<ServiceKey | null>(null);
   const service = useMemo(() => SERVICES.find((s) => s.key === serviceKey) || null, [serviceKey]);
 
-  const [date, setDate] = useState<Date>(new Date());
+  const [date, setDate] = useState<Date>(startOfDay(new Date()));
   const [time, setTime] = useState<string>("");
 
+  const [showDetails, setShowDetails] = useState(false);
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
-  const [showDetails, setShowDetails] = useState(false);
 
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -143,16 +204,75 @@ export default function BookingWidget() {
     requestAnimationFrame(raf);
   }, []);
 
-  // Minimal GSAP entrance
+  // Entrance
   useEffect(() => {
     if (!rootRef.current) return;
     if (prefersReducedMotion()) return;
     gsap.fromTo(rootRef.current, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" });
   }, []);
 
+  const panelRefFor = (s: 1 | 2 | 3) => (s === 1 ? p1Ref : s === 2 ? p2Ref : p3Ref);
+
+  const transitionTo = (next: 1 | 2 | 3) => {
+    if (next === step) return;
+
+    const reduce = prefersReducedMotion();
+    const curEl = panelRefFor(step).current;
+    const nextEl = panelRefFor(next).current;
+
+    setSent(false);
+
+    if (!curEl || !nextEl || reduce) {
+      setStep(next);
+      return;
+    }
+
+    gsap.set(nextEl, { autoAlpha: 0, x: next > step ? 26 : -26, pointerEvents: "none" });
+    gsap.set(curEl, { pointerEvents: "none" });
+    gsap.set([p1Ref.current, p2Ref.current, p3Ref.current], { position: "absolute", inset: 0 });
+
+    gsap.set(nextEl, { display: "block" });
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        setStep(next);
+        requestAnimationFrame(() => {
+          const active = panelRefFor(next).current;
+          if (!active) return;
+
+          [p1Ref.current, p2Ref.current, p3Ref.current].forEach((el) => {
+            if (!el) return;
+            if (el === active) {
+              gsap.set(el, { clearProps: "position,inset,x", autoAlpha: 1, display: "block", pointerEvents: "auto" });
+            } else {
+              gsap.set(el, { autoAlpha: 0, display: "none", pointerEvents: "none", clearProps: "position,inset,x" });
+            }
+          });
+        });
+      },
+    });
+
+    tl.to(curEl, { autoAlpha: 0, x: next > step ? -26 : 26, duration: 0.20, ease: "power2.out" }, 0);
+    tl.to(nextEl, { autoAlpha: 1, x: 0, duration: 0.24, ease: "power2.out" }, 0.05);
+  };
+
+  // Keep non-active panels hidden after first render
+  useEffect(() => {
+    [p1Ref.current, p2Ref.current, p3Ref.current].forEach((el, idx) => {
+      if (!el) return;
+      const s = (idx + 1) as 1 | 2 | 3;
+      if (s === step) {
+        gsap.set(el, { autoAlpha: 1, display: "block", pointerEvents: "auto" });
+      } else {
+        gsap.set(el, { autoAlpha: 0, display: "none", pointerEvents: "none" });
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Times
   const baseTimes = useMemo(() => buildTimesForDate(date), [date]);
   const times = useMemo(() => (service ? filterTimesForService(baseTimes, service.mins) : baseTimes), [baseTimes, service]);
-
   const noSlots = times.length === 0;
 
   const nextLabelTime = useMemo(() => {
@@ -166,40 +286,33 @@ export default function BookingWidget() {
     return addMins(time, service.mins);
   }, [service, time]);
 
-  const isTodaySelected = useMemo(() => isSameDay(date, new Date()), [date]);
-  const dayChipLabel = useMemo(() => (isTodaySelected ? "Today" : prettyDayLong(date)), [isTodaySelected, date]);
-
   const phoneOk = isPhoneValid(phone);
   const phoneSoftError = phone.length > 0 && !phoneOk ? "That number looks short" : "";
 
-  const canConfirm = !!service && !!time && phoneOk && !sending;
-
-  const summaryLeft = useMemo(() => {
-    if (!service) return "Choose a service";
-    const d = prettyDayLong(date);
-    if (!time) return `${service.name} • ${d} • Pick a time`;
-    return `${service.name} • ${d} • ${time}${endTime ? `–${endTime}` : ""}`;
-  }, [service, date, time, endTime]);
-
-  const ctaRight = useMemo(() => {
-    if (!service) return "Choose a service";
-    if (!time) return "Pick a time";
-    if (!phoneOk) return "Add phone";
-    return `Confirm — £${service.price}`;
-  }, [service, time, phoneOk]);
-
+  // Calendar view month
+  const [viewMonth, setViewMonth] = useState<Date>(() => new Date(date.getFullYear(), date.getMonth(), 1));
   useEffect(() => {
-    if (!stickyRef.current) return;
-    if (prefersReducedMotion()) return;
-    gsap.fromTo(stickyRef.current, { y: 8, opacity: 0.92 }, { y: 0, opacity: 1, duration: 0.16, ease: "power2.out" });
-  }, [summaryLeft, ctaRight, canConfirm, sending]);
+    setViewMonth(new Date(date.getFullYear(), date.getMonth(), 1));
+  }, [date]);
+
+  const grid = useMemo(() => getMonthGrid(viewMonth), [viewMonth]);
+  const minDay = useMemo(() => startOfDay(new Date()), []);
+  const isDisabledDay = (d: Date) => startOfDay(d) < minDay;
+
+  const pickDate = (d: Date) => {
+    setDate(startOfDay(d));
+    setTime("");
+    setSent(false);
+  };
+
+  const onPickBarber = (k: BarberKey) => {
+    setBarberKey(k);
+    setSent(false);
+  };
 
   const onPickService = (k: ServiceKey) => {
     setServiceKey(k);
-    setTime("");
     setSent(false);
-
-    // one gentle pulse on active chip
     if (!prefersReducedMotion() && rootRef.current) {
       const el = rootRef.current.querySelector(`[data-service="${k}"]`);
       if (el) gsap.fromTo(el, { scale: 0.99 }, { scale: 1, duration: 0.18, ease: "power2.out" });
@@ -211,27 +324,6 @@ export default function BookingWidget() {
     setSent(false);
   };
 
-  const setToday = () => {
-    setDate(startOfDay(new Date()));
-    setTime("");
-    setSent(false);
-  };
-
-  const openDatePicker = () => {
-    dateInputRef.current?.showPicker?.();
-    dateInputRef.current?.click();
-  };
-
-  const onDateChange = (iso: string) => {
-    if (!iso) return;
-    const d = parseISO(iso);
-    setDate(startOfDay(d));
-    setTime("");
-    setSent(false);
-  };
-
-  const toggleDetails = () => setShowDetails((v) => !v);
-
   const addNoteChip = (txt: string) => {
     setShowDetails(true);
     setNotes((prev) => {
@@ -242,10 +334,31 @@ export default function BookingWidget() {
     });
   };
 
+  const step1Ready = !!barber && !!service;
+  const step2Ready = !!date;
+  const step3Ready = !!time && phoneOk;
+
+  const progress = step === 1 ? 0.33 : step === 2 ? 0.66 : 1;
+
+  /** bmw__subline — ONLY real selected data, progressively */
+  const sublineText = useMemo(() => {
+    const parts: string[] = [];
+    if (barber) parts.push(barber.name);
+    if (service) parts.push(`${service.name} · £${service.price}`);
+    if (service && date) parts.push(prettyDayLong(date));
+    if (service && date && time && endTime) parts.push(`${time}–${endTime}`);
+    return parts.join(" • ");
+  }, [barber, service, date, time, endTime]);
+
+  const confirmLabel = useMemo(() => {
+    if (!step3Ready) return "Confirm";
+    return `Confirm — £${service?.price ?? ""}`;
+  }, [step3Ready, service]);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSent(false);
-    if (!canConfirm) return;
+    if (!step3Ready || sending) return;
 
     setSending(true);
     await new Promise((r) => setTimeout(r, 850));
@@ -254,208 +367,302 @@ export default function BookingWidget() {
   };
 
   return (
-    <div className="bm3" ref={rootRef}>
-      <form className="bm3__card" onSubmit={onSubmit} aria-label="Booking form">
-        {/* SERVICE */}
-        <section className="bm3__section">
-          <header className="bm3__sectionHead">
-            <div>
-              <div className="bm3__kicker">Service</div>
-              <div className="bm3__title">Choose what you want</div>
-            </div>
-          </header>
+    <div className="bmw" ref={rootRef}>
+      <form className="bmw__card" onSubmit={onSubmit} aria-label="Booking wizard">
+        <div className="bmw__top">
+          <div className="bmw__kicker">Book online</div>
+          <div className="bmw__headline">A clean cut, booked in minutes.</div>
+          {sublineText ? <div className="bmw__subline">{sublineText}</div> : null}
+        </div>
 
-          <div className="bm3__chips" role="list">
-            {SERVICES.map((s) => {
-              const active = s.key === serviceKey;
-              return (
-                <button
-                  key={s.key}
-                  type="button"
-                  className={`bm3__chip ${active ? "is-active" : ""}`}
-                  onClick={() => onPickService(s.key)}
-                  data-service={s.key}
-                  role="listitem"
-                >
-                  <span className="bm3__sel" aria-hidden="true">
-                    {active ? "✓" : ""}
-                  </span>
-                  <span className="bm3__chipMain">{s.name}</span>
-                  <span className="bm3__chipMeta">
-                    {s.mins}m • £{s.price}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="bm3__selectedLine" aria-live="polite">
-            {service ? service.desc : ""}
-          </div>
-        </section>
-
-        {/* DATE + TIME (no fold, no auto-scroll) */}
-        <section className="bm3__section">
-          <header className="bm3__sectionHead">
-            <div>
-              <div className="bm3__kicker">Date & time</div>
-              <div className="bm3__title">Pick your slot</div>
-            </div>
-
-            <div className="bm3__dayCapsule" role="group" aria-label="Day selection">
-              <button
-                type="button"
-                className={`bm3__dayPill ${isTodaySelected ? "is-active" : ""}`}
-                onClick={setToday}
-                aria-pressed={isTodaySelected}
-              >
-                <span className="bm3__dayDot" aria-hidden="true" />
-                <span className="bm3__dayLabel">{dayChipLabel}</span>
-              </button>
-
-              <button type="button" className="bm3__dayPick" onClick={openDatePicker}>
-                <span className="bm3__cal" aria-hidden="true">
-                  ▦
-                </span>
-                Choose date
-              </button>
-
-              {/* native date picker */}
-              <input
-                ref={dateInputRef}
-                className="bm3__dateInput"
-                type="date"
-                value={isoForInput(date)}
-                min={isoForInput(new Date())}
-                onChange={(e) => onDateChange(e.target.value)}
-                aria-label="Choose date"
-              />
-            </div>
-          </header>
-
-          {noSlots ? (
-            <div className="bm3__empty">
-              <div className="bm3__emptyT">No slots on this date.</div>
-              <div className="bm3__emptyS">Try another day.</div>
-              <div className="bm3__emptyActions">
-                <button type="button" className="bm3__ghost" onClick={openDatePicker}>
-                  Choose date
-                </button>
-                <button type="button" className="bm3__ghost" onClick={setToday}>
-                  Back to today
-                </button>
+        <div className="bmw__stage" aria-live="polite">
+          {/* PANEL 1 */}
+          <div ref={p1Ref} className="bmw__panel" aria-hidden={step !== 1}>
+            <div className="bmw__stepHead">
+              <div>
+                <div className="bmw__stepKicker">Step 1</div>
+                <div className="bmw__stepTitle">Pick barber + service</div>
               </div>
             </div>
-          ) : (
-            <div className="bm3__times" role="list" aria-label="Available time slots">
-              {times.map((t) => {
-                const active = t === time;
-                const isBest = t === nextLabelTime;
-                const end = service ? addMins(t, service.mins) : "";
-                return (
-                  <button
-                    key={t}
-                    type="button"
-                    className={`bm3__time ${active ? "is-active" : ""}`}
-                    onClick={() => onPickTime(t)}
-                    role="listitem"
-                  >
-                    <div className="bm3__timeTop">
-                      <span className="bm3__sel" aria-hidden="true">
-                        {active ? "✓" : ""}
+
+            <div className="bmw__block">
+              <div className="bmw__labelRow">
+                <span className="bmw__label">Barber</span>
+              </div>
+
+              <div className="bmw__chips" role="list">
+                {BARBERS.map((b) => {
+                  const active = b.key === barberKey;
+                  return (
+                    <button
+                      key={b.key}
+                      type="button"
+                      className={`bmw__chip ${active ? "is-active" : ""}`}
+                      onClick={() => onPickBarber(b.key)}
+                      role="listitem"
+                    >
+                      <span className="bmw__avatar" aria-hidden="true">
+                        <img src={b.photo} alt="" loading="lazy" />
                       </span>
-                      {isBest ? <span className="bm3__timeBadge">Next available</span> : null}
-                    </div>
-                    <span className="bm3__timeMain">{t}</span>
-                    <span className="bm3__timeSub">{service ? `${t}–${end} · Ends ${end}` : "Select service for range"}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </section>
 
-        {/* PHONE (no fold, no auto-focus) */}
-        <section className="bm3__section">
-          <header className="bm3__sectionHead">
-            <div>
-              <div className="bm3__kicker">Your phone</div>
-              <div className="bm3__title">We’ll text to confirm</div>
-            </div>
-          </header>
+                      <span className="bmw__chipText">
+                        <span className="bmw__chipMain">{b.name}</span>
+                        <span className="bmw__chipMeta">{b.role}</span>
+                      </span>
 
-          <label className="bm3__field">
-            <span className="bm3__label">Phone*</span>
-
-            <div className="bm3__inputWrap">
-              <input
-                className={`bm3__input ${phone && !phoneOk ? "is-warnSoft" : ""}`}
-                value={phone}
-                onChange={(e) => setPhone(formatUKPhone(e.target.value))}
-                placeholder="+44 7xxx xxx xxx"
-                autoComplete="tel"
-                inputMode="tel"
-                required
-                aria-invalid={phone ? String(!phoneOk) : "false"}
-              />
-              {phoneOk ? <span className="bm3__okTick" aria-hidden="true">✓</span> : null}
+                      <span className="bmw__sel" aria-hidden="true">{active ? "✓" : ""}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            <span className="bm3__hint">Text confirmation only. No spam.</span>
-            {phoneSoftError ? <span className="bm3__softErr">{phoneSoftError}</span> : null}
-          </label>
+            <div className="bmw__block">
+              <div className="bmw__labelRow">
+                <span className="bmw__label">Service</span>
+              </div>
 
-          <button type="button" className="bm3__detailsToggle" onClick={toggleDetails} aria-expanded={showDetails}>
-            {showDetails ? "Hide details" : "Add details (optional)"}
-            <span className="bm3__chev" aria-hidden="true">▾</span>
-          </button>
+              <div className="bmw__chips" role="list">
+                {SERVICES.map((s) => {
+                  const active = s.key === serviceKey;
+                  return (
+                    <button
+                      key={s.key}
+                      type="button"
+                      className={`bmw__chip ${active ? "is-active" : ""}`}
+                      onClick={() => onPickService(s.key)}
+                      data-service={s.key}
+                      role="listitem"
+                    >
+                      <span className="bmw__chipText">
+                        <span className="bmw__chipMain">{s.name}</span>
+                        <span className="bmw__chipMeta">{s.mins}m • £{s.price}</span>
+                      </span>
 
-          <div className={`bm3__details ${showDetails ? "is-open" : ""}`}>
-            <div className="bm3__detailsInner">
-              <label className="bm3__field">
-                <span className="bm3__label">Name</span>
-                <input className="bm3__input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" />
-              </label>
+                      <span className="bmw__sel" aria-hidden="true">{active ? "✓" : ""}</span>
+                    </button>
+                  );
+                })}
+              </div>
 
-              <div className="bm3__noteChips" role="list" aria-label="Quick notes">
-                {NOTE_CHIPS.map((c) => (
-                  <button key={c} type="button" className="bm3__noteChip" onClick={() => addNoteChip(c)} role="listitem">
-                    + {c}
-                  </button>
+              <div className="bmw__oneLine">
+                {service ? service.desc : "Choose a service to continue."}
+              </div>
+            </div>
+
+            <div className="bmw__nav">
+              <button type="button" className="bmw__btnGhost" disabled>Back</button>
+              <button type="button" className={`bmw__btn ${step1Ready ? "is-ready" : ""}`} onClick={() => transitionTo(2)} disabled={!step1Ready}>
+                Next
+              </button>
+            </div>
+          </div>
+
+          {/* PANEL 2 */}
+          <div ref={p2Ref} className="bmw__panel" aria-hidden={step !== 2}>
+            <div className="bmw__stepHead">
+              <div>
+                <div className="bmw__stepKicker">Step 2</div>
+                <div className="bmw__stepTitle">Choose a date</div>
+              </div>
+              <div className="bmw__miniRight">
+                <span className="bmw__miniPill">{prettyDayLong(date)}</span>
+              </div>
+            </div>
+
+            <div className="bmw__calendar">
+              <div className="bmw__calTop">
+                <button
+                  type="button"
+                  className="bmw__calArrow"
+                  onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
+                  aria-label="Previous month"
+                >
+                  ‹
+                </button>
+                <div className="bmw__calMonth">{prettyMonth(viewMonth)}</div>
+                <button
+                  type="button"
+                  className="bmw__calArrow"
+                  onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
+                  aria-label="Next month"
+                >
+                  ›
+                </button>
+              </div>
+
+              <div className="bmw__calWeek">
+                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((w) => (
+                  <div key={w} className="bmw__calW">{w}</div>
                 ))}
               </div>
 
-              <label className="bm3__field">
-                <span className="bm3__label">Notes</span>
-                <textarea
-                  className="bm3__input bm3__textarea"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
-                  placeholder="Beard trim? Skin fade length? Any allergies?"
-                />
-              </label>
+              <div className="bmw__calGrid" role="grid" aria-label="Calendar">
+                {grid.cells.map((c, idx) => {
+                  if (!c.date) return <div key={idx} className="bmw__calEmpty" aria-hidden="true" />;
+                  const d = c.date;
+                  const disabled = isDisabledDay(d);
+                  const active = isSameDay(d, date);
+                  const today = isSameDay(d, new Date());
+
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`bmw__day ${active ? "is-active" : ""} ${today ? "is-today" : ""}`}
+                      onClick={() => pickDate(d)}
+                      disabled={disabled}
+                      aria-pressed={active}
+                    >
+                      {d.getDate()}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <input
+                className="bmw__dateHidden"
+                type="date"
+                value={isoForInput(date)}
+                min={isoForInput(new Date())}
+                onChange={(e) => pickDate(parseISO(e.target.value))}
+                aria-label="Date input"
+              />
+            </div>
+
+            <div className="bmw__nav">
+              <button type="button" className="bmw__btnGhost" onClick={() => transitionTo(1)}>Back</button>
+              <button type="button" className={`bmw__btn ${step2Ready ? "is-ready" : ""}`} onClick={() => transitionTo(3)} disabled={!step2Ready}>
+                Next
+              </button>
             </div>
           </div>
-        </section>
 
-        {sent ? (
-          <div className="bm3__sent" role="status">
-            Request sent. We’ll text you soon.
+          {/* PANEL 3 */}
+          <div ref={p3Ref} className="bmw__panel" aria-hidden={step !== 3}>
+            <div className="bmw__stepHead">
+              <div>
+                <div className="bmw__stepKicker">Step 3</div>
+                <div className="bmw__stepTitle">Pick a time</div>
+              </div>
+              <div className="bmw__miniRight">
+                <span className="bmw__miniPill">{prettyDayLong(date)}</span>
+              </div>
+            </div>
+
+            {noSlots ? (
+              <div className="bmw__empty">
+                <div className="bmw__emptyT">No slots on this date.</div>
+                <div className="bmw__emptyS">Pick another date.</div>
+                <button type="button" className="bmw__btnGhost" onClick={() => transitionTo(2)}>Back to calendar</button>
+              </div>
+            ) : (
+              <div className="bmw__times" role="list" aria-label="Time slots">
+                {times.map((t) => {
+                  const active = t === time;
+                  const best = t === nextLabelTime;
+                  const end = service ? addMins(t, service.mins) : "";
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      className={`bmw__time ${active ? "is-active" : ""}`}
+                      onClick={() => onPickTime(t)}
+                      role="listitem"
+                    >
+                      <div className="bmw__timeTop">
+                        <span className="bmw__sel" aria-hidden="true">{active ? "✓" : ""}</span>
+                        {best ? <span className="bmw__badge">Next available</span> : null}
+                      </div>
+                      <div className="bmw__timeMain">{t}</div>
+                      <div className="bmw__timeSub">{service ? `${t}–${end} · Ends ${end}` : "Select service for range"}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="bmw__detailsWrap">
+              <label className="bmw__field">
+                <span className="bmw__label">Phone*</span>
+                <div className="bmw__inputWrap">
+                  <input
+                    className={`bmw__input ${phone && !phoneOk ? "is-warnSoft" : ""}`}
+                    value={phone}
+                    onChange={(e) => setPhone(formatUKPhone(e.target.value))}
+                    placeholder="+44 7xxx xxx xxx"
+                    autoComplete="tel"
+                    inputMode="tel"
+                    required
+                    aria-invalid={phone ? String(!phoneOk) : "false"}
+                  />
+                  {phoneOk ? <span className="bmw__okTick" aria-hidden="true">✓</span> : null}
+                </div>
+                <span className="bmw__hint">Text confirmation only. No spam.</span>
+                {phoneSoftError ? <span className="bmw__softErr">{phoneSoftError}</span> : null}
+              </label>
+
+              <button type="button" className="bmw__detailsToggle" onClick={() => setShowDetails((v) => !v)} aria-expanded={showDetails}>
+                {showDetails ? "Hide details" : "Add details (optional)"}
+                <span className="bmw__chev" aria-hidden="true">▾</span>
+              </button>
+
+              <div className={`bmw__details ${showDetails ? "is-open" : ""}`}>
+                <div className="bmw__detailsInner">
+                  <label className="bmw__field">
+                    <span className="bmw__label">Name</span>
+                    <input className="bmw__input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" />
+                  </label>
+
+                  <div className="bmw__noteChips" role="list" aria-label="Quick notes">
+                    {NOTE_CHIPS.map((c) => (
+                      <button key={c} type="button" className="bmw__noteChip" onClick={() => addNoteChip(c)} role="listitem">
+                        + {c}
+                      </button>
+                    ))}
+                  </div>
+
+                  <label className="bmw__field">
+                    <span className="bmw__label">Notes</span>
+                    <textarea
+                      className="bmw__input bmw__textarea"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      rows={3}
+                      placeholder="Beard trim? Skin fade length? Any allergies?"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {sent ? (
+                <div className="bmw__sent" role="status">
+                  Request sent. We’ll text you soon.
+                </div>
+              ) : null}
+            </div>
+
+            <div className="bmw__nav">
+              <button type="button" className="bmw__btnGhost" onClick={() => transitionTo(2)}>Back</button>
+              <button type="submit" className={`bmw__btn ${step3Ready ? "is-ready" : ""} ${sending ? "is-loading" : ""}`} disabled={!step3Ready || sending}>
+                {sending ? "Sending…" : confirmLabel}
+              </button>
+            </div>
           </div>
-        ) : null}
+        </div>
 
-        <div className="bm3__spacer" aria-hidden="true" />
-
-        {/* STICKY CHECKOUT (NOT clickable) */}
-        <div className="bm3__sticky" ref={stickyRef} aria-label="Checkout bar">
-          <div className="bm3__stickyInner">
-            <div className="bm3__stickyText">{summaryLeft}</div>
-
-            <button className={`bm3__stickyCta ${canConfirm ? "is-ready" : ""} ${sending ? "is-loading" : ""}`} type="submit" disabled={!canConfirm}>
-              {sending ? "Sending…" : ctaRight}
-              <span className="bm3__ctaGlow" aria-hidden="true" />
-            </button>
+        <div className="bmw__progress">
+          <div className="bmw__progressTop">
+            <span className="bmw__pLabel">Progress</span>
+            <span className="bmw__pVal">{step}/3</span>
+          </div>
+          <div className="bmw__bar" aria-hidden="true">
+            <div className="bmw__barFill" style={{ width: `${progress * 100}%` }} />
+          </div>
+          <div className="bmw__dots" aria-hidden="true">
+            <span className={`bmw__dot ${step >= 1 ? "is-on" : ""}`} />
+            <span className={`bmw__dot ${step >= 2 ? "is-on" : ""}`} />
+            <span className={`bmw__dot ${step >= 3 ? "is-on" : ""}`} />
           </div>
         </div>
       </form>
