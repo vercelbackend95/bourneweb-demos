@@ -17,8 +17,8 @@ type Service = {
   name: string;
   mins: number;
   price: number;
-  desc: string;
-  details: string;
+  desc: string; // mini opis (1 linijka)
+  details: string; // zostawione na przyszłość (nie używamy)
 };
 
 const NOTE_CHIPS = ["Beard trim", "Skin fade length", "Sensitive skin", "No clipper zero"] as const;
@@ -162,7 +162,7 @@ const SERVICES: Service[] = [
     name: "Skin fade",
     mins: 50,
     price: 28,
-    desc: "Clean blend.",
+    desc: "Clean blend, crisp edges.",
     details: "Clean blend, crisp edges. Includes line-up + tidy finish. Skin-safe, no harsh shave unless asked.",
   },
   {
@@ -170,7 +170,7 @@ const SERVICES: Service[] = [
     name: "Haircut + beard",
     mins: 60,
     price: 30,
-    desc: "Full refresh.",
+    desc: "Full refresh, balanced shape.",
     details: "Haircut + beard tidy. Balanced shape, clean neckline, soft finish. Add hot towel on request.",
   },
   {
@@ -178,7 +178,7 @@ const SERVICES: Service[] = [
     name: "Hot towel shave",
     mins: 30,
     price: 18,
-    desc: "Warm towel.",
+    desc: "Warm towel, close finish.",
     details: "Warm towel + close shave. Sensitive-skin friendly. Calm, precise, no rush.",
   },
 ];
@@ -311,7 +311,6 @@ export default function BookingWidget() {
 
   /* ======= SUMMARY: compact vs full ======= */
   const summaryFull = useMemo(() => {
-    // Full can keep duration if you want (not in the footer width-critical line)
     const s = service ? `${service.name} · £${service.price} · ${service.mins}m` : "—";
     const b = barber ? ` · ${barber.name}` : " · No preference";
     const d = step >= 2 ? ` · ${prettyDayLong(date)}` : "";
@@ -321,9 +320,6 @@ export default function BookingWidget() {
 
   const summaryCompact = useMemo(() => {
     // Footer line: NO duration (50m/60m/30m removed)
-    // Step 1: "Skin fade · £28"
-    // Step 2: add "Mon 29"
-    // Step 3: add "18:45–19:35"
     if (!service) return "—";
     const base = `${service.name} · £${service.price}`;
     const d = step >= 2 ? ` · ${prettyDayShort(date)}` : "";
@@ -332,17 +328,13 @@ export default function BookingWidget() {
   }, [service, step, date, time, endTime]);
 
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [sheetMode, setSheetMode] = useState<"service" | "details" | "summary">("service");
-  const [infoService, setInfoService] = useState<Service | null>(null);
+  const [sheetMode, setSheetMode] = useState<"details" | "summary">("details");
   const sheetCloseRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!sheetOpen) return;
-      if (e.key === "Escape") {
-        setSheetOpen(false);
-        setInfoService(null);
-      }
+      if (e.key === "Escape") setSheetOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -352,21 +344,13 @@ export default function BookingWidget() {
     if (sheetOpen) requestAnimationFrame(() => sheetCloseRef.current?.focus());
   }, [sheetOpen]);
 
-  const openServiceInfo = (s: Service) => {
-    setSheetMode("service");
-    setInfoService(s);
-    setSheetOpen(true);
-  };
-
   const openDetailsSheet = () => {
     setSheetMode("details");
-    setInfoService(null);
     setSheetOpen(true);
   };
 
   const openSummarySheet = () => {
     setSheetMode("summary");
-    setInfoService(null);
     setSheetOpen(true);
   };
 
@@ -486,7 +470,6 @@ export default function BookingWidget() {
               <div className="bmw__block">
                 <div className="bmw__labelRow">
                   <div className="bmw__labelSmall">Service</div>
-                  <div className="bmw__labelTiny">Tap (i) for details</div>
                 </div>
 
                 <div
@@ -510,19 +493,13 @@ export default function BookingWidget() {
                         >
                           <span className="bmw__chipLeft">
                             <span className="bmw__chipName">{s.name}</span>
+                            {/* mini-opis: 1 linijka */}
+                            <span className="bmw__chipMeta">{s.desc}</span>
+                            {/* meta: czas + cena (może zostać w UI, nie w footerze) */}
                             <span className="bmw__chipMeta">
                               {s.mins}m · £{s.price}
                             </span>
                           </span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="bmw__chipInfo"
-                          aria-label={`Service details for ${s.name}`}
-                          onClick={() => openServiceInfo(s)}
-                        >
-                          i
                         </button>
                       </div>
                     );
@@ -720,33 +697,16 @@ export default function BookingWidget() {
 
         {sheetOpen ? (
           <div className="bmw__sheetRoot" role="presentation">
-            <button
-              type="button"
-              className="bmw__sheetOverlay"
-              onClick={() => {
-                setSheetOpen(false);
-                setInfoService(null);
-              }}
-              aria-label="Close overlay"
-            />
+            <button type="button" className="bmw__sheetOverlay" onClick={() => setSheetOpen(false)} aria-label="Close overlay" />
 
             <div className="bmw__sheet" role="dialog" aria-modal="true" aria-label="Details">
               <div className="bmw__sheetTop">
-                <div className="bmw__sheetTitle">
-                  {sheetMode === "service" && infoService
-                    ? infoService.name
-                    : sheetMode === "summary"
-                      ? "Summary"
-                      : "Add details"}
-                </div>
+                <div className="bmw__sheetTitle">{sheetMode === "summary" ? "Summary" : "Add details"}</div>
                 <button
                   ref={sheetCloseRef}
                   type="button"
                   className="bmw__sheetClose"
-                  onClick={() => {
-                    setSheetOpen(false);
-                    setInfoService(null);
-                  }}
+                  onClick={() => setSheetOpen(false)}
                   aria-label="Close"
                 >
                   ✕
@@ -761,8 +721,6 @@ export default function BookingWidget() {
                       Tap Back to edit, or Confirm when you’re ready.
                     </div>
                   </>
-                ) : sheetMode === "service" && infoService ? (
-                  infoService.details
                 ) : (
                   <>
                     <label className="bmw__field">
