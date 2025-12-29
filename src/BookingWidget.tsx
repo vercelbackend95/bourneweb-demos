@@ -145,11 +145,11 @@ function avatarDataURI(seed: string, accent: string) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-const BARBERS: Barber[] = [
+const BARBERS = [
   { key: "mason", name: "Mason", role: "Senior Barber", rating: "★ 4.9", photo: avatarDataURI("Mason", "#d2aa6e") },
   { key: "oliver", name: "Oliver", role: "Skin Fade Specialist", rating: "★ 4.9", photo: avatarDataURI("Oliver", "#c8a46a") },
   { key: "theo", name: "Theo", role: "Classic Cuts", rating: "★ 4.9", photo: avatarDataURI("Theo", "#b99254") },
-];
+] as const satisfies readonly { key: BarberKey; name: string; role: string; rating: string; photo: string }[];
 
 const SERVICES: Service[] = [
   {
@@ -451,9 +451,7 @@ export default function BookingWidget() {
                             <span className="bmw__barberRole">{b.role}</span>
                             <span className="bmw__barberMeta">
                               <span className="bmw__metaRating">{b.rating}</span>
-                              <span className="bmw__metaDot" aria-hidden="true">
-                                •
-                              </span>
+                              <span className="bmw__metaDot" aria-hidden="true">•</span>
                               <span className="bmw__metaNext">{nextByBarber.get(b.key)}</span>
                             </span>
                           </span>
@@ -483,7 +481,7 @@ export default function BookingWidget() {
                   {SERVICES.map((s, i) => {
                     const selected = s.key === serviceKey;
                     return (
-                      <div key={s.key} className="bmw__serviceCell">
+                      <div key={s.key} className="bmw__serviceChipWrap">
                         <button
                           type="button"
                           role="radio"
@@ -493,15 +491,17 @@ export default function BookingWidget() {
                           onClick={() => setServiceKey(s.key)}
                           aria-label={`Select service ${s.name}`}
                         >
-                          <span className="bmw__chipName">{s.name}</span>
-                          <span className="bmw__chipMeta">
-                            {s.mins}m · £{s.price}
+                          <span className="bmw__chipLeft">
+                            <span className="bmw__chipName">{s.name}</span>
+                            <span className="bmw__chipMeta">
+                              {s.mins}m · £{s.price}
+                            </span>
                           </span>
                         </button>
 
                         <button
                           type="button"
-                          className="bmw__infoBtn"
+                          className="bmw__chipInfo"
                           aria-label={`Service details for ${s.name}`}
                           onClick={() => openInfo(s)}
                         >
@@ -600,9 +600,7 @@ export default function BookingWidget() {
 
                 <div className="bmw__slotsScroll">
                   {noSlots ? (
-                    <div className="bmw__emptyLite">
-                      No slots on this date. Pick another day.
-                    </div>
+                    <div className="bmw__emptyLite">No slots on this date. Pick another day.</div>
                   ) : (
                     <div className="bmw__timesGrid">
                       {times.map((t) => {
@@ -618,11 +616,11 @@ export default function BookingWidget() {
                             aria-pressed={selected}
                             aria-label={`Select time ${t}`}
                           >
-                            <span className="bmw__timeMain">
+                            <div className="bmw__timeRow">
                               <span className="bmw__timeStart">{t}</span>
                               {end ? <span className="bmw__timeEnd">–{end}</span> : null}
-                            </span>
-                            {isRec ? <span className="bmw__rec">Recommended</span> : null}
+                              {isRec ? <span className="bmw__rec">Recommended</span> : null}
+                            </div>
                           </button>
                         );
                       })}
