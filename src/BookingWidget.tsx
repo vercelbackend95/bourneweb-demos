@@ -218,15 +218,6 @@ function useRovingRadio<T extends string>(
 }
 
 export default function BookingWidget() {
-  // lock page scroll (widget controls its own layout)
-  useEffect(() => {
-    const prev = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-    return () => {
-      document.documentElement.style.overflow = prev;
-    };
-  }, []);
-
   const [step, setStep] = useState<Step>(1);
 
   const [fastest, setFastest] = useState(false);
@@ -261,10 +252,8 @@ export default function BookingWidget() {
     return addMins(time, service.mins);
   }, [service, time]);
 
-  // “Recommended” = pierwszy slot
   const recommended = useMemo(() => (times.length ? times[0] : null), [times]);
 
-  // next per barber (lightweight: based on today’s next, same opening hours)
   const nextByBarber = useMemo(() => {
     const next = nextAvailableToday() ?? "—";
     const map = new Map<BarberKey, string>();
@@ -272,14 +261,10 @@ export default function BookingWidget() {
     return map;
   }, []);
 
-  // fastest mode: hide carousel and allow barber = null
   useEffect(() => {
-    if (fastest) {
-      setBarberKey(null);
-    }
+    if (fastest) setBarberKey(null);
   }, [fastest]);
 
-  // progressive disclosure phone (only after selecting time)
   useEffect(() => {
     if (time) requestAnimationFrame(() => phoneRef.current?.focus());
   }, [time]);
@@ -334,7 +319,6 @@ export default function BookingWidget() {
     return `${s}${b}${d}${t}`;
   }, [service, barber, fastest, step, date, time, endTime]);
 
-  // bottom sheet for service info
   const [infoOpen, setInfoOpen] = useState(false);
   const [infoService, setInfoService] = useState<Service | null>(null);
   const infoCloseRef = useRef<HTMLButtonElement | null>(null);
@@ -381,7 +365,6 @@ export default function BookingWidget() {
     setSending(true);
     await new Promise((r) => setTimeout(r, 650));
     setSending(false);
-    // demo submit:
     alert("Booked (demo) ✅");
   };
 
@@ -401,7 +384,6 @@ export default function BookingWidget() {
   return (
     <div className="bmw">
       <form className="bmw__card" onSubmit={(e) => e.preventDefault()} aria-label="Book online">
-        {/* HEADER */}
         <header className="bmw__topbar">
           <div className="bmw__topbarRow">
             <div className="bmw__stepPill" aria-label={`Step ${step} of 3`}>
@@ -414,9 +396,7 @@ export default function BookingWidget() {
           </div>
         </header>
 
-        {/* CONTENT: must be min-height:0 */}
         <main className="bmw__content" aria-live="polite">
-          {/* STEP 1 */}
           {step === 1 ? (
             <section className="bmw__panelLite" aria-label="Step 1">
               <div className="bmw__fastestRow">
@@ -535,7 +515,6 @@ export default function BookingWidget() {
             </section>
           ) : null}
 
-          {/* STEP 2 */}
           {step === 2 ? (
             <section className="bmw__panelLite bmw__panelMonth" aria-label="Step 2">
               <div className="bmw__monthTop">
@@ -596,7 +575,6 @@ export default function BookingWidget() {
                   })}
                 </div>
 
-                {/* hidden native date input for fallback / a11y */}
                 <input
                   className="bmw__dateHidden"
                   type="date"
@@ -609,7 +587,6 @@ export default function BookingWidget() {
             </section>
           ) : null}
 
-          {/* STEP 3 */}
           {step === 3 ? (
             <section className="bmw__panelLite bmw__panelTime" aria-label="Step 3">
               <div className="bmw__contextCard">
@@ -621,7 +598,6 @@ export default function BookingWidget() {
               <div className="bmw__slotsCard" aria-label="Time slots">
                 <div className="bmw__slotsHead">Time</div>
 
-                {/* ONLY scrollable area in step 3 */}
                 <div className="bmw__slotsScroll">
                   {noSlots ? (
                     <div className="bmw__emptyLite">
@@ -655,7 +631,6 @@ export default function BookingWidget() {
                 </div>
               </div>
 
-              {/* Phone shows ONLY after time selection */}
               {time ? (
                 <div className="bmw__phoneCard">
                   <label className="bmw__field">
@@ -733,7 +708,6 @@ export default function BookingWidget() {
           ) : null}
         </main>
 
-        {/* FOOTER: minimal chrome */}
         <footer className="bmw__footerLite">
           <button
             type="button"
@@ -751,7 +725,7 @@ export default function BookingWidget() {
 
           <button
             type="button"
-            className={`bmw__btnPrimary ${step === 3 ? "is-confirm" : ""}`}
+            className="bmw__btnPrimary"
             onClick={onPrimary}
             disabled={
               (step === 1 && !step1Ready) ||
@@ -764,7 +738,6 @@ export default function BookingWidget() {
           </button>
         </footer>
 
-        {/* INFO BOTTOM SHEET */}
         {infoOpen && infoService ? (
           <div className="bmw__sheetRoot" role="presentation">
             <button
