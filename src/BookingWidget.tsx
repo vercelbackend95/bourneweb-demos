@@ -212,7 +212,6 @@ export default function BookingWidget() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const [monthOpen, setMonthOpen] = useState(false);
   const minDay = useMemo(() => startOfDay(new Date()), []);
   const [viewMonth, setViewMonth] = useState<Date>(() => new Date(date.getFullYear(), date.getMonth(), 1));
 
@@ -284,11 +283,6 @@ export default function BookingWidget() {
     }
     return map;
   }, [grid.cells, minDay, serviceKey]);
-
-  const weekStrip = useMemo(() => {
-    const base = startOfDay(new Date());
-    return Array.from({ length: 7 }, (_, i) => new Date(base.getFullYear(), base.getMonth(), base.getDate() + i));
-  }, []);
 
   const pickDate = (d: Date) => {
     const dd = startOfDay(d);
@@ -458,38 +452,9 @@ export default function BookingWidget() {
     return service.desc;
   }, [service]);
 
-  // Step 2 – availability panel (fills the “empty board”)
-  const availabilityPanel = useMemo(() => {
-    const selectedNext = nextForDay(date);
-    const selectedCount = timesForDay(date).length;
-
-    const evening = timesForDay(date).filter((t) => toMins(t) >= 17 * 60).length;
-
-    const weekStats = weekStrip
-      .map((d) => ({ d, c: timesForDay(d).length }))
-      .filter((x) => x.c > 0);
-
-    const quiet = weekStats.length
-      ? weekStats.reduce((min, cur) => (cur.c < min.c ? cur : min), weekStats[0])
-      : null;
-
-    return {
-      selectedNext: selectedNext ? selectedNext : "—",
-      selectedCount,
-      evening,
-      quietLabel: quiet ? prettyDayLong(quiet.d) : "—",
-    };
-  }, [date, serviceKey]);
-
   return (
     <div className="bmw" ref={rootRef}>
       <form className="bmw__card" onSubmit={onSubmit} aria-label="Book online">
-        {/* HEADER */}
-        <div className="bmw__header">
-          <div className="bmw__headline">Book online</div>
-          <div className="bmw__subhead">We’ll text to confirm. Nothing else.</div>
-        </div>
-
         {/* BODY (fixed height stage) */}
         <div className="bmw__stage" ref={stageRef} aria-live="polite">
           {/* STEP 1 */}
@@ -528,7 +493,9 @@ export default function BookingWidget() {
                         <span className="bmw__barberMeta">
                           <span className="bmw__metaInline">
                             <span className="bmw__metaRating">{b.rating}</span>
-                            <span className="bmw__metaDot" aria-hidden="true">•</span>
+                            <span className="bmw__metaDot" aria-hidden="true">
+                              •
+                            </span>
                             <span className="bmw__metaNext">Next {next ? next : "—"}</span>
                           </span>
                         </span>
@@ -570,131 +537,80 @@ export default function BookingWidget() {
           </div>
 
           {/* STEP 2 */}
-          <div ref={p2Ref} className={`bmw__panel ${step === 2 ? "is-active" : ""}`} aria-hidden={step !== 2}>
+          <div
+            ref={p2Ref}
+            className={`bmw__panel bmw__panel--monthOnly ${step === 2 ? "is-active" : ""}`}
+            aria-hidden={step !== 2}
+          >
             <div className="bmw__stepTop">
               <div className="bmw__stepLabel">DATE</div>
               <div className="bmw__stepTitle">Pick a date</div>
             </div>
 
-            <div className="bmw__panelInner">
-              <div className="bmw__weekStrip" aria-label="This week">
-                {weekStrip.map((d) => {
-                  const active = isSameDay(d, date);
-                  const disabled = startOfDay(d) < minDay;
-                  const next = nextForDay(d);
-                  const dead = !next;
+            <div className="bmw__panelInner bmw__panelInner--noScroll">
+              <div className="bmw__calendar bmw__surface">
+                <div className="bmw__calTop">
+                  <button
+                    type="button"
+                    className="bmw__calArrow bmw__surface"
+                    onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
+                    title="Previous month"
+                  >
+                    ‹
+                  </button>
+                  <div className="bmw__calMonth">{prettyMonth(viewMonth)}</div>
+                  <button
+                    type="button"
+                    className="bmw__calArrow bmw__surface"
+                    onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
+                    title="Next month"
+                  >
+                    ›
+                  </button>
+                </div>
 
-                  return (
-                    <button
-                      key={isoKey(d)}
-                      type="button"
-                      className={`bmw__weekDay bmw__surface ${active ? "is-selected is-weekActive" : ""} ${dead ? "is-dead" : ""}`}
-                      onClick={() => pickDate(d)}
-                      disabled={disabled}
-                      aria-pressed={active}
-                    >
-                      <span className="bmw__wdTop">{new Intl.DateTimeFormat("en-GB", { weekday: "short" }).format(d)}</span>
-                      <span className="bmw__wdMid">{d.getDate()}</span>
-                      <span className="bmw__wdBot">{next ? `Next ${next}` : "No slots"}</span>
-                    </button>
-                  );
-                })}
+                <div className="bmw__calWeek">
+                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((w) => (
+                    <div key={w} className="bmw__calW">
+                      {w}
+                    </div>
+                  ))}
+                </div>
 
-                <button type="button" className="bmw__monthToggle bmw__surface" onClick={() => setMonthOpen((v) => !v)} aria-expanded={monthOpen}>
-                  {monthOpen ? "Hide month" : "View month"}
-                </button>
+                <div className="bmw__calGrid">
+                  {grid.cells.map((cell, idx) => {
+                    if (!cell) return <div key={idx} className="bmw__calEmpty" aria-hidden="true" />;
+
+                    const d = startOfDay(cell);
+                    const key = isoKey(d);
+                    const active = isSameDay(d, date);
+                    const level = monthAvailability.get(key) ?? 0;
+                    const disabled = d < minDay;
+
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        className={`bmw__day bmw__surface ${active ? "is-selected" : ""} ${level === 0 ? "is-dead" : ""}`}
+                        onClick={() => pickDate(d)}
+                        disabled={disabled}
+                        aria-pressed={active}
+                        title={level === 0 ? "No availability" : "Available"}
+                      >
+                        {d.getDate()}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <input
+                  className="bmw__dateHidden"
+                  type="date"
+                  value={isoForInput(date)}
+                  min={isoForInput(new Date())}
+                  onChange={(e) => pickDate(parseISO(e.target.value))}
+                />
               </div>
-
-              {/* Availability panel – fills the “empty board” when month drawer is closed */}
-              {!monthOpen ? (
-                <div className="bmw__avail bmw__surface">
-                  <div className="bmw__availGrid">
-                    <div className="bmw__availCard bmw__surface">
-                      <div className="bmw__availK">Next available</div>
-                      <div className="bmw__availV">{availabilityPanel.selectedNext}</div>
-                      <div className="bmw__availS">{availabilityPanel.selectedCount ? `${availabilityPanel.selectedCount} slots` : "No slots"}</div>
-                    </div>
-
-                    <div className="bmw__availCard bmw__surface">
-                      <div className="bmw__availK">Evening</div>
-                      <div className="bmw__availV">{availabilityPanel.evening ? `${availabilityPanel.evening} slots` : "—"}</div>
-                      <div className="bmw__availS">from 17:00</div>
-                    </div>
-
-                    <div className="bmw__availCard bmw__surface">
-                      <div className="bmw__availK">Quietest day</div>
-                      <div className="bmw__availV">{availabilityPanel.quietLabel}</div>
-                      <div className="bmw__availS">this week</div>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              {monthOpen ? (
-                <div className="bmw__calendar bmw__surface">
-                  <div className="bmw__calTop">
-                    <button
-                      type="button"
-                      className="bmw__calArrow bmw__surface"
-                      onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
-                      title="Previous month"
-                    >
-                      ‹
-                    </button>
-                    <div className="bmw__calMonth">{prettyMonth(viewMonth)}</div>
-                    <button
-                      type="button"
-                      className="bmw__calArrow bmw__surface"
-                      onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
-                      title="Next month"
-                    >
-                      ›
-                    </button>
-                  </div>
-
-                  <div className="bmw__calWeek">
-                    {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((w) => (
-                      <div key={w} className="bmw__calW">
-                        {w}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="bmw__calGrid">
-                    {grid.cells.map((cell, idx) => {
-                      if (!cell) return <div key={idx} className="bmw__calEmpty" aria-hidden="true" />;
-
-                      const d = startOfDay(cell);
-                      const key = isoKey(d);
-                      const active = isSameDay(d, date);
-                      const level = monthAvailability.get(key) ?? 0;
-                      const disabled = d < minDay;
-
-                      return (
-                        <button
-                          key={key}
-                          type="button"
-                          className={`bmw__day bmw__surface ${active ? "is-selected" : ""} ${level === 0 ? "is-dead" : ""}`}
-                          onClick={() => pickDate(d)}
-                          disabled={disabled}
-                          aria-pressed={active}
-                          title={level === 0 ? "No availability" : "Available"}
-                        >
-                          {d.getDate()}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <input
-                    className="bmw__dateHidden"
-                    type="date"
-                    value={isoForInput(date)}
-                    min={isoForInput(new Date())}
-                    onChange={(e) => pickDate(parseISO(e.target.value))}
-                  />
-                </div>
-              ) : null}
             </div>
           </div>
 
@@ -719,7 +635,7 @@ export default function BookingWidget() {
                   <div className="bmw__timesGrid" role="list">
                     {times.map((t) => {
                       const active = t === time;
-                      const recommended = t === times[0]; // one guidance slot only
+                      const recommended = t === times[0];
                       const end = service ? addMins(t, service.mins) : "";
                       return (
                         <button
@@ -771,8 +687,16 @@ export default function BookingWidget() {
                   {phoneSoftError ? <span className="bmw__softErr">{phoneSoftError}</span> : null}
                 </label>
 
-                <button type="button" className="bmw__detailsToggle bmw__surface" onClick={() => setShowDetails((v) => !v)} aria-expanded={showDetails}>
-                  {showDetails ? "Hide details" : "Add details (optional)"} <span className="bmw__chev" aria-hidden="true">▾</span>
+                <button
+                  type="button"
+                  className="bmw__detailsToggle bmw__surface"
+                  onClick={() => setShowDetails((v) => !v)}
+                  aria-expanded={showDetails}
+                >
+                  {showDetails ? "Hide details" : "Add details (optional)"}{" "}
+                  <span className="bmw__chev" aria-hidden="true">
+                    ▾
+                  </span>
                 </button>
 
                 <div className={`bmw__details ${showDetails ? "is-open" : ""}`}>

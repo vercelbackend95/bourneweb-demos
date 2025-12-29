@@ -95,29 +95,11 @@
   background: linear-gradient(to bottom, rgba(var(--gold),.22), rgba(255,255,255,0) 65%);
 }
 
-/* HEADER */
-.bmw__header{
-  padding: 22px 22px 14px;
-  border-bottom: 1px solid rgba(255,255,255,.07);
-  background: linear-gradient(to bottom, rgba(0,0,0,.18), rgba(0,0,0,0));
-}
-.bmw__headline{
-  font-size: clamp(30px, 4.4vw, 44px);
-  font-weight: 950;
-  letter-spacing: -0.025em;
-  line-height: 1.04;
-}
-.bmw__subhead{
-  margin-top: 8px;
-  font-size: 13px;
-  opacity: .82;
-}
-
 /* STAGE */
 .bmw__stage{
   position: relative;
   flex: 1;
-  padding: 16px 22px 6px;
+  padding: 22px 22px 6px;
   overflow: hidden;
 }
 .bmw__panel{
@@ -242,7 +224,7 @@
   opacity: .82;
 }
 
-/* WEEK STRIP */
+/* WEEK STRIP (unused now, left in place harmlessly) */
 .bmw__weekStrip{
   display:flex;
   gap:10px;
@@ -287,7 +269,7 @@
   cursor:pointer;
 }
 
-/* AVAILABILITY PANEL (Step 2 filler) */
+/* AVAILABILITY PANEL (unused now, left in place harmlessly) */
 .bmw__avail{
   border-radius: var(--radius-ui);
   padding: 12px;
@@ -321,7 +303,7 @@
   opacity: .74;
 }
 
-/* CALENDAR (drawer) */
+/* CALENDAR (Step 2) */
 .bmw__calendar{
   overflow:hidden;
   border-radius: var(--radius-ui);
@@ -371,7 +353,40 @@
 .bmw__day.is-dead{ opacity:.34; }
 .bmw__dateHidden{ position:absolute; opacity:0; pointer-events:none; }
 
-/* TIME SLOTS – less pillow, tighter radius */
+/* STEP 2 — MONTH ONLY (full calendar, no inner scroll) */
+.bmw__panel--monthOnly{
+  height: 100%;
+  flex-direction: column;
+}
+.bmw__panel--monthOnly.is-active{
+  display: flex;
+}
+.bmw__panelInner--noScroll{
+  flex: 1;
+  overflow: hidden;
+  padding-bottom: 0;
+  display: flex;
+}
+.bmw__panel--monthOnly .bmw__calendar{
+  flex: 1;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+}
+.bmw__panel--monthOnly .bmw__calGrid{
+  flex: 1;
+  grid-auto-rows: 1fr;
+  align-content: stretch;
+}
+.bmw__panel--monthOnly .bmw__day,
+.bmw__panel--monthOnly .bmw__calEmpty{
+  height: auto;
+  min-height: 40px;
+  display: grid;
+  place-items: center;
+}
+
+/* TIME SLOTS */
 .bmw__timesWheel{
   border-radius: var(--radius-ui);
   padding: 10px;
@@ -382,8 +397,6 @@
   scroll-snap-type: y proximity;
   position: relative;
 }
-
-/* fade mask = elegant “more below” */
 .bmw__timesWheel::after{
   content:"";
   position:absolute;
@@ -395,13 +408,11 @@
   border-radius: var(--radius-ui);
   background: linear-gradient(to top, rgba(var(--ink),.72), rgba(var(--ink),0));
 }
-
 .bmw__timesGrid{
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--slotGap);
 }
-
 .bmw__timeTile{
   height: var(--slotH);
   padding: 9px 10px 8px;
@@ -419,8 +430,6 @@
   opacity: .66;
   transform: translateY(-2px);
 }
-
-/* selected slot: +1px lift + subtle brighter center */
 .bmw__timeTile.is-selected{
   transform: translateY(-1px);
   box-shadow:
@@ -431,7 +440,6 @@
     radial-gradient(260px 120px at 20% 10%, rgba(var(--gold),.10), transparent 55%),
     rgba(255,255,255,.028);
 }
-
 .bmw__ttTop{
   display:block;
   font-weight: 950;
@@ -441,7 +449,6 @@
   opacity: .96;
 }
 .bmw__ttDash{ opacity: .55; }
-
 .bmw__ttTag{
   position:absolute;
   right: 10px;
@@ -450,7 +457,7 @@
   padding: 4px 8px;
   border-radius: var(--radius-pill);
   background: rgba(var(--gold),.10);
-  border: 0; /* gold not as border */
+  border: 0;
   color: rgba(var(--gold), .96);
   font-weight: 800;
 }
@@ -463,6 +470,7 @@
 .bmw__inputWrap{
   position: relative;
   transition: transform .18s ease, filter .18s ease;
+
 }
 .bmw__inputWrap:focus-within{
   transform: translateY(-1px);
@@ -554,7 +562,7 @@
 .bmw__emptyT{ font-weight: 950; }
 .bmw__emptyS{ opacity:.80; margin-top: 6px; }
 
-/* SUMMARY STRIP (receipt vibe) */
+/* SUMMARY STRIP */
 .bmw__summaryStrip{ padding: 0 22px 10px; }
 .bmw__summaryInner{
   display:flex;
@@ -632,14 +640,14 @@
 }
 .bmw__stepItem.is-active .bmw__stepLine{
   transform: scaleX(1);
-  background: rgba(var(--gold),.55); /* gold as underline accent */
+  background: rgba(var(--gold),.55);
 }
 
 .bmw__nextHint{ margin-top: 6px; font-size: 12px; opacity: .80; }
 .bmw__help{ font-size: 12px; opacity: .76; margin-top: 4px; }
 .bmw__help.is-ok{ opacity: .62; }
 
-/* CTA: always CTA, even when disabled */
+/* CTA */
 .bmw__btn{
   border-radius: var(--radius-pill);
   padding: 12px 16px;
@@ -667,9 +675,7 @@
   color: rgba(255,255,255,.92);
   box-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 18px 60px rgba(0,0,0,.45);
 }
-.bmw__btn.is-waiting{
-  opacity: .92;
-}
+.bmw__btn.is-waiting{ opacity: .92; }
 .bmw__btn.is-loading{ opacity:.82; }
 
 .bmw__btnGhost{
@@ -693,8 +699,7 @@ button:disabled{
 }
 @media (max-width: 520px){
   :root{ --slotH: 50px; }
-  .bmw__stage{ padding: 14px 14px 6px; }
-  .bmw__header{ padding: 18px 14px 12px; }
+  .bmw__stage{ padding: 16px 14px 6px; }
   .bmw__footer{ padding: 12px 14px; }
   .bmw__summaryStrip{ padding: 0 14px 10px; }
 }
