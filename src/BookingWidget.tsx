@@ -14,17 +14,14 @@ type Barber = {
   photo: string;
 };
 
-type ServiceCategory = "popular" | "fade" | "cut" | "beard" | "shave";
-
 type Service = {
   key: ServiceKey;
   name: string;
   mins: number;
   price: number;
   desc: string; // 1-liner
-  details: string; // przyszłościowo
-  category: ServiceCategory;
-  badge?: "Najczęściej wybierane" | "Najlepsza wartość";
+  details: string; // future-proof
+  badge?: "Most popular" | "Best value";
 };
 
 const OPEN_START = 10 * 60;
@@ -192,8 +189,7 @@ const SERVICES: Service[] = [
     price: 28,
     desc: "Clean blend, crisp edges.",
     details: "Clean blend, crisp edges. Includes line-up + tidy finish.",
-    category: "fade",
-    badge: "Najczęściej wybierane",
+    badge: "Most popular",
   },
   {
     key: "haircutbeard",
@@ -202,8 +198,7 @@ const SERVICES: Service[] = [
     price: 30,
     desc: "Full refresh, balanced shape.",
     details: "Haircut + beard tidy. Balanced shape, clean neckline.",
-    category: "beard",
-    badge: "Najlepsza wartość",
+    badge: "Best value",
   },
   {
     key: "hottowel",
@@ -212,7 +207,6 @@ const SERVICES: Service[] = [
     price: 18,
     desc: "Warm towel, close finish.",
     details: "Warm towel + close shave. Sensitive-skin friendly.",
-    category: "shave",
   },
 ];
 
@@ -250,15 +244,13 @@ function useRovingRadio<T extends string>(
     onChange(ids[next]);
   };
 
-  const tabIndexFor = (id: T, i: number) => (i === activeIndex ? 0 : -1);
-
-  return { activeIndex, onKeyDown, tabIndexFor };
+  return { onKeyDown };
 }
 
 export default function BookingWidget() {
   const [step, setStep] = useState<Step>(1);
 
-  // ✅ killer default: Bez preferencji
+  // Default: no preference
   const [barberKey, setBarberKey] = useState<BarberKey | null>(null);
   const [serviceKey, setServiceKey] = useState<ServiceKey | null>(null);
 
@@ -281,7 +273,10 @@ export default function BookingWidget() {
   useEffect(() => setViewMonth(new Date(date.getFullYear(), date.getMonth(), 1)), [date]);
 
   const baseTimes = useMemo(() => buildTimesForDate(date), [date]);
-  const times = useMemo(() => (service ? filterTimesForService(baseTimes, service.mins) : baseTimes), [baseTimes, service]);
+  const times = useMemo(
+    () => (service ? filterTimesForService(baseTimes, service.mins) : baseTimes),
+    [baseTimes, service]
+  );
   const noSlots = times.length === 0;
 
   const endTime = useMemo(() => {
@@ -290,13 +285,6 @@ export default function BookingWidget() {
   }, [service, time]);
 
   const recommended = useMemo(() => (times.length ? times[0] : null), [times]);
-
-  const nextByBarber = useMemo(() => {
-    const next = nextAvailableToday() ?? "—";
-    const map = new Map<BarberKey, string>();
-    (["mason", "oliver", "theo"] as BarberKey[]).forEach((k) => map.set(k, next === "—" ? "—" : next));
-    return map;
-  }, []);
 
   useEffect(() => {
     if (time) requestAnimationFrame(() => phoneRef.current?.focus());
@@ -338,44 +326,12 @@ export default function BookingWidget() {
   const step3Ready = !!time && phoneOk;
 
   const title = useMemo(() => {
-    if (step === 1) return "Wybierz usługę";
-    if (step === 2) return "Wybierz termin";
-    return "Wybierz godzinę";
+    if (step === 1) return "Choose a service";
+    if (step === 2) return "Pick a date";
+    return "Pick a time";
   }, [step]);
 
   const progressPct = useMemo(() => (step / 3) * 100, [step]);
-
-  // ======= STEP 1: categories + accordion barber =======
-  const [serviceCat, setServiceCat] = useState<ServiceCategory>("popular");
-  const catOptions = useMemo(
-    () =>
-      [
-        { key: "popular", label: "Najpopularniejsze" },
-        { key: "fade", label: "Fade" },
-        { key: "cut", label: "Strzyżenie" },
-        { key: "beard", label: "Broda" },
-        { key: "shave", label: "Golenie" },
-      ] as const,
-    []
-  );
-
-  const servicesFiltered = useMemo(() => {
-    if (serviceCat === "popular") return SERVICES;
-    return SERVICES.filter((s) => s.category === serviceCat);
-  }, [serviceCat]);
-
-  // Barber accordion
-  const [barberOpen, setBarberOpen] = useState(false);
-  const [barberGroup, setBarberGroup] = useState<"all" | "fade">("all");
-  const [barberSort, setBarberSort] = useState<"fast" | "top">("fast");
-
-  const barbersFiltered = useMemo(() => {
-    let list = [...BARBERS];
-    if (barberGroup === "fade") list = list.filter((b) => b.tags.includes("fade"));
-    if (barberSort === "top") list.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
-    // fast: w demie wszystkie mają to samo, więc zostaje natural order
-    return list;
-  }, [barberGroup, barberSort]);
 
   // Radiogroups
   const serviceIds = ["skinfade", "haircutbeard", "hottowel"] as ServiceKey[];
@@ -392,15 +348,18 @@ export default function BookingWidget() {
     }
   );
 
-  // ======= SUMMARY (footer) =======
+  // Barber accordion
+  const [barberOpen, setBarberOpen] = useState(false);
+
+  // Footer summary (step 1: 2 lines)
   const step1SummaryLine1 = useMemo(() => {
-    if (!service) return "Wybierz usługę";
+    if (!service) return "Select a service";
     return `${service.name} • ${service.mins} min`;
   }, [service]);
 
   const step1SummaryLine2 = useMemo(() => {
-    if (barberKey === null) return "Bez preferencji (najszybciej)";
-    return barber ? `${barber.name} • ${barber.role}` : "Bez preferencji (najszybciej)";
+    if (barberKey === null) return "No preference (fastest)";
+    return barber ? `${barber.name} • ${barber.role}` : "No preference (fastest)";
   }, [barberKey, barber]);
 
   const summaryFull = useMemo(() => {
@@ -419,7 +378,7 @@ export default function BookingWidget() {
     return `${base}${d}${t}`;
   }, [service, step, date, time, endTime]);
 
-  // Bottom sheet (step 3 details)
+  // Sheet
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetMode, setSheetMode] = useState<"details" | "summary">("details");
   const sheetCloseRef = useRef<HTMLButtonElement | null>(null);
@@ -448,9 +407,9 @@ export default function BookingWidget() {
   };
 
   const primaryLabel = useMemo(() => {
-    if (step === 1) return "Wybierz termin";
-    if (step === 2) return "Wybierz godzinę";
-    return sending ? "Potwierdzanie…" : "Potwierdź";
+    if (step === 1) return "Choose date";
+    if (step === 2) return "Choose time";
+    return sending ? "Confirming…" : "Confirm";
   }, [step, sending]);
 
   const onPrimary = async () => {
@@ -485,7 +444,6 @@ export default function BookingWidget() {
             <h2 className="bmw__title">{title}</h2>
           </div>
 
-          {/* ✅ progress bar zamiast STEP 1/3 tekstem */}
           <div className="bmw__progress" aria-label={`Step ${step} of 3`}>
             <div className="bmw__progressTrack" aria-hidden="true">
               <div className="bmw__progressFill" style={{ width: `${progressPct}%` }} />
@@ -503,36 +461,16 @@ export default function BookingWidget() {
               {/* SERVICE FIRST */}
               <div className="bmw__block">
                 <div className="bmw__labelRow">
-                  <div className="bmw__labelSmall">Usługa (wymagana)</div>
+                  <div className="bmw__labelSmall">Service (required)</div>
                 </div>
 
-                {/* category chips */}
-                <div className="bmw__catChips" role="tablist" aria-label="Kategorie usług">
-                  {catOptions.map((c) => {
-                    const active = c.key === serviceCat;
-                    return (
-                      <button
-                        key={c.key}
-                        type="button"
-                        role="tab"
-                        aria-selected={active}
-                        className={`bmw__catChip ${active ? "is-active" : ""}`}
-                        onClick={() => setServiceCat(c.key)}
-                      >
-                        {c.label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* service list rows */}
                 <div
                   className="bmw__serviceList"
                   role="radiogroup"
-                  aria-label="Wybierz usługę"
+                  aria-label="Choose a service"
                   onKeyDown={serviceRadio.onKeyDown}
                 >
-                  {servicesFiltered.map((s) => {
+                  {SERVICES.map((s) => {
                     const selected = s.key === serviceKey;
                     return (
                       <button
@@ -573,7 +511,7 @@ export default function BookingWidget() {
               {/* BARBER OPTIONAL (accordion) */}
               <div className="bmw__block">
                 <div className="bmw__labelRow">
-                  <div className="bmw__labelSmall">Barber (opcjonalnie)</div>
+                  <div className="bmw__labelSmall">Barber (optional)</div>
                 </div>
 
                 <button
@@ -585,16 +523,20 @@ export default function BookingWidget() {
                 >
                   <span className="bmw__accordionLeft">
                     <span className="bmw__avatarSm" aria-hidden="true">
-                      <img src={barberKey === null ? ANY_BARBER_PHOTO : barber?.photo || ANY_BARBER_PHOTO} alt="" loading="lazy" />
+                      <img
+                        src={barberKey === null ? ANY_BARBER_PHOTO : barber?.photo || ANY_BARBER_PHOTO}
+                        alt=""
+                        loading="lazy"
+                      />
                     </span>
                     <span className="bmw__accordionTxt">
                       <span className="bmw__accordionTitle">
-                        {barberKey === null ? "Bez preferencji" : barber?.name}
+                        {barberKey === null ? "No preference" : barber?.name}
                         <span className="bmw__accordionSub">
-                          {barberKey === null ? " (najszybciej)" : ` • ${barber?.role}`}
+                          {barberKey === null ? " (fastest)" : ` • ${barber?.role}`}
                         </span>
                       </span>
-                      <span className="bmw__accordionHint">Kliknij, aby wybrać konkretnego barbera</span>
+                      <span className="bmw__accordionHint">Tap to pick a specific barber</span>
                     </span>
                   </span>
 
@@ -604,49 +546,12 @@ export default function BookingWidget() {
                 </button>
 
                 <div id="bmw-barber-panel" className={`bmw__accordionPanel ${barberOpen ? "is-open" : ""}`}>
-                  {/* controls */}
-                  <div className="bmw__barberControls" aria-label="Filtry barberów">
-                    <div className="bmw__seg">
-                      <button
-                        type="button"
-                        className={`bmw__segBtn ${barberGroup === "all" ? "is-active" : ""}`}
-                        onClick={() => setBarberGroup("all")}
-                        aria-pressed={barberGroup === "all"}
-                      >
-                        Wszyscy
-                      </button>
-                      <button
-                        type="button"
-                        className={`bmw__segBtn ${barberGroup === "fade" ? "is-active" : ""}`}
-                        onClick={() => setBarberGroup("fade")}
-                        aria-pressed={barberGroup === "fade"}
-                      >
-                        Fade
-                      </button>
-                    </div>
-
-                    <div className="bmw__seg">
-                      <button
-                        type="button"
-                        className={`bmw__segBtn ${barberSort === "fast" ? "is-active" : ""}`}
-                        onClick={() => setBarberSort("fast")}
-                        aria-pressed={barberSort === "fast"}
-                      >
-                        Najszybciej
-                      </button>
-                      <button
-                        type="button"
-                        className={`bmw__segBtn ${barberSort === "top" ? "is-active" : ""}`}
-                        onClick={() => setBarberSort("top")}
-                        aria-pressed={barberSort === "top"}
-                      >
-                        Najwyżej oceniani
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* list */}
-                  <div role="radiogroup" aria-label="Wybierz barbera" onKeyDown={barberRadio.onKeyDown} className="bmw__barberList">
+                  <div
+                    role="radiogroup"
+                    aria-label="Choose a barber"
+                    onKeyDown={barberRadio.onKeyDown}
+                    className="bmw__barberList"
+                  >
                     {/* No preference row */}
                     <button
                       type="button"
@@ -661,13 +566,12 @@ export default function BookingWidget() {
 
                       <span className="bmw__barberRowMain">
                         <span className="bmw__barberRowTop">
-                          <span className="bmw__barberRowName">Bez preferencji</span>
-                          <span className="bmw__barberRowRole">• najszybciej</span>
+                          <span className="bmw__barberRowName">No preference</span>
+                          <span className="bmw__barberRowRole">• fastest</span>
                         </span>
 
                         <span className="bmw__barberRowMeta">
-                          <span className="bmw__ratingTiny">★</span>
-                          <span className="bmw__muted">Najbliższy termin</span>
+                          <span className="bmw__muted">Next available</span>
                           <span className="bmw__pill bmw__pill--time">{nextAvailableToday() ?? "—"}</span>
                         </span>
                       </span>
@@ -677,9 +581,9 @@ export default function BookingWidget() {
                       </span>
                     </button>
 
-                    {barbersFiltered.map((b) => {
+                    {BARBERS.map((b) => {
                       const selected = b.key === barberKey;
-                      const next = nextByBarber.get(b.key) ?? "—";
+                      const next = nextAvailableToday() ?? "—";
                       return (
                         <button
                           key={b.key}
@@ -861,7 +765,7 @@ export default function BookingWidget() {
                       {phone.length > 0 && !isPhoneValid(phone) ? (
                         <div className="bmw__softErr">Enter a valid UK number.</div>
                       ) : (
-                        <div className="bmw__miniHint">We’ll text to confirm. Nothing else.</div>
+                        <div className="bmw__miniHint">We’ll text to confirm. No marketing.</div>
                       )}
                     </div>
                   </div>
@@ -871,7 +775,7 @@ export default function BookingWidget() {
           ) : null}
         </main>
 
-        {/* FOOTER (step 1 premium pilot) */}
+        {/* FOOTER */}
         <footer className="bmw__footerLite">
           <button
             type="button"
@@ -886,7 +790,6 @@ export default function BookingWidget() {
             Back
           </button>
 
-          {/* step1: 2-liner summary */}
           {step === 1 ? (
             <button type="button" className="bmw__summaryBtn2" onClick={openSummarySheet} aria-label="Open booking summary">
               <span className="bmw__summary2">
