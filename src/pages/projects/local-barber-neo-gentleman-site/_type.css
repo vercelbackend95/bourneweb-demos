@@ -48,14 +48,27 @@ html, body{
   font-family: var(--bm-font-sans);
 }
 
-/* Headings: one voice */
+/* ===== ELEMENT DEFAULTS (one scale to rule them all) ===== */
 h1, h2, h3{
   font-family: var(--bm-font-serif);
   letter-spacing: var(--bm-track-tight);
   margin: 0;
 }
 
-/* Utilities (use these everywhere instead of random sizes) */
+h1{ font-size: var(--bm-h1); line-height: .96; }
+h2{ font-size: var(--bm-h2); line-height: 1.05; }
+h3{ font-size: var(--bm-h3); line-height: 1.12; }
+
+p{
+  font-size: var(--bm-text-md);
+  line-height: 1.65;
+  margin: 0;
+  color: rgba(255,255,255,.72);
+}
+
+small{ font-size: var(--bm-text-xs); }
+
+/* ===== Utilities (use these instead of random sizes) ===== */
 .bm-kicker{
   font-size: var(--bm-kicker-size);
   letter-spacing: var(--bm-track-kicker);
@@ -91,7 +104,7 @@ h1, h2, h3{
   color: rgba(255,255,255,.60);
 }
 
-/* Don’t use weird weights like 650 — keep the ladder clean */
+/* Weight ladder (clean) */
 .bm-weight-500{ font-weight: 500; }
 .bm-weight-600{ font-weight: 600; }
 .bm-weight-700{ font-weight: 700; }

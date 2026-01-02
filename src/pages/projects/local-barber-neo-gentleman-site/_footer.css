@@ -40,26 +40,28 @@
   flex-direction:column;
   line-height: 1.05;
 }
+
 .bm-foot__brandName{
-  font-family: "Playfair Display", serif;
+  font-family: var(--bm-font-serif);
   font-weight: 700;
   letter-spacing: .02em;
   color: rgba(255,255,255,92);
-  font-size: 18px;
+  font-size: var(--bm-text-xl);
 }
+
 .bm-foot__brandTag{
-  font-size: 11px;
-  letter-spacing: .22em;
+  font-size: var(--bm-kicker-size);
+  letter-spacing: var(--bm-track-kicker);
   text-transform: uppercase;
   color: rgba(255,255,255,55);
   margin-top: 4px;
 }
 
+/* ✅ p stays p (size from _type.css). Footer only sets color/spacing. */
 .bm-foot__desc{
   margin: 14px 0 0;
   max-width: 52ch;
   color: rgba(255,255,255,62);
-  font-size: 13px;
   line-height: 1.55;
 }
 
@@ -79,7 +81,7 @@
   border: 1px solid rgba(255,255,255,12);
   background: rgba(0,0,0,16);
   color: rgba(255,255,255,72);
-  font-size: 11px;
+  font-size: var(--bm-kicker-size);
   letter-spacing: .06em;
   text-transform: uppercase;
 }
@@ -93,8 +95,8 @@
 }
 
 .bm-foot__colTitle{
-  font-size: 11px;
-  letter-spacing: .28em;
+  font-size: var(--bm-kicker-size);
+  letter-spacing: var(--bm-track-kicker);
   text-transform: uppercase;
   color: rgba(255,255,255,55);
   margin-bottom: 6px;
@@ -103,7 +105,7 @@
 .bm-foot__link{
   text-decoration: none;
   color: rgba(255,255,255,74);
-  font-size: 13px;
+  font-size: var(--bm-text-sm);
   line-height: 1.2;
   padding: 8px 10px;
   border-radius: 12px;
@@ -136,8 +138,8 @@
 }
 
 .bm-footCard__kicker{
-  font-size: 11px;
-  letter-spacing: .28em;
+  font-size: var(--bm-kicker-size);
+  letter-spacing: var(--bm-track-kicker);
   text-transform: uppercase;
   color: rgba(255,255,255,55);
   margin-bottom: 10px;
@@ -145,18 +147,18 @@
 
 .bm-footCard__title{
   margin: 0;
-  font-family: "Playfair Display", serif;
-  font-weight: 650;
+  font-family: var(--bm-font-serif);
+  font-weight: 700;
   letter-spacing: .02em;
   color: rgba(255,255,255,92);
-  font-size: 20px;
+  font-size: var(--bm-h3);
   line-height: 1.08;
 }
 
+/* ✅ also a <p> — keep size global */
 .bm-footCard__sub{
   margin: 10px 0 0;
   color: rgba(255,255,255,62);
-  font-size: 13px;
   line-height: 1.55;
 }
 
@@ -179,7 +181,7 @@
   align-items:center;
   justify-content:center;
   gap: 10px;
-  font-size: 11px;
+  font-size: var(--bm-kicker-size);
   letter-spacing: .14em;
   text-transform: uppercase;
   font-weight: 800;
@@ -219,7 +221,7 @@
   display:flex;
   align-items:center;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--bm-text-xs);
   color: rgba(255,255,255,62);
 }
 
@@ -266,7 +268,7 @@
 }
 
 .bm-foot__fine{
-  font-size: 12px;
+  font-size: var(--bm-text-xs);
   color: rgba(255,255,255,55);
 }
 

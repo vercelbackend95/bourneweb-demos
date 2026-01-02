@@ -2,6 +2,51 @@
    Booking Widget (Neo Gentleman)
    Scoped styles (no body/html overflow hacks)
    ========================= */
+/* =========================
+   BOOKING SECTION WRAPPER
+   (align like GALLERY)
+   ========================= */
+
+.bm-book{
+  position: relative;
+  padding: clamp(70px, 7vw, 110px) 0;
+  overflow: hidden;
+  background:
+    radial-gradient(900px 700px at 20% 20%, rgba(199,162,106,.10), transparent 60%),
+    radial-gradient(900px 700px at 78% 70%, rgba(0,0,0,.70), transparent 62%);
+}
+
+.bm-book__wrap{
+  width: min(1200px, calc(100% - 44px)); /* ✅ identyczne gutters jak Gallery */
+  margin: 0 auto;                         /* ✅ centruje cały blok */
+}
+
+.bm-book__head{
+  margin-bottom: 18px;
+}
+
+.bm-book__kicker{
+  margin: 0 0 10px;
+  font-size: var(--bm-kicker-size, 11px);
+  letter-spacing: var(--bm-track-kicker, .28em);
+  text-transform: uppercase;
+  color: var(--bm-kicker-color, rgba(255,255,255,.55));
+}
+
+.bm-book__title{
+  margin: 0;
+}
+
+.bm-book__sub{
+  margin: 10px 0 0;
+  max-width: 64ch; /* jak w Gallery */
+  color: rgba(255,255,255,.62);
+}
+
+/* mobile gutters trochę ciaśniej */
+@media (max-width: 420px){
+  .bm-book__wrap{ width: min(1200px, calc(100% - 28px)); }
+}
 
 .bmw,
 .bmw * { box-sizing: border-box; }
