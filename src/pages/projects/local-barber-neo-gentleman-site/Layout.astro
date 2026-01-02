@@ -16,34 +16,59 @@ import TopNav from "./TopNav.astro";
     <meta name="description" content={description} />
     <title>{title}</title>
 
-<script is:inline>
-  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    <script is:inline>
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 
-  const shouldForceTop = () => !location.hash;
+      // Hash-e sekcji, które NIE mają wymuszać lądowania w środku strony przy starcie/reload
+      const SECTION_HASHES = new Set(["#top", "#gallery", "#services", "#products", "#book", "#shop"]);
 
-  const forceTop = () => {
-    if (!shouldForceTop()) return;
+      const navType = () => {
+        const nav = performance.getEntriesByType?.("navigation")?.[0];
+        if (nav && typeof nav.type === "string") return nav.type; // navigate | reload | back_forward | prerender
+        const legacy = performance.navigation?.type; // 0/1/2 (stare)
+        return legacy === 1 ? "reload" : legacy === 2 ? "back_forward" : "navigate";
+      };
 
-    // do it "now"
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+      const isHardLoad = () => {
+        const t = navType();
+        return t === "navigate" || t === "reload";
+      };
 
-    // do it after layout
-    requestAnimationFrame(() => {
-      window.scrollTo(0, 0);
-      requestAnimationFrame(() => window.scrollTo(0, 0));
-    });
+      const shouldForceTop = () => {
+        if (!isHardLoad()) return false;
+        if (!location.hash) return true;
+        return SECTION_HASHES.has(location.hash);
+      };
 
-    // do it after fonts/images nudge layout
-    setTimeout(() => window.scrollTo(0, 0), 120);
-  };
+      const stripHash = () => {
+        if (!location.hash) return;
+        history.replaceState(null, document.title, location.pathname + location.search);
+      };
 
-  window.addEventListener("DOMContentLoaded", forceTop);
-  window.addEventListener("load", forceTop);
-  window.addEventListener("pageshow", forceTop);          // Safari bfcache / reload quirks
-  document.addEventListener("astro:page-load", forceTop); // Astro navigations
-</script>
+      const forceTop = () => {
+        if (!shouldForceTop()) return;
 
+        // wyczyść hash, żeby mobile nie zapamiętywał "Services" jako start
+        stripHash();
+
+        // natychmiast
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+
+        // po layout/paint + po dogrywaniu fontów/obrazów
+        requestAnimationFrame(() => {
+          window.scrollTo(0, 0);
+          requestAnimationFrame(() => window.scrollTo(0, 0));
+        });
+
+        setTimeout(() => window.scrollTo(0, 0), 160);
+      };
+
+      window.addEventListener("DOMContentLoaded", forceTop);
+      window.addEventListener("load", forceTop);
+      window.addEventListener("pageshow", forceTop);          // Safari / bfcache
+      document.addEventListener("astro:page-load", forceTop); // Astro navigations
+    </script>
 
     <!-- Typography: load real fonts (no more fallback roulette) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -55,6 +80,9 @@ import TopNav from "./TopNav.astro";
   </head>
 
   <body class="bm-root">
+    <!-- anchor for href="#top" -->
+    <div id="top" class="bm-topAnchor" aria-hidden="true"></div>
+
     <TopNav />
     <slot />
   </body>
