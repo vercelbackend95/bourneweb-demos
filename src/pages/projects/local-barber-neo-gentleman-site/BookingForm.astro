@@ -1,6 +1,6 @@
 ---
 import "./_booking.css";
-import BookingWidget from "../../../BookingWidget.tsx";
+import BookingLauncher from "../../../BookingLauncher.tsx";
 ---
 
 <section class="bm-book" id="book" aria-label="Booking">
@@ -11,6 +11,6 @@ import BookingWidget from "../../../BookingWidget.tsx";
       <p class="bm-book__sub">Pay at the shop. We’ll text to confirm — no marketing.</p>
     </header>
 
-    <BookingWidget client:only="react" />
+    <BookingLauncher client:only="react" />
   </div>
 </section>

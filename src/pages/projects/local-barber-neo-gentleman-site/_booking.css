@@ -817,3 +817,169 @@
   }
   .bmw__dayNum { font-size: 14px; }
 }
+/* =========================
+   BookingLauncher (morph → bottom sheet / drawer)
+   NEW CLASSES ONLY: bw-launcher__*
+   ========================= */
+
+.bw-launcher__cta{
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  min-height: 52px;
+  width: min(320px, 100%);
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  box-shadow: 0 18px 44px rgba(0,0,0,0.38);
+  cursor: pointer;
+}
+.bw-launcher__cta:hover{
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.22);
+}
+.bw-launcher__ctaTxt{ display: inline-flex; align-items: center; gap: 10px; }
+.bw-launcher__ctaIcon{
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+/* portal layer */
+.bw-launcher__portal{
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+/* overlay */
+.bw-launcher__overlay{
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0,0,0,0.56);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* sheet / drawer */
+.bw-launcher__sheet{
+  position: absolute;
+  overflow: hidden;
+  background: rgba(10,10,10,0.92);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 28px 80px rgba(0,0,0,0.62);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+/* mobile bottom sheet */
+.bw-launcher__sheet.is-mobile{
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100svh;
+  border-radius: 24px 24px 0 0;
+}
+
+/* desktop right drawer */
+.bw-launcher__sheet.is-desktop{
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: min(480px, 94vw);
+  border-radius: 24px 0 0 24px;
+}
+
+/* top chrome */
+.bw-launcher__chrome{
+  position: relative;
+  padding: 12px 12px 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.bw-launcher__handle{
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.20);
+}
+
+.bw-launcher__title{
+  font-weight: 900;
+  color: rgba(255,255,255,0.90);
+  padding-top: 10px; /* room for handle on mobile */
+}
+
+.bw-launcher__sheet.is-desktop .bw-launcher__title{
+  padding-top: 0;
+}
+
+.bw-launcher__close{
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.92);
+  cursor: pointer;
+}
+
+/* body scroll area */
+.bw-launcher__body{
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* scale wrapper (desktop drawer fit without touching inner classes) */
+.bw-launcher__scale{
+  transform: scale(var(--bw-scale, 1));
+  transform-origin: top center;
+  width: 100%;
+}
+.bw-launcher__scaleInner{
+  width: 100%;
+}
+
+/* sticky footer CTA */
+.bw-launcher__sticky{
+  position: sticky;
+  bottom: 0;
+  padding: 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,255,255,0.10);
+  background: linear-gradient(to top, rgba(10,10,10,0.98), rgba(10,10,10,0.72));
+}
+.bw-launcher__stickyBtn{
+  width: 100%;
+  min-height: 52px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.94);
+  font-weight: 900;
+  cursor: pointer;
+}
+.bw-launcher__stickyBtn:hover{
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.22);
+}
