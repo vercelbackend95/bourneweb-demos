@@ -1,0 +1,113 @@
+---
+const {
+  brand = "Neo Gentleman",
+  tagline = "Premium Barbershop",
+  ownerName = "Bartek",
+  ownerEmail = "hello@yourdomain.co.uk",
+  ownerWhatsApp = "+447000000000",
+} = Astro.props;
+
+const subject = encodeURIComponent("Interested in buying the Neo Gentleman barber demo");
+const body = encodeURIComponent(
+  `Hi ${ownerName},\n\nI'm interested in buying the Neo Gentleman barber demo.\n\nMy business name:\nMy website (if any):\nPreferred launch date:\n\nThanks!`
+);
+
+const mailto = `mailto:${ownerEmail}?subject=${subject}&body=${body}`;
+
+const waNumber = String(ownerWhatsApp).replace(/[^0-9]/g, "");
+const waText = encodeURIComponent(`Hi ${ownerName}! I'm interested in buying the Neo Gentleman barber demo. Can we chat?`);
+const wa = `https://wa.me/${waNumber}?text=${waText}`;
+
+const ariaBackToTop = `${brand} back to top`;
+---
+
+<footer class="bm-foot" aria-label="Footer">
+  <div class="bm-foot__inner">
+    <div class="bm-foot__brand">
+      <a class="bm-foot__logo" href="#top" aria-label={ariaBackToTop}>
+        <span class="bm-foot__mark" aria-hidden="true">NG</span>
+        <span class="bm-foot__brandTxt">
+          <span class="bm-foot__brandName">{brand}</span>
+          <span class="bm-foot__brandTag">{tagline}</span>
+        </span>
+      </a>
+
+      <p class="bm-foot__desc">
+        Clean cuts, quiet confidence — built as a high-end demo with booking, gallery, and product carousel.
+        Swap content, plug in your numbers, ship it.
+      </p>
+
+      <div class="bm-foot__chips" aria-label="Key features">
+        <span class="bm-footChip">Astro</span>
+        <span class="bm-footChip">React booking</span>
+        <span class="bm-footChip">Fast gallery</span>
+        <span class="bm-footChip">Premium UI</span>
+      </div>
+    </div>
+
+    <nav class="bm-foot__nav" aria-label="Footer links">
+      <div class="bm-foot__colTitle">Explore</div>
+      <a class="bm-foot__link" href="#gallery">Gallery</a>
+      <a class="bm-foot__link" href="#services">Services</a>
+      <a class="bm-foot__link" href="#book">Book online</a>
+      <a class="bm-foot__link" href="#shop">Shop</a>
+      <a class="bm-foot__link bm-foot__link--top" href="#top">Back to top ↑</a>
+    </nav>
+
+    <aside class="bm-foot__sale" aria-label="Buy this demo">
+      <div class="bm-footCard">
+        <div class="bm-footCard__kicker">FOR SALE</div>
+        <h3 class="bm-footCard__title">Want this site for your business?</h3>
+        <p class="bm-footCard__sub">
+          I sell this exact demo as a ready-to-launch barber website. Branding + content swap + deploy.
+          No fluff. Just clean conversion.
+        </p>
+
+        <div class="bm-footCard__actions">
+          <a class="bm-footBtn bm-footBtn--primary" href={mailto}>
+            Email to buy
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 6h16v12H4V6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+
+          <a class="bm-footBtn bm-footBtn--ghost" href={wa} target="_blank" rel="noreferrer">
+            WhatsApp
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 11.8a7.8 7.8 0 0 1-11.7 6.8L4 20l1.5-4.1A7.8 7.8 0 1 1 20 11.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M8.7 9.2c.4-.4.7-.4 1.1 0l.8.8c.3.3.3.7 0 1l-.3.3c.6 1.1 1.6 2.1 2.7 2.7l.3-.3c.3-.3.7-.3 1 0l.8.8c.4.4.4.7 0 1.1-.6.6-1.5.6-2.4.2-2.1-1-4-2.9-5-5-.4-.9-.4-1.8.2-2.4Z" fill="currentColor" opacity=".9"/>
+            </svg>
+          </a>
+        </div>
+
+        <div class="bm-footCard__meta">
+          <div class="bm-footMetaRow">
+            <span class="bm-footDot" aria-hidden="true"></span>
+            <span>Owner:</span>
+            <strong>{ownerName}</strong>
+          </div>
+          <div class="bm-footMetaRow">
+            <span class="bm-footDot" aria-hidden="true"></span>
+            <span>Email:</span>
+            <a class="bm-footMail" href={"mailto:" + ownerEmail}>{ownerEmail}</a>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="bm-foot__bottom">
+    <div class="bm-foot__bottomInner">
+      <div class="bm-foot__fine">
+        © {new Date().getFullYear()} {brand}. Demo layout — images via Unsplash. Built for conversion.
+      </div>
+      <div class="bm-foot__fine">
+        <span class="bm-foot__sep" aria-hidden="true">•</span>
+        <a class="bm-foot__fineLink" href="#book">Book a slot</a>
+        <span class="bm-foot__sep" aria-hidden="true">•</span>
+        <a class="bm-foot__fineLink" href={mailto}>Buy this demo</a>
+      </div>
+    </div>
+  </div>
+</footer>

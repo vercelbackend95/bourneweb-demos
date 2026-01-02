@@ -1,10 +1,13 @@
 ---
 import Layout from "./Layout.astro";
-import Gallery from "./Gallery.astro";
+import TopNav from "./TopNav.astro";
 import Hero from "./Hero.astro";
+import Gallery from "./Gallery.astro";
 import Services from "./Services.astro";
 import BookingForm from "./BookingForm.astro";
 import ProductsCarousel from "./ProductsCarousel.astro";
+import Footer from "./Footer.astro";
+
 import motionUrl from "./motion.ts?url";
 ---
 <script type="module" src={motionUrl}></script>
@@ -12,16 +15,9 @@ import motionUrl from "./motion.ts?url";
 
 <Layout title="Neo Gentleman · Barber Demo">
   <Hero />
-
-  <!-- GALLERY -->
   <Gallery />
-
-  <!-- PRICES & SERVICES -->
   <Services />
-
-  <!-- BOOKING (pod Services, tak jak chcesz) -->
   <BookingForm />
-
-  <!-- PRODUCTS -->
   <ProductsCarousel />
+  <Footer ownerName="Bartek" ownerEmail="hello@yourdomain.co.uk" ownerWhatsApp="+447000000000" />
 </Layout>
