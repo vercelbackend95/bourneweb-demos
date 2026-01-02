@@ -827,10 +827,10 @@
   }
   .bmw__dayNum { font-size: 14px; }
 }
-
 /* =========================
-   BookingLauncher (morph only)
-   NEW CLASSES ONLY: bw-launcher__*
+   BookingLauncher
+   Desktop: MORPH centered modal
+   Mobile: Bottom Sheet (no morph)
    ========================= */
 
 .bw-launcher__cta{
@@ -865,17 +865,25 @@
   border: 1px solid rgba(255,255,255,0.10);
 }
 
-/* portal layer (center everything) */
+/* portal */
 .bw-launcher__portal{
   position: fixed;
   inset: 0;
   z-index: 1000;
+}
 
+.bw-launcher__portal.is-desktop{
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: clamp(12px, 2.2vw, 28px);
+}
+
+.bw-launcher__portal.is-mobile{
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
 }
 
 /* overlay */
@@ -887,52 +895,46 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* sheet / modal (base) */
+/* sheet */
 .bw-launcher__sheet{
   position: relative;
   overflow: hidden;
 
-  width: min(960px, 100%);
-  height: min(86vh, 960px);
-  max-height: calc(100svh - 24px);
-
-  background: rgba(10,10,10,0.92);
+  /* we make the SHEET the "card", and flatten the inner card to avoid card-in-card */
+  background:
+    radial-gradient(1200px 600px at 50% -20%, rgba(210, 170, 110, 0.10), transparent 60%),
+    radial-gradient(800px 420px at 20% 10%, rgba(255, 255, 255, 0.05), transparent 55%),
+    rgba(0,0,0,0.88);
   border: 1px solid rgba(255,255,255,0.12);
   box-shadow: 0 28px 80px rgba(0,0,0,0.62);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 
-  border-radius: 26px;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr;
 }
 
-/* mobile: safe, roomy, no overflow */
-.bw-launcher__sheet.is-mobile{
-  width: min(760px, 100%);
-  height: min(94svh, 920px);
-  border-radius: 22px;
-}
-
-/* desktop: bigger + premium */
+/* desktop centered modal */
 .bw-launcher__sheet.is-desktop{
-  width: min(1040px, 100%);
-  height: min(86vh, 980px);
+  width: min(1040px, calc(100vw - 44px));
+  height: min(88vh, 980px);
   border-radius: 28px;
 }
 
-/* top chrome */
-.bw-launcher__chrome{
-  position: relative;
-  padding: 12px 12px 10px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+/* mobile bottom sheet */
+.bw-launcher__sheet.is-mobile{
+  width: 100%;
+  height: min(94svh, 980px);
+  border-radius: 24px 24px 0 0;
 }
 
-.bw-launcher__handle{
+/* small grab handle on mobile only */
+.bw-launcher__grab{
+  height: 18px;
+  position: relative;
+}
+.bw-launcher__grab::before{
+  content: "";
   position: absolute;
   top: 8px;
   left: 50%;
@@ -943,63 +945,22 @@
   background: rgba(255,255,255,0.20);
 }
 
-.bw-launcher__title{
-  font-weight: 900;
-  color: rgba(255,255,255,0.90);
-  padding-top: 0;
-}
-
-.bw-launcher__close{
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.92);
-  cursor: pointer;
-}
-
-/* body scroll area */
+/* body area */
 .bw-launcher__body{
-  overflow: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
   min-height: 0;
+  overflow: hidden; /* let BookOnline manage its own inner scrolling */
 }
 
-/* scale wrapper (kept; harmless if unused) */
-.bw-launcher__scale{
-  transform: scale(var(--bw-scale, 1));
-  transform-origin: top center;
+/* ✅ kill card-in-card: when BookOnline lives inside launcher, it becomes "content", not a second card */
+.bw-launcher__sheet .bmw{
+  padding: 0;
+  place-items: stretch;
+}
+.bw-launcher__sheet .bmw__card{
   width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
 }
-.bw-launcher__scaleInner{
-  width: 100%;
-}
-
-/* sticky footer CTA */
-.bw-launcher__sticky{
-  position: sticky;
-  bottom: 0;
-  padding: 12px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-  border-top: 1px solid rgba(255,255,255,0.10);
-  background: linear-gradient(to top, rgba(10,10,10,0.98), rgba(10,10,10,0.72));
-}
-.bw-launcher__stickyBtn{
-  width: 100%;
-  min-height: 52px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.16);
-  background: rgba(255,255,255,0.10);
-  color: rgba(255,255,255,0.94);
-  font-weight: 900;
-  cursor: pointer;
-}
-.bw-launcher__stickyBtn:hover{
-  background: rgba(255,255,255,0.14);
-  border-color: rgba(255,255,255,0.22);
-}
-
-.bw-launcher__cta{ margin-top: 18px; }

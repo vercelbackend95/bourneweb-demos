@@ -1,16 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-// ✅ zostaje jak masz
 import BookOnline from "../../../BookingWidget";
 
 type Props = {
   ctaLabel?: string;
   desktopBp?: number;
-  stickyCtaLabel?: string;
-  confirmSelector?: string;
-  forceStickyCta?: boolean;
 };
+
+function useMedia(query: string) {
+  const [ok, setOk] = useState(false);
+  useEffect(() => {
+    const m = window.matchMedia(query);
+    const on = () => setOk(m.matches);
+    on();
+    m.addEventListener?.("change", on);
+    return () => m.removeEventListener?.("change", on);
+  }, [query]);
+  return ok;
+}
 
 function usePrefersReducedMotionSSR() {
   const [reduce, setReduce] = useState(false);
@@ -23,18 +31,6 @@ function usePrefersReducedMotionSSR() {
     return () => mq.removeEventListener?.("change", set);
   }, []);
   return reduce;
-}
-
-function useMedia(query: string) {
-  const [ok, setOk] = useState(false);
-  useEffect(() => {
-    const m = window.matchMedia(query);
-    const on = () => setOk(m.matches);
-    on();
-    m.addEventListener?.("change", on);
-    return () => m.removeEventListener?.("change", on);
-  }, [query]);
-  return ok;
 }
 
 function lockScroll(on: boolean) {
@@ -54,16 +50,11 @@ function lockScroll(on: boolean) {
       window.scrollTo(0, Number(y));
       delete body.dataset.bwScrollY;
     }
-    html.classList.remove("bm-noScroll");
-    body.classList.remove("bm-noScroll");
     return;
   }
 
   const scrollY = window.scrollY || 0;
   body.dataset.bwScrollY = String(scrollY);
-
-  html.classList.add("bm-noScroll");
-  body.classList.add("bm-noScroll");
 
   body.style.position = "fixed";
   body.style.top = `-${scrollY}px`;
@@ -77,16 +68,12 @@ function lockScroll(on: boolean) {
 export default function BookingLauncher({
   ctaLabel = "Book online",
   desktopBp = 900,
-  stickyCtaLabel = "Confirm booking",
-  confirmSelector,
-  forceStickyCta = false,
 }: Props) {
   const reduce = usePrefersReducedMotionSSR();
   const isDesktop = useMedia(`(min-width: ${desktopBp}px)`);
 
   const [open, setOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement | null>(null);
-  const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -108,41 +95,12 @@ export default function BookingLauncher({
     requestAnimationFrame(() => sheetRef.current?.focus());
   }, [open]);
 
-  const sheetTween = reduce
-    ? { type: "tween" as const, duration: 0.18 }
+  // ✅ Morph ONLY on desktop
+  const layoutId = !reduce && isDesktop ? "booking-morph" : undefined;
+
+  const sheetTransition = reduce
+    ? { type: "tween" as const, duration: 0.22 }
     : { type: "spring" as const, stiffness: 420, damping: 38, mass: 0.9 };
-
-  // ✅ morph
-  const layoutId = reduce ? undefined : "booking-sheet";
-
-  const [hasInternalFooter, setHasInternalFooter] = useState(false);
-  useEffect(() => {
-    if (!open) return;
-    const root = contentRef.current;
-    if (!root) return;
-    const found =
-      !!root.querySelector(".bmw__footerLite") ||
-      !!root.querySelector(".bmw__btnPrimary") ||
-      !!root.querySelector("button[type='submit']");
-    setHasInternalFooter(found);
-  }, [open]);
-
-  const shouldShowSticky = forceStickyCta ? true : !hasInternalFooter;
-
-  const triggerConfirm = () => {
-    const root = contentRef.current;
-    if (!root) return;
-
-    if (confirmSelector) {
-      const el = root.querySelector(confirmSelector) as HTMLElement | null;
-      if (el) return el.click();
-    }
-    const el =
-      (root.querySelector("button[type='submit']") as HTMLElement | null) ||
-      (root.querySelector(".bmw__btnPrimary") as HTMLElement | null) ||
-      (root.querySelector("button") as HTMLElement | null);
-    el?.click();
-  };
 
   return (
     <>
@@ -163,7 +121,10 @@ export default function BookingLauncher({
 
       <AnimatePresence>
         {open && (
-          <div className="bw-launcher__portal" role="presentation">
+          <div
+            className={`bw-launcher__portal ${isDesktop ? "is-desktop" : "is-mobile"}`}
+            role="presentation"
+          >
             <motion.button
               type="button"
               className="bw-launcher__overlay"
@@ -179,36 +140,31 @@ export default function BookingLauncher({
               tabIndex={-1}
               role="dialog"
               aria-modal="true"
-              aria-label="Booking"
+              aria-label="Online booking"
               className={`bw-launcher__sheet ${isDesktop ? "is-desktop" : "is-mobile"}`}
               layoutId={layoutId}
-              initial={reduce ? { opacity: 0, scale: 0.985 } : false}
-              animate={reduce ? { opacity: 1, scale: 1, transition: sheetTween } : undefined}
-              exit={reduce ? { opacity: 0, scale: 0.985, transition: sheetTween } : undefined}
+              initial={
+                isDesktop
+                  ? (reduce ? { opacity: 0, scale: 0.985 } : false) // desktop morph
+                  : { y: "100%" } // mobile bottom sheet
+              }
+              animate={
+                isDesktop
+                  ? (reduce ? { opacity: 1, scale: 1, transition: sheetTransition } : undefined)
+                  : { y: 0, transition: sheetTransition }
+              }
+              exit={
+                isDesktop
+                  ? (reduce ? { opacity: 0, scale: 0.985, transition: sheetTransition } : undefined)
+                  : { y: "100%", transition: sheetTransition }
+              }
             >
-              <div className="bw-launcher__chrome">
-                <div className="bw-launcher__title">Booking</div>
-                <button
-                  type="button"
-                  className="bw-launcher__close"
-                  onClick={() => setOpen(false)}
-                  aria-label="Close"
-                >
-                  ×
-                </button>
-              </div>
+              {/* ✅ no "Booking" header, no X — just the real card */}
+              {!isDesktop ? <div className="bw-launcher__grab" aria-hidden="true" /> : null}
 
-              <div className="bw-launcher__body" ref={contentRef}>
+              <div className="bw-launcher__body">
                 <BookOnline />
               </div>
-
-              {shouldShowSticky && (
-                <div className="bw-launcher__sticky">
-                  <button type="button" className="bw-launcher__stickyBtn" onClick={triggerConfirm}>
-                    {stickyCtaLabel}
-                  </button>
-                </div>
-              )}
             </motion.div>
           </div>
         )}

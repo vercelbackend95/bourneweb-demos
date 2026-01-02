@@ -16,6 +16,22 @@ import TopNav from "./TopNav.astro";
     <meta name="description" content={description} />
     <title>{title}</title>
 
+    <!-- Always start at the top on initial load / bfcache restore / Astro client nav -->
+    <script is:inline>
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+
+      const shouldForceTop = () => !location.hash;
+
+      const forceTop = () => {
+        if (!shouldForceTop()) return;
+        requestAnimationFrame(() => window.scrollTo(0, 0));
+      };
+
+      window.addEventListener("DOMContentLoaded", forceTop);
+      window.addEventListener("pageshow", forceTop); // Safari bfcache
+      document.addEventListener("astro:page-load", forceTop); // Astro navigations
+    </script>
+
     <!-- Typography: load real fonts (no more fallback roulette) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
