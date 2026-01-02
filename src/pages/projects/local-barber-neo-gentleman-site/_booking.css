@@ -75,11 +75,11 @@
 }
 
 .bmw__card {
-  /* ✅ never use 100vw — it breaks centering on iOS and can "push right" */
-  width: min(720px, calc(100vw - 24px));
+  /* ✅ avoid 100vw math — rely on wrapper padding for perfect centering */
+  width: min(760px, 100%);
   margin-inline: auto;
 
-  height: min(100svh, 820px);
+  height: min(100svh, 860px);
   display: grid;
   grid-template-rows: auto 1fr auto;
   min-height: 0;
@@ -94,6 +94,15 @@
     0 24px 60px rgba(0,0,0,0.55),
     inset 0 1px 0 rgba(255,255,255,0.06);
   overflow: hidden;
+}
+
+/* ✅ bigger + richer on desktop */
+@media (min-width: 980px){
+  .bmw__card{
+    width: min(900px, 100%);
+    height: min(86vh, 960px);
+    border-radius: 28px;
+  }
 }
 
 /* ===== Header ===== */
@@ -403,6 +412,7 @@
 /* ✅ make month panel center its content */
 .bmw__panelMonth {
   min-height: 0;
+  learn: 0;
   display: grid;
   grid-template-rows: auto 1fr;
   justify-items: center; /* center calendar block */
@@ -696,7 +706,7 @@
 .bmw__btnPrimary:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* =========================
-   Sheet
+   Sheet (legacy / optional)
    ========================= */
 
 .bmw__sheetRoot { position: fixed; inset: 0; z-index: 999; }
@@ -732,7 +742,7 @@
 @media (max-width: 420px) {
   /* ✅ keep the card centered with side breathing room */
   .bmw__card {
-    width: calc(100vw - 24px);
+    width: 100%;
     height: 100svh;
     border-radius: 18px;
   }
@@ -817,8 +827,9 @@
   }
   .bmw__dayNum { font-size: 14px; }
 }
+
 /* =========================
-   BookingLauncher (morph → bottom sheet / drawer)
+   BookingLauncher (morph only)
    NEW CLASSES ONLY: bw-launcher__*
    ========================= */
 
@@ -854,11 +865,17 @@
   border: 1px solid rgba(255,255,255,0.10);
 }
 
-/* portal layer */
+/* portal layer (center everything) */
 .bw-launcher__portal{
   position: fixed;
   inset: 0;
   z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: clamp(12px, 2.2vw, 28px);
 }
 
 /* overlay */
@@ -870,51 +887,39 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* sheet / drawer */
+/* sheet / modal (base) */
 .bw-launcher__sheet{
-  position: absolute;
+  position: relative;
   overflow: hidden;
+
+  width: min(960px, 100%);
+  height: min(86vh, 960px);
+  max-height: calc(100svh - 24px);
+
   background: rgba(10,10,10,0.92);
   border: 1px solid rgba(255,255,255,0.12);
   box-shadow: 0 28px 80px rgba(0,0,0,0.62);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+
+  border-radius: 26px;
   display: grid;
   grid-template-rows: auto 1fr auto;
 }
 
-/* mobile modal (no bottom sheet) */
+/* mobile: safe, roomy, no overflow */
 .bw-launcher__sheet.is-mobile{
-  left: 50%;
-  top: 50%;
-  right: auto;
-  bottom: auto;
-
-  transform: translate(-50%, -50%);
-  width: min(560px, calc(100vw - 18px));
-  height: min(92svh, 920px);
-
+  width: min(760px, 100%);
+  height: min(94svh, 920px);
   border-radius: 22px;
 }
 
-
-/* desktop right drawer */
-/* desktop centered modal (keep mobile bottom sheet unchanged) */
-/* desktop centered modal */
+/* desktop: bigger + premium */
 .bw-launcher__sheet.is-desktop{
-  left: 50%;
-  top: 50%;
-  right: auto;
-  bottom: auto;
-
-  transform: translate(-50%, -50%);
-  width: min(560px, calc(100vw - 44px));
-  height: min(88vh, 860px);
-
-  border-radius: 24px;
+  width: min(1040px, 100%);
+  height: min(86vh, 980px);
+  border-radius: 28px;
 }
-
-
 
 /* top chrome */
 .bw-launcher__chrome{
@@ -944,11 +949,6 @@
   padding-top: 0;
 }
 
-
-.bw-launcher__sheet.is-desktop .bw-launcher__title{
-  padding-top: 0;
-}
-
 .bw-launcher__close{
   width: 44px;
   height: 44px;
@@ -962,11 +962,13 @@
 /* body scroll area */
 .bw-launcher__body{
   overflow: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  min-height: 0;
 }
 
-/* scale wrapper (desktop drawer fit without touching inner classes) */
+/* scale wrapper (kept; harmless if unused) */
 .bw-launcher__scale{
   transform: scale(var(--bw-scale, 1));
   transform-origin: top center;
@@ -999,4 +1001,5 @@
   background: rgba(255,255,255,0.14);
   border-color: rgba(255,255,255,0.22);
 }
+
 .bw-launcher__cta{ margin-top: 18px; }

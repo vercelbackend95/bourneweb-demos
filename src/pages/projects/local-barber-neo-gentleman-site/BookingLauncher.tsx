@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-// ✅ podmień na swój realny komponent
+// ✅ zostaje jak masz
 import BookOnline from "../../../BookingWidget";
 
 type Props = {
@@ -85,7 +85,6 @@ export default function BookingLauncher({
   const isDesktop = useMedia(`(min-width: ${desktopBp}px)`);
 
   const [open, setOpen] = useState(false);
-
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -113,7 +112,7 @@ export default function BookingLauncher({
     ? { type: "tween" as const, duration: 0.18 }
     : { type: "spring" as const, stiffness: 420, damping: 38, mass: 0.9 };
 
-  // ✅ morph (shared layout) zostaje
+  // ✅ morph
   const layoutId = reduce ? undefined : "booking-sheet";
 
   const [hasInternalFooter, setHasInternalFooter] = useState(false);
@@ -147,7 +146,6 @@ export default function BookingLauncher({
 
   return (
     <>
-      {/* ✅ Trigger (morph source) */}
       {!open && (
         <motion.button
           type="button"
@@ -201,7 +199,6 @@ export default function BookingLauncher({
               </div>
 
               <div className="bw-launcher__body" ref={contentRef}>
-                {/* ✅ BookOnline bez zmian */}
                 <BookOnline />
               </div>
 
