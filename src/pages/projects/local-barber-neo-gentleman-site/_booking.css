@@ -1,11 +1,12 @@
 /* =========================
    Booking Widget (Neo Gentleman)
+   Scoped styles (no body/html overflow hacks)
    ========================= */
-
 /* =========================
    BOOKING SECTION WRAPPER
    (align like GALLERY)
    ========================= */
+
 .bm-book{
   position: relative;
   padding: clamp(70px, 7vw, 110px) 0;
@@ -16,11 +17,13 @@
 }
 
 .bm-book__wrap{
-  width: min(1200px, calc(100% - 44px));
-  margin: 0 auto;
+  width: min(1200px, calc(100% - 44px)); /* ✅ identyczne gutters jak Gallery */
+  margin: 0 auto;                         /* ✅ centruje cały blok */
 }
 
-.bm-book__head{ margin-bottom: 18px; }
+.bm-book__head{
+  margin-bottom: 18px;
+}
 
 .bm-book__kicker{
   margin: 0 0 10px;
@@ -30,21 +33,21 @@
   color: var(--bm-kicker-color, rgba(255,255,255,.55));
 }
 
-.bm-book__title{ margin: 0; }
+.bm-book__title{
+  margin: 0;
+}
 
 .bm-book__sub{
   margin: 10px 0 0;
-  max-width: 64ch;
+  max-width: 64ch; /* jak w Gallery */
   color: rgba(255,255,255,.62);
 }
 
+/* mobile gutters trochę ciaśniej */
 @media (max-width: 420px){
   .bm-book__wrap{ width: min(1200px, calc(100% - 28px)); }
 }
 
-/* =========================
-   CORE WIDGET
-   ========================= */
 .bmw,
 .bmw * { box-sizing: border-box; }
 
@@ -64,6 +67,7 @@
   place-items: center;
   width: 100%;
 
+  /* keep the card perfectly centered with side padding on every device */
   padding-top: clamp(10px, 2.8vw, 20px);
   padding-bottom: clamp(10px, 2.8vw, 20px);
   padding-left: max(12px, env(safe-area-inset-left));
@@ -71,6 +75,7 @@
 }
 
 .bmw__card {
+  /* ✅ avoid 100vw math — rely on wrapper padding for perfect centering */
   width: min(760px, 100%);
   margin-inline: auto;
 
@@ -91,6 +96,7 @@
   overflow: hidden;
 }
 
+/* ✅ bigger + richer on desktop */
 @media (min-width: 980px){
   .bmw__card{
     width: min(900px, 100%);
@@ -99,9 +105,7 @@
   }
 }
 
-/* =========================
-   HEADER
-   ========================= */
+/* ===== Header ===== */
 .bmw__topbar {
   padding: 16px 18px 10px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -110,7 +114,7 @@
 .bmw__topbarRow {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* BOOK ONLINE to the left */
+  justify-content: flex-end;
 }
 
 .bmw__brandMark {
@@ -120,7 +124,7 @@
   color: rgba(255,255,255,0.55);
 }
 
-.bmw__topbarRow2 { margin-top: 6px; }
+.bmw__topbarRow2 { margin-top: 8px; }
 
 .bmw__title {
   margin: 0;
@@ -161,9 +165,7 @@
   letter-spacing: 0.08em;
 }
 
-/* =========================
-   CONTENT
-   ========================= */
+/* ===== Content ===== */
 .bmw__content {
   min-height: 0;
   padding: 16px 18px;
@@ -174,13 +176,12 @@
 .bmw__content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
 .bmw__content::-webkit-scrollbar-track { background: transparent; }
 
-/* ✅ Step2: calendar should fit, not create empty extra height */
+/* ✅ Step2: consistent gutters + centered calendar box */
 .bmw__content.is-step2 {
-  overflow: hidden;
+  overflow: hidden;          /* calendar should fit, not scroll content */
   display: grid;
-  padding-inline: clamp(12px, 3.2vw, 18px);
+  padding-inline: clamp(12px, 3.2vw, 18px); /* equal left/right space on all devices */
   padding-block: 14px;
-  align-content: start;
 }
 
 .bmw__block + .bmw__block { margin-top: 18px; }
@@ -202,6 +203,7 @@
 /* =========================
    STEP 1
    ========================= */
+
 .bmw__panelStep1 { display: grid; gap: 18px; }
 
 /* service list */
@@ -227,9 +229,11 @@
 .bmw__serviceRow:hover { border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.05); }
 .bmw__serviceRow:active { transform: translateY(1px); }
 .bmw__serviceRow:focus-visible { outline: 2px solid rgba(47,134,255,0.75); outline-offset: 2px; }
+
 .bmw__serviceRow.is-selected { border-color: rgba(210,170,110,0.70); background: rgba(210,170,110,0.10); }
 
 .bmw__serviceMain { min-width: 0; display: grid; gap: 6px; }
+
 .bmw__serviceTop { display: flex; align-items: center; gap: 10px; min-width: 0; }
 
 .bmw__serviceName {
@@ -262,6 +266,28 @@
   text-overflow: ellipsis;
 }
 
+.bmw__serviceMeta { display: flex; gap: 8px; align-items: center; }
+
+.bmw__pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 10px;
+  min-height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.20);
+  color: rgba(255,255,255,0.75);
+  font-size: 12px;
+}
+
+.bmw__pill--time {
+  border-color: rgba(210,170,110,0.35);
+  background: rgba(210,170,110,0.10);
+  color: rgba(255,255,255,0.86);
+  font-weight: 700;
+}
+
 .bmw__serviceRight { display: grid; justify-items: end; gap: 10px; }
 
 .bmw__price { font-size: 18px; font-weight: 900; color: rgba(255,255,255,0.92); letter-spacing: -0.02em; }
@@ -284,7 +310,7 @@
   transform: scale(1);
 }
 
-/* accordion */
+/* barber accordion */
 .bmw__accordionBtn {
   width: 100%;
   display: grid;
@@ -373,27 +399,34 @@
 .bmw__barberRowName { font-size: 14px; font-weight: 900; color: rgba(255,255,255,0.92); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bmw__barberRowRole { font-size: 12px; color: rgba(255,255,255,0.62); font-weight: 700; white-space: nowrap; }
 
+.bmw__barberRowMeta { display: flex; gap: 10px; align-items: center; }
+
 .bmw__muted { color: rgba(255,255,255,0.62); font-size: 12px; font-weight: 700; }
 
 /* =========================
    STEP 2 (Calendar)
    ========================= */
+
 .bmw__panelLite { display: grid; gap: 14px; }
 
-/* ✅ auto + auto, no stretching -> equal bottom gap */
+/* ✅ make month panel center its content */
 .bmw__panelMonth {
   min-height: 0;
   min-width: 0;
   display: grid;
-  grid-template-rows: auto auto; /* key fix */
+
+  /* było: grid-template-rows: auto 1fr; */
+  grid-template-rows: auto auto;
+
   justify-items: center;
   align-content: start;
   row-gap: 12px;
 }
 
+
 .bmw__monthTop {
   width: 100%;
-  max-width: 640px;
+  max-width: 640px; /* keep header aligned with calendar width */
   display: grid;
   grid-template-columns: 52px 1fr 52px;
   align-items: center;
@@ -424,6 +457,8 @@
 .bmw__iconBtn:active { transform: scale(0.98); }
 .bmw__iconBtn:focus-visible { outline: 2px solid rgba(47,134,255,0.75); outline-offset: 2px; }
 
+/* ✅ calendar always centered + slightly smaller than content area
+   with equal left/right gap */
 .bmw__calendarFull {
   width: 100%;
   max-width: min(640px, 100%);
@@ -432,19 +467,13 @@
   border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.02);
+
+  /* equal inner padding on both sides */
   padding: 12px;
 
   min-height: 0;
   display: grid;
   align-content: start;
-
-  /* ✅ do not fill remaining height */
-  align-self: start;
-  height: fit-content;
-
-  /* spacing tokens */
-  --cal-gap: 8px;
-  --cal-pad-x: 2px;
 }
 
 .bmw__calStack {
@@ -455,7 +484,12 @@
   display: grid;
   gap: 10px;
   min-height: 0;
-  align-content: start;
+}
+
+/* ✅ single source of truth for spacing */
+.bmw__calendarFull {
+  --cal-gap: 8px;
+  --cal-pad-x: 2px; /* tiny symmetrical inset so grid never kisses edges */
 }
 
 .bmw__weekRow {
@@ -472,7 +506,6 @@
   color: rgba(255,255,255,0.45);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  min-width: 0;
 }
 
 .bmw__calGridFull {
@@ -483,8 +516,12 @@
   width: 100%;
 }
 
+/* ✅ allow 7 columns to shrink on mobile (prevents "6 of 7" clipping) */
+.bmw__weekDay,
 .bmw__dayFull,
-.bmw__calEmptyFull { min-width: 0; }
+.bmw__calEmptyFull{
+  min-width: 0;
+}
 
 .bmw__calEmptyFull {
   aspect-ratio: 1 / 1;
@@ -521,6 +558,7 @@
 /* =========================
    STEP 3
    ========================= */
+
 .bmw__contextCard,
 .bmw__slotsCard {
   border-radius: 20px;
@@ -600,16 +638,17 @@
 .bmw__softErr { color: rgba(255,150,150,0.85); font-size: 12px; }
 
 /* =========================
-   FOOTER
+   Footer
    ========================= */
+
 .bmw__footerLite {
   padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
   border-top: 1px solid rgba(255,255,255,0.08);
   background: rgba(0,0,0,0.55);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 
   display: grid;
+  /* ✅ prevents the footer summary from stretching the whole widget width */
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
@@ -633,6 +672,19 @@
 }
 .bmw__btnBack:disabled { opacity: 0.45; }
 .bmw__btnBackIcon { font-size: 18px; line-height: 1; color: rgba(255,255,255,0.72); }
+
+.bmw__summaryBtn {
+  min-width: 0;
+  min-height: 46px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.02);
+  color: rgba(255,255,255,0.80);
+  padding: 10px 12px;
+  text-align: left;
+  max-width: 100%;
+}
+.bmw__summaryLine { display: block; min-width: 0; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .bmw__summaryBtn2 {
   min-width: 0;
@@ -671,8 +723,9 @@
 .bmw__btnPrimary:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* =========================
-   SHEET (legacy / optional)
+   Sheet (legacy / optional)
    ========================= */
+
 .bmw__sheetRoot { position: fixed; inset: 0; z-index: 999; }
 .bmw__sheetOverlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); border: 0; }
 .bmw__sheet {
@@ -700,9 +753,11 @@
 .bmw__field { display: grid; }
 
 /* =========================
-   RESPONSIVE (Calendar-focused)
+   Responsive tweaks (Calendar-focused)
    ========================= */
+
 @media (max-width: 420px) {
+  /* ✅ keep the card centered with side breathing room */
   .bmw__card {
     width: 100%;
     height: 100svh;
@@ -712,10 +767,13 @@
   .bmw__topbar { padding: 14px 14px 10px; }
   .bmw__content { padding: 12px 12px; }
 
+  /* ✅ Step2: equal gutters */
   .bmw__content.is-step2 {
     padding-inline: 12px;
     padding-block: 12px;
   }
+
+  .bmw__panelMonth { justify-items: center; }
 
   .bmw__monthTop {
     max-width: 560px;
@@ -725,25 +783,39 @@
 
   .bmw__monthTitle { font-size: 16px; }
 
-  .bmw__iconBtn { width: 40px; height: 40px; font-size: 18px; }
+  .bmw__iconBtn {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
 
+  /* ✅ calendar: smaller + centered */
   .bmw__calendarFull {
     max-width: min(560px, 100%);
     margin-inline: auto;
     padding: 8px;
+
+    /* smaller gaps to avoid clipping */
     --cal-gap: 4px;
     --cal-pad-x: 0px;
     border-radius: 18px;
   }
 
-  .bmw__weekDay { font-size: 10px; letter-spacing: 0.12em; }
+  .bmw__weekDay {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
 
   .bmw__dayFull,
-  .bmw__calEmptyFull { border-radius: 14px; }
+  .bmw__calEmptyFull {
+    border-radius: 14px;
+  }
 
-  .bmw__dayFull { padding: 8px; }
+  .bmw__dayFull{ padding: 8px; }
+
   .bmw__dayNum { font-size: 15px; }
 
+  /* Step3 */
   .bmw__timesGrid { grid-template-columns: 1fr; }
   .bmw__slotsScroll { max-height: 220px; }
 
@@ -752,6 +824,7 @@
   .bmw__price { font-size: 17px; }
 }
 
+/* ✅ For short viewports (iPhone landscape / small height) */
 @media (max-width: 420px) and (max-height: 760px) {
   .bmw__calendarFull {
     padding: 7px;
@@ -760,6 +833,7 @@
   .bmw__monthTop { padding-top: 6px; }
 }
 
+/* tiny phones */
 @media (max-width: 360px) {
   .bmw__serviceRow { padding: 12px; }
   .bmw__serviceName { font-size: 15px; }
@@ -773,10 +847,12 @@
   .bmw__dayFull { padding: 7px; }
   .bmw__dayNum { font-size: 14px; }
 }
-
 /* =========================
-   BookingLauncher (Modal / Bottom Sheet)
+   BookingLauncher
+   Desktop: MORPH centered modal
+   Mobile: Bottom Sheet (no morph)
    ========================= */
+
 .bw-launcher__cta{
   display: inline-flex;
   align-items: center;
@@ -809,6 +885,7 @@
   border: 1px solid rgba(255,255,255,0.10);
 }
 
+/* portal */
 .bw-launcher__portal{
   position: fixed;
   inset: 0;
@@ -829,6 +906,7 @@
   padding: 0;
 }
 
+/* overlay */
 .bw-launcher__overlay{
   position: absolute;
   inset: 0;
@@ -837,10 +915,12 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* sheet */
 .bw-launcher__sheet{
   position: relative;
   overflow: hidden;
 
+  /* we make the SHEET the "card", and flatten the inner card to avoid card-in-card */
   background:
     radial-gradient(1200px 600px at 50% -20%, rgba(210, 170, 110, 0.10), transparent 60%),
     radial-gradient(800px 420px at 20% 10%, rgba(255, 255, 255, 0.05), transparent 55%),
@@ -854,23 +934,26 @@
   flex-direction: column;
 }
 
+/* desktop centered modal */
 .bw-launcher__sheet.is-desktop{
   width: min(1040px, calc(100vw - 44px));
   height: min(88vh, 980px);
   border-radius: 28px;
 }
 
+/* mobile bottom sheet */
 .bw-launcher__sheet.is-mobile{
   width: 100%;
   height: min(94svh, 980px);
   border-radius: 24px 24px 0 0;
 }
 
+/* small grab handle on mobile only */
 .bw-launcher__grab{
-  height: 28px;
+  height: 28px;              /* was ~18 */
   position: relative;
   flex: 0 0 auto;
-  touch-action: none;
+  touch-action: none;        /* crisp drag */
 }
 .bw-launcher__grab::before{
   content: "";
@@ -878,12 +961,22 @@
   top: 11px;
   left: 50%;
   transform: translateX(-50%);
-  width: 54px;
+  width: 54px;               /* a bit wider */
   height: 6px;
   border-radius: 999px;
   background: rgba(255,255,255,0.22);
 }
 
+/* scroll in sheet content */
+.bw-launcher__body{
+  min-height: 0;
+  overflow: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y; /* allow scrolling, plus our "drag when at top" logic */
+}
+/* intro header (BOOK ONLINE / Book fast. Look sharp.) */
 .bw-launcher__head{
   padding: 16px 18px 14px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -910,18 +1003,28 @@
   font-weight: 900;
 }
 
-/* allow scroll inside bottom sheet */
-.bw-launcher__body{
-  min-height: 0;
-  flex: 1;
-  overflow: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  touch-action: pan-y;
+.bw-launcher__grab::before{
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.20);
 }
 
-/* kill card-in-card when BookOnline lives inside launcher */
+/* body area */
+.bw-launcher__body{
+  min-height: 0;
+  overflow: hidden; /* let BookOnline manage its own inner scrolling */
+    flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ✅ kill card-in-card: when BookOnline lives inside launcher, it becomes "content", not a second card */
 .bw-launcher__sheet .bmw{
   padding: 0;
   place-items: stretch;
@@ -933,4 +1036,39 @@
   border: 0;
   box-shadow: none;
   background: transparent;
+}
+/* Put BOOK ONLINE directly above "Choose a service" */
+.bmw__topbarRow{
+  justify-content: flex-start; /* was flex-end */
+}
+
+.bmw__topbarRow2{
+  margin-top: 6px; /* tighter so it feels "directly above" */
+}
+/* allow scrolling inside bottom sheet on mobile */
+.bw-launcher__body{
+  min-height: 0;
+  overflow: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* grab handle area for swipe */
+.bw-launcher__grab{
+  height: 18px;
+  position: relative;
+  flex: 0 0 auto;
+  touch-action: none; /* so the drag is crisp */
+}
+.bw-launcher__grab::before{
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.20);
 }
