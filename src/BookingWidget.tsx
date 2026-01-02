@@ -19,8 +19,8 @@ type Service = {
   name: string;
   mins: number;
   price: number;
-  desc: string; // 1-liner
-  details: string; // future-proof
+  desc: string;
+  details: string;
   badge?: "Most popular" | "Best value";
 };
 
@@ -150,64 +150,17 @@ function avatarDataURI(seed: string, accent: string) {
 }
 
 const BARBERS = [
-  {
-    key: "mason",
-    name: "Mason",
-    role: "Senior",
-    rating: 4.9,
-    reviews: 120,
-    tags: [],
-    photo: avatarDataURI("M", "#d2aa6e"),
-  },
-  {
-    key: "oliver",
-    name: "Oliver",
-    role: "Fade Specialist",
-    rating: 4.9,
-    reviews: 120,
-    tags: ["fade"],
-    photo: avatarDataURI("O", "#c8a46a"),
-  },
-  {
-    key: "theo",
-    name: "Theo",
-    role: "Classic Cuts",
-    rating: 4.9,
-    reviews: 120,
-    tags: [],
-    photo: avatarDataURI("T", "#b99254"),
-  },
+  { key: "mason", name: "Mason", role: "Senior", rating: 4.9, reviews: 120, tags: [], photo: avatarDataURI("M", "#d2aa6e") },
+  { key: "oliver", name: "Oliver", role: "Fade Specialist", rating: 4.9, reviews: 120, tags: ["fade"], photo: avatarDataURI("O", "#c8a46a") },
+  { key: "theo", name: "Theo", role: "Classic Cuts", rating: 4.9, reviews: 120, tags: [], photo: avatarDataURI("T", "#b99254") },
 ] as const satisfies readonly Barber[];
 
 const ANY_BARBER_PHOTO = avatarDataURI("NP", "#a78a5a");
 
 const SERVICES: Service[] = [
-  {
-    key: "skinfade",
-    name: "Skin fade",
-    mins: 50,
-    price: 28,
-    desc: "Clean blend, crisp edges.",
-    details: "Clean blend, crisp edges. Includes line-up + tidy finish.",
-    badge: "Most popular",
-  },
-  {
-    key: "haircutbeard",
-    name: "Haircut + beard",
-    mins: 60,
-    price: 30,
-    desc: "Full refresh, balanced shape.",
-    details: "Haircut + beard tidy. Balanced shape, clean neckline.",
-    badge: "Best value",
-  },
-  {
-    key: "hottowel",
-    name: "Hot towel shave",
-    mins: 30,
-    price: 18,
-    desc: "Warm towel, close finish.",
-    details: "Warm towel + close shave. Sensitive-skin friendly.",
-  },
+  { key: "skinfade", name: "Skin fade", mins: 50, price: 28, desc: "Clean blend, crisp edges.", details: "Clean blend, crisp edges. Includes line-up + tidy finish.", badge: "Most popular" },
+  { key: "haircutbeard", name: "Haircut + beard", mins: 60, price: 30, desc: "Full refresh, balanced shape.", details: "Haircut + beard tidy. Balanced shape, clean neckline.", badge: "Best value" },
+  { key: "hottowel", name: "Hot towel shave", mins: 30, price: 18, desc: "Warm towel, close finish.", details: "Warm towel + close shave. Sensitive-skin friendly." },
 ];
 
 function getMonthGrid(view: Date) {
@@ -226,13 +179,8 @@ function getMonthGrid(view: Date) {
   return { cells };
 }
 
-function useRovingRadio<T extends string>(
-  ids: T[],
-  selected: T | null,
-  onChange: (id: T) => void
-) {
+function useRovingRadio<T extends string>(ids: T[], selected: T | null, onChange: (id: T) => void) {
   const activeIndex = Math.max(0, selected ? ids.indexOf(selected) : 0);
-
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) return;
     e.preventDefault();
@@ -243,14 +191,12 @@ function useRovingRadio<T extends string>(
     if (e.key === "End") next = ids.length - 1;
     onChange(ids[next]);
   };
-
   return { onKeyDown };
 }
 
 export default function BookingWidget() {
   const [step, setStep] = useState<Step>(1);
 
-  // Default: no preference
   const [barberKey, setBarberKey] = useState<BarberKey | null>(null);
   const [serviceKey, setServiceKey] = useState<ServiceKey | null>(null);
 
@@ -273,10 +219,8 @@ export default function BookingWidget() {
   useEffect(() => setViewMonth(new Date(date.getFullYear(), date.getMonth(), 1)), [date]);
 
   const baseTimes = useMemo(() => buildTimesForDate(date), [date]);
-  const times = useMemo(
-    () => (service ? filterTimesForService(baseTimes, service.mins) : baseTimes),
-    [baseTimes, service]
-  );
+  const times = useMemo(() => (service ? filterTimesForService(baseTimes, service.mins) : baseTimes), [baseTimes, service]);
+
   const noSlots = times.length === 0;
 
   const endTime = useMemo(() => {
@@ -325,15 +269,9 @@ export default function BookingWidget() {
   const step2Ready = startOfDay(date) >= minDay;
   const step3Ready = !!time && phoneOk;
 
-  const title = useMemo(() => {
-    if (step === 1) return "Choose a service";
-    if (step === 2) return "Pick a date";
-    return "Pick a time";
-  }, [step]);
-
+  const title = useMemo(() => (step === 1 ? "Choose a service" : step === 2 ? "Pick a date" : "Pick a time"), [step]);
   const progressPct = useMemo(() => (step / 3) * 100, [step]);
 
-  // Radiogroups
   const serviceIds = ["skinfade", "haircutbeard", "hottowel"] as ServiceKey[];
   const serviceRadio = useRovingRadio<ServiceKey>(serviceIds, serviceKey, (id) => setServiceKey(id));
 
@@ -348,19 +286,10 @@ export default function BookingWidget() {
     }
   );
 
-  // Barber accordion
   const [barberOpen, setBarberOpen] = useState(false);
 
-  // Footer summary (step 1: 2 lines)
-  const step1SummaryLine1 = useMemo(() => {
-    if (!service) return "Select a service";
-    return `${service.name} • ${service.mins} min`;
-  }, [service]);
-
-  const step1SummaryLine2 = useMemo(() => {
-    if (barberKey === null) return "No preference (fastest)";
-    return barber ? `${barber.name} • ${barber.role}` : "No preference (fastest)";
-  }, [barberKey, barber]);
+  const step1SummaryLine1 = useMemo(() => (!service ? "Select a service" : `${service.name} • ${service.mins} min`), [service]);
+  const step1SummaryLine2 = useMemo(() => (barberKey === null ? "No preference (fastest)" : barber ? `${barber.name} • ${barber.role}` : "No preference (fastest)"), [barberKey, barber]);
 
   const summaryFull = useMemo(() => {
     const s = service ? `${service.name} · £${service.price}` : "—";
@@ -378,7 +307,6 @@ export default function BookingWidget() {
     return `${base}${d}${t}`;
   }, [service, step, date, time, endTime]);
 
-  // Sheet
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetMode, setSheetMode] = useState<"details" | "summary">("details");
   const sheetCloseRef = useRef<HTMLButtonElement | null>(null);
@@ -400,17 +328,12 @@ export default function BookingWidget() {
     setSheetMode("details");
     setSheetOpen(true);
   };
-
   const openSummarySheet = () => {
     setSheetMode("summary");
     setSheetOpen(true);
   };
 
-  const primaryLabel = useMemo(() => {
-    if (step === 1) return "Choose date";
-    if (step === 2) return "Choose time";
-    return sending ? "Confirming…" : "Confirm";
-  }, [step, sending]);
+  const primaryLabel = useMemo(() => (step === 1 ? "Choose date" : step === 2 ? "Choose time" : sending ? "Confirming…" : "Confirm"), [step, sending]);
 
   const onPrimary = async () => {
     if (step === 1) {
@@ -423,7 +346,6 @@ export default function BookingWidget() {
       setStep(3);
       return;
     }
-
     if (!step3Ready || sending) return;
     setSending(true);
     await new Promise((r) => setTimeout(r, 650));
@@ -431,10 +353,11 @@ export default function BookingWidget() {
     alert("Booked (demo) ✅");
   };
 
+  const contentStepClass = step === 2 ? "is-step2" : step === 3 ? "is-step3" : "is-step1";
+
   return (
     <div className="bmw">
       <form className="bmw__card" onSubmit={(e) => e.preventDefault()} aria-label="Book online">
-        {/* HEADER */}
         <header className="bmw__topbar">
           <div className="bmw__topbarRow">
             <div className="bmw__brandMark">Book online</div>
@@ -454,22 +377,16 @@ export default function BookingWidget() {
           </div>
         </header>
 
-        <main className="bmw__content" aria-live="polite">
-          {/* ========================= STEP 1 ========================= */}
+        {/* ✅ CHANGE: step class so CSS can tune calendar */}
+        <main className={`bmw__content ${contentStepClass}`} aria-live="polite">
           {step === 1 ? (
             <section className="bmw__panelStep1" aria-label="Step 1">
-              {/* SERVICE FIRST */}
               <div className="bmw__block">
                 <div className="bmw__labelRow">
                   <div className="bmw__labelSmall">Service (required)</div>
                 </div>
 
-                <div
-                  className="bmw__serviceList"
-                  role="radiogroup"
-                  aria-label="Choose a service"
-                  onKeyDown={serviceRadio.onKeyDown}
-                >
+                <div className="bmw__serviceList" role="radiogroup" aria-label="Choose a service" onKeyDown={serviceRadio.onKeyDown}>
                   {SERVICES.map((s) => {
                     const selected = s.key === serviceKey;
                     return (
@@ -508,7 +425,6 @@ export default function BookingWidget() {
                 </div>
               </div>
 
-              {/* BARBER OPTIONAL (accordion) */}
               <div className="bmw__block">
                 <div className="bmw__labelRow">
                   <div className="bmw__labelSmall">Barber (optional)</div>
@@ -523,18 +439,12 @@ export default function BookingWidget() {
                 >
                   <span className="bmw__accordionLeft">
                     <span className="bmw__avatarSm" aria-hidden="true">
-                      <img
-                        src={barberKey === null ? ANY_BARBER_PHOTO : barber?.photo || ANY_BARBER_PHOTO}
-                        alt=""
-                        loading="lazy"
-                      />
+                      <img src={barberKey === null ? ANY_BARBER_PHOTO : barber?.photo || ANY_BARBER_PHOTO} alt="" loading="lazy" />
                     </span>
                     <span className="bmw__accordionTxt">
                       <span className="bmw__accordionTitle">
                         {barberKey === null ? "No preference" : barber?.name}
-                        <span className="bmw__accordionSub">
-                          {barberKey === null ? " (fastest)" : ` • ${barber?.role}`}
-                        </span>
+                        <span className="bmw__accordionSub">{barberKey === null ? " (fastest)" : ` • ${barber?.role}`}</span>
                       </span>
                       <span className="bmw__accordionHint">Tap to pick a specific barber</span>
                     </span>
@@ -546,13 +456,7 @@ export default function BookingWidget() {
                 </button>
 
                 <div id="bmw-barber-panel" className={`bmw__accordionPanel ${barberOpen ? "is-open" : ""}`}>
-                  <div
-                    role="radiogroup"
-                    aria-label="Choose a barber"
-                    onKeyDown={barberRadio.onKeyDown}
-                    className="bmw__barberList"
-                  >
-                    {/* No preference row */}
+                  <div role="radiogroup" aria-label="Choose a barber" onKeyDown={barberRadio.onKeyDown} className="bmw__barberList">
                     <button
                       type="button"
                       role="radio"
@@ -623,27 +527,16 @@ export default function BookingWidget() {
             </section>
           ) : null}
 
-          {/* ========================= STEP 2 ========================= */}
           {step === 2 ? (
             <section className="bmw__panelLite bmw__panelMonth" aria-label="Step 2">
               <div className="bmw__monthTop">
-                <button
-                  type="button"
-                  className="bmw__iconBtn"
-                  onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
-                  aria-label="Previous month"
-                >
+                <button type="button" className="bmw__iconBtn" onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))} aria-label="Previous month">
                   ‹
                 </button>
 
                 <div className="bmw__monthTitle">{prettyMonth(viewMonth)}</div>
 
-                <button
-                  type="button"
-                  className="bmw__iconBtn"
-                  onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
-                  aria-label="Next month"
-                >
+                <button type="button" className="bmw__iconBtn" onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))} aria-label="Next month">
                   ›
                 </button>
               </div>
@@ -698,7 +591,6 @@ export default function BookingWidget() {
             </section>
           ) : null}
 
-          {/* ========================= STEP 3 ========================= */}
           {step === 3 ? (
             <section className="bmw__panelLite bmw__panelTime" aria-label="Step 3">
               <div className="bmw__contextCard">
@@ -775,7 +667,6 @@ export default function BookingWidget() {
           ) : null}
         </main>
 
-        {/* FOOTER */}
         <footer className="bmw__footerLite">
           <button
             type="button"
@@ -808,18 +699,13 @@ export default function BookingWidget() {
             type="button"
             className="bmw__btnPrimary"
             onClick={onPrimary}
-            disabled={
-              (step === 1 && !step1Ready) ||
-              (step === 2 && !step2Ready) ||
-              (step === 3 && (!step3Ready || sending))
-            }
+            disabled={(step === 1 && !step1Ready) || (step === 2 && !step2Ready) || (step === 3 && (!step3Ready || sending))}
             aria-label={step === 3 ? "Confirm booking" : "Continue"}
           >
             {primaryLabel}
           </button>
         </footer>
 
-        {/* SHEET */}
         {sheetOpen ? (
           <div className="bmw__sheetRoot" role="presentation">
             <button type="button" className="bmw__sheetOverlay" onClick={() => setSheetOpen(false)} aria-label="Close overlay" />
@@ -827,13 +713,7 @@ export default function BookingWidget() {
             <div className="bmw__sheet" role="dialog" aria-modal="true" aria-label="Details">
               <div className="bmw__sheetTop">
                 <div className="bmw__sheetTitle">{sheetMode === "summary" ? "Summary" : "Add details"}</div>
-                <button
-                  ref={sheetCloseRef}
-                  type="button"
-                  className="bmw__sheetClose"
-                  onClick={() => setSheetOpen(false)}
-                  aria-label="Close"
-                >
+                <button ref={sheetCloseRef} type="button" className="bmw__sheetClose" onClick={() => setSheetOpen(false)} aria-label="Close">
                   ✕
                 </button>
               </div>
@@ -842,38 +722,18 @@ export default function BookingWidget() {
                 {sheetMode === "summary" ? (
                   <>
                     <div style={{ fontWeight: 900, color: "rgba(255,255,255,.90)" }}>{summaryFull}</div>
-                    <div style={{ marginTop: 10, color: "rgba(255,255,255,.62)" }}>
-                      Tap Back to edit, or Confirm when you’re ready.
-                    </div>
+                    <div style={{ marginTop: 10, color: "rgba(255,255,255,.62)" }}>Tap Back to edit, or Confirm when you’re ready.</div>
                   </>
                 ) : (
                   <>
                     <label className="bmw__field">
-                      <span style={{ display: "block", fontSize: 12, color: "rgba(255,255,255,.60)", marginBottom: 6 }}>
-                        Name
-                      </span>
-                      <input
-                        className="bmw__input"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Your name"
-                        autoComplete="name"
-                        aria-label="Name"
-                      />
+                      <span style={{ display: "block", fontSize: 12, color: "rgba(255,255,255,.60)", marginBottom: 6 }}>Name</span>
+                      <input className="bmw__input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" aria-label="Name" />
                     </label>
 
                     <label className="bmw__field">
-                      <span style={{ display: "block", fontSize: 12, color: "rgba(255,255,255,.60)", marginBottom: 6 }}>
-                        Notes
-                      </span>
-                      <textarea
-                        className="bmw__input bmw__textarea"
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        rows={3}
-                        placeholder="Beard trim? Skin fade length? Any allergies?"
-                        aria-label="Notes"
-                      />
+                      <span style={{ display: "block", fontSize: 12, color: "rgba(255,255,255,.60)", marginBottom: 6 }}>Notes</span>
+                      <textarea className="bmw__input bmw__textarea" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Beard trim? Skin fade length? Any allergies?" aria-label="Notes" />
                     </label>
                   </>
                 )}
