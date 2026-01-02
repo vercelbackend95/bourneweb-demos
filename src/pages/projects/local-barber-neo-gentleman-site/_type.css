@@ -1,0 +1,103 @@
+/* ===== Typography system (Neo Gentleman) ===== */
+
+:root{
+  /* Font families */
+  --bm-font-sans: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --bm-font-serif: "Playfair Display", ui-serif, Georgia, "Times New Roman", serif;
+
+  /* Base sizing */
+  --bm-text-base: 15px;
+  --bm-leading: 1.6;
+
+  /* Scale (tight + premium) */
+  --bm-text-xs: 12px;
+  --bm-text-sm: 13px;
+  --bm-text-md: 15px;
+  --bm-text-lg: 16px;
+  --bm-text-xl: 18px;
+
+  /* Display scale */
+  --bm-h3: clamp(18px, 2.2vw, 22px);
+  --bm-h2: clamp(22px, 3.0vw, 32px);
+  --bm-h1: clamp(44px, 5.2vw, 68px);
+
+  /* Tracking */
+  --bm-track-tight: -0.03em;
+  --bm-track-normal: 0.01em;
+  --bm-track-kicker: 0.28em;
+
+  /* Kicker */
+  --bm-kicker-size: 11px;
+  --bm-kicker-color: rgba(255,255,255,.55);
+
+  /* Reading width */
+  --bm-measure: 60ch;
+}
+
+/* Global base */
+html, body{
+  font-family: var(--bm-font-sans);
+  font-size: var(--bm-text-base);
+  line-height: var(--bm-leading);
+  text-rendering: optimizeLegibility;
+  font-kerning: normal;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+}
+
+.bm-root{
+  font-family: var(--bm-font-sans);
+}
+
+/* Headings: one voice */
+h1, h2, h3{
+  font-family: var(--bm-font-serif);
+  letter-spacing: var(--bm-track-tight);
+  margin: 0;
+}
+
+/* Utilities (use these everywhere instead of random sizes) */
+.bm-kicker{
+  font-size: var(--bm-kicker-size);
+  letter-spacing: var(--bm-track-kicker);
+  text-transform: uppercase;
+  color: var(--bm-kicker-color);
+  margin: 0 0 10px;
+}
+
+.bm-title{
+  font-family: var(--bm-font-serif);
+  font-size: var(--bm-h1);
+  line-height: .96;
+  letter-spacing: var(--bm-track-tight);
+  margin: 0 0 14px;
+  color: rgba(255,255,255,.95);
+}
+
+.bm-lead{
+  max-width: var(--bm-measure);
+  color: rgba(255,255,255,.70);
+  font-size: var(--bm-text-md);
+  line-height: 1.65;
+  margin: 0 0 18px;
+}
+
+.bm-body{
+  font-size: var(--bm-text-md);
+  color: rgba(255,255,255,.72);
+}
+
+.bm-small{
+  font-size: var(--bm-text-xs);
+  color: rgba(255,255,255,.60);
+}
+
+/* Don’t use weird weights like 650 — keep the ladder clean */
+.bm-weight-500{ font-weight: 500; }
+.bm-weight-600{ font-weight: 600; }
+.bm-weight-700{ font-weight: 700; }
+.bm-weight-800{ font-weight: 800; }
+
+/* Mobile: slightly bigger base for readability */
+@media (max-width: 640px){
+  :root{ --bm-text-base: 16px; }
+}

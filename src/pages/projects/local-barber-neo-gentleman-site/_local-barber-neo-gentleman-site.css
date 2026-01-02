@@ -1,5 +1,6 @@
 /* Aggregator: imports only (no section styles here) */
 @import "./_base.css";
+@import "./_type.css";
 @import "./_nav.css";
 @import "./_hero.css";
 @import "./_services.css";
