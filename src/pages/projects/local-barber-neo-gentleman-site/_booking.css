@@ -910,8 +910,8 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 
-  display: grid;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
 }
 
 /* desktop centered modal */
@@ -933,6 +933,33 @@
   height: 18px;
   position: relative;
 }
+/* intro header (BOOK ONLINE / Book fast. Look sharp.) */
+.bw-launcher__head{
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background:
+    radial-gradient(900px 420px at 30% -10%, rgba(210,170,110,0.10), transparent 62%),
+    rgba(0,0,0,0.10);
+}
+
+.bw-launcher__kicker{
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  font-weight: 700;
+}
+
+.bw-launcher__headline{
+  margin: 0;
+  font-size: clamp(20px, 2.2vw, 28px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: rgba(255,255,255,0.92);
+  font-weight: 900;
+}
+
 .bw-launcher__grab::before{
   content: "";
   position: absolute;
@@ -949,6 +976,9 @@
 .bw-launcher__body{
   min-height: 0;
   overflow: hidden; /* let BookOnline manage its own inner scrolling */
+    flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ✅ kill card-in-card: when BookOnline lives inside launcher, it becomes "content", not a second card */

@@ -160,11 +160,17 @@ export default function BookingLauncher({
               }
             >
               {/* ✅ no "Booking" header, no X — just the real card */}
-              {!isDesktop ? <div className="bw-launcher__grab" aria-hidden="true" /> : null}
+{!isDesktop ? <div className="bw-launcher__grab" aria-hidden="true" /> : null}
 
-              <div className="bw-launcher__body">
-                <BookOnline />
-              </div>
+<header className="bw-launcher__head" aria-label="Booking intro">
+  <p className="bw-launcher__kicker">BOOK ONLINE</p>
+  <h2 className="bw-launcher__headline">Book fast. Look sharp.</h2>
+</header>
+
+<div className="bw-launcher__body">
+  <BookOnline />
+</div>
+
             </motion.div>
           </div>
         )}
