@@ -117,13 +117,11 @@
   overflow: hidden;
   border-radius: 18px;
 
-  /* readability layer */
   padding: 10px 0;
-  background: radial-gradient(60% 140% at 50% 50%, rgba(0,0,0,.35), transparent 70%);
 
-  /* keep page scroll natural */
   touch-action: pan-y;
 }
+
 
 .bm-services__capsViewport::before,
 .bm-services__capsViewport::after{
@@ -348,11 +346,13 @@
     margin-bottom: 8px;
   }
 
+@media (max-width: 640px){
   .bm-services__capsViewport{
     padding: 8px 0;
     border-radius: 16px;
-    background: radial-gradient(70% 140% at 50% 50%, rgba(0,0,0,.42), transparent 72%);
   }
+}
+
 
   .bm-services__capsTrack{
     gap: 18px;
