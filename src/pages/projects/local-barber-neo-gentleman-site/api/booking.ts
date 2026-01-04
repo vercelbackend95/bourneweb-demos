@@ -9,13 +9,10 @@ export async function POST({ request }: { request: Request }) {
       (import.meta.env.BOOKING_FROM_EMAIL as string | undefined) ??
       "Neo Gentleman <onboarding@resend.dev>";
 
+    // In DEMO: this is your lead inbox (you = "barber")
     const TO_BARBER = import.meta.env.BOOKING_BARBER_EMAIL as string | undefined;
-    const SHOP = (import.meta.env.BOOKING_SHOP_NAME as string | undefined) ?? "Neo Gentleman";
 
-    // client notify policy (demo-friendly)
-    // auto/email/none (sms later)
-    const notify =
-      ((import.meta.env.BOOKING_CLIENT_NOTIFY as string | undefined) ?? "auto").toLowerCase();
+    const SHOP = (import.meta.env.BOOKING_SHOP_NAME as string | undefined) ?? "Neo Gentleman";
 
     if (!RESEND_API_KEY) return json({ ok: false, error: "Missing RESEND_API_KEY" }, 500);
     if (!TO_BARBER) return json({ ok: false, error: "Missing BOOKING_BARBER_EMAIL" }, 500);
@@ -28,13 +25,13 @@ export async function POST({ request }: { request: Request }) {
     }
 
     const barberLine = body?.barber?.name ? `${body.barber.name}` : "No preference";
-    const subject = `${SHOP} · Booking request · ${body.service.name} · ${body.date} ${body.time}`;
+    const subject = `${SHOP} · New lead · ${body.service.name} · ${body.date} ${body.time}`;
 
     const clientEmail = String(body?.email ?? "").trim();
 
     const detailsHtml = `
       <div style="font-family: ui-sans-serif, system-ui; line-height:1.5">
-        <h2 style="margin:0 0 8px 0;">New booking request</h2>
+        <h2 style="margin:0 0 8px 0;">New booking request (DEMO lead)</h2>
         <p style="margin:0 0 14px 0; color:#444;">${escapeHtml(SHOP)}</p>
 
         <table style="border-collapse:collapse; width:100%; max-width:640px;">
@@ -52,13 +49,12 @@ export async function POST({ request }: { request: Request }) {
         </table>
 
         <p style="margin:18px 0 0 0; color:#666; font-size:13px;">
-          Demo flow: barber confirms by text/call.
+          Demo mode: client does NOT receive automated emails/SMS. You follow up manually.
         </p>
       </div>
     `;
 
-    // 1) send to barber (must work)
-    const sendBarber = await resendSend({
+    const sendLead = await resendSend({
       apiKey: RESEND_API_KEY,
       from: FROM,
       to: TO_BARBER,
@@ -66,63 +62,9 @@ export async function POST({ request }: { request: Request }) {
       html: detailsHtml,
     });
 
-    if (!sendBarber.ok) return json({ ok: false, error: sendBarber.error }, 502);
+    if (!sendLead.ok) return json({ ok: false, error: sendLead.error }, 502);
 
-    // 2) optional: send to client (best-effort, never blocks demo)
-    const allowEmail = notify === "email" || notify === "auto";
-    let clientAttempted = false;
-    let clientSent = false;
-    let clientError: string | null = null;
-
-    if (clientEmail && allowEmail && notify !== "none") {
-      clientAttempted = true;
-
-      const clientSubject = `${SHOP} · Request received · ${body.date} ${body.time}`;
-      const clientHtml = `
-        <div style="font-family: ui-sans-serif, system-ui; line-height:1.5">
-          <h2 style="margin:0 0 8px 0;">Request received ✅</h2>
-          <p style="margin:0 0 14px 0; color:#444;">
-            We’ll text to confirm shortly. No marketing.
-          </p>
-          <p style="margin:0 0 10px 0;">
-            <strong>${escapeHtml(body.service.name)}</strong><br/>
-            ${escapeHtml(body.date)} · ${escapeHtml(body.time)}${body.endTime ? "–" + escapeHtml(body.endTime) : ""}<br/>
-            Barber: ${escapeHtml(barberLine)}
-          </p>
-        </div>
-      `;
-
-      const sendClient = await resendSend({
-        apiKey: RESEND_API_KEY,
-        from: FROM,
-        to: clientEmail,
-        subject: clientSubject,
-        html: clientHtml,
-      });
-
-      if (!sendClient.ok) {
-        clientError = sendClient.error;
-        // show truth in server logs (Vercel Functions logs)
-        console.warn("[booking] client email failed:", clientError);
-      } else {
-        clientSent = true;
-      }
-    }
-
-    return json(
-      {
-        ok: true,
-        barberSent: true,
-        client: {
-          notify,
-          email: clientEmail ? maskEmail(clientEmail) : null,
-          attempted: clientAttempted,
-          sent: clientSent,
-          error: clientError,
-        },
-      },
-      200
-    );
+    return json({ ok: true }, 200);
   } catch (e: any) {
     return json({ ok: false, error: e?.message ?? "Unknown error" }, 500);
   }
@@ -153,20 +95,7 @@ function escapeHtml(s: string) {
     .replaceAll("'", "&#039;");
 }
 
-function maskEmail(email: string) {
-  const [user, domain] = email.split("@");
-  if (!domain) return "hidden";
-  const u = user.length <= 2 ? user[0] + "*" : user.slice(0, 2) + "***";
-  return `${u}@${domain}`;
-}
-
-async function resendSend(opts: {
-  apiKey: string;
-  from: string;
-  to: string;
-  subject: string;
-  html: string;
-}) {
+async function resendSend(opts: { apiKey: string; from: string; to: string; subject: string; html: string }) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
