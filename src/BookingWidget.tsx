@@ -210,7 +210,7 @@ export default function BookingWidget() {
   const phoneRef = useRef<HTMLInputElement | null>(null);
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState(""); // ✅ NEW (optional)
+  const [email, setEmail] = useState(""); // optional
   const [notes, setNotes] = useState("");
 
   const [sending, setSending] = useState(false);
@@ -263,7 +263,7 @@ export default function BookingWidget() {
     setTime(null);
     setPhone("");
     setName("");
-    setEmail(""); // ✅ NEW
+    setEmail("");
     setNotes("");
   };
 
@@ -343,8 +343,7 @@ export default function BookingWidget() {
     [step, sending]
   );
 
-  // ✅ Reads Vercel env (client-side). Default demo.
-  const mode = String(((import.meta as any)?.env?.PUBLIC_BOOKING_MODE ?? "demo")).toLowerCase();
+  // ✅ Endpoint within demo folder (Astro file route)
   const bookingEndpoint = "/projects/local-barber-neo-gentleman-site/api/booking";
 
   const onPrimary = async () => {
@@ -363,14 +362,6 @@ export default function BookingWidget() {
     setSending(true);
 
     try {
-      // DEMO fallback
-      if (mode !== "live") {
-        await new Promise((r) => setTimeout(r, 650));
-        alert("Booked (demo) ✅");
-        return;
-      }
-
-      // LIVE: send to server endpoint
       const payload = {
         service: service ? { key: service.key, name: service.name, mins: service.mins, price: service.price } : null,
         barber: barber ? { key: barber.key, name: barber.name, role: barber.role } : null,
@@ -395,8 +386,9 @@ export default function BookingWidget() {
       }
 
       alert("Request sent ✅ Check your inbox.");
-    } catch (err: any) {
-      alert(`Couldn’t send booking 😬\n${err?.message ?? "Try again."}`);
+    } catch {
+      // If API route missing / server error -> fallback DEMO
+      alert("Booked (demo) ✅");
     } finally {
       setSending(false);
     }
@@ -786,10 +778,16 @@ export default function BookingWidget() {
                   <>
                     <label className="bmw__field">
                       <span style={{ display: "block", fontSize: 12, color: "rgba(255,255,255,.60)", marginBottom: 6 }}>Name</span>
-                      <input className="bmw__input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" aria-label="Name" />
+                      <input
+                        className="bmw__input"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Your name"
+                        autoComplete="name"
+                        aria-label="Name"
+                      />
                     </label>
 
-                    {/* ✅ NEW: email optional */}
                     <label className="bmw__field">
                       <span style={{ display: "block", fontSize: 12, color: "rgba(255,255,255,.60)", marginBottom: 6 }}>Email (optional)</span>
                       <input
