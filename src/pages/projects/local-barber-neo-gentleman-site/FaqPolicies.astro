@@ -1,0 +1,97 @@
+---
+const {
+  id = "policies",
+  title = "FAQ & Policies",
+  subtitle = "Less friction. More clean bookings.",
+
+  // Demo defaults — podmień jak trzeba
+  cancelHours = 24,
+  noShowFee = "Full service price",
+  dataRetention = "90 days",
+  controller = "Neo Gentleman (demo)",
+  contactEmail = "hello@yourdomain.co.uk",
+} = Astro.props;
+
+const privacyHref = "#"; // później zrobimy osobną stronę /privacy
+---
+
+<section class="bm-faq" id={id} aria-label="FAQ and booking policies">
+  <div class="bm-faq__inner">
+    <header class="bm-faq__head">
+      <div>
+        <p class="bm-faq__kicker">POLICIES</p>
+        <h2 class="bm-faq__title">{title}</h2>
+        <p class="bm-faq__sub">{subtitle}</p>
+      </div>
+    </header>
+
+    <div class="bm-faq__grid">
+      <div class="bm-faqList" aria-label="FAQ list">
+        <details class="bm-faqItem" open>
+          <summary class="bm-faqQ">Can I reschedule?</summary>
+          <div class="bm-faqA">
+            Yes. Send us a message with your preferred new time — we’ll confirm what works.
+            For demo bookings, there are no automated changes.
+          </div>
+        </details>
+
+        <details class="bm-faqItem">
+          <summary class="bm-faqQ">What’s your cancellation policy?</summary>
+          <div class="bm-faqA">
+            Please give at least <strong>{cancelHours} hours</strong> notice. Late cancellations may be charged.
+          </div>
+        </details>
+
+        <details class="bm-faqItem">
+          <summary class="bm-faqQ">No-shows?</summary>
+          <div class="bm-faqA">
+            No-shows may be charged <strong>{noShowFee}</strong>. If you’re running late, message us — we’ll do our best.
+          </div>
+        </details>
+
+        <details class="bm-faqItem">
+          <summary class="bm-faqQ">Do you take deposits?</summary>
+          <div class="bm-faqA">
+            Optional. For busy days or longer services we may request a small deposit to lock the slot.
+          </div>
+        </details>
+
+        <details class="bm-faqItem">
+          <summary class="bm-faqQ">How do you use my data?</summary>
+          <div class="bm-faqA">
+            Your details are used only to manage your booking request.
+            We keep booking enquiries for <strong>{dataRetention}</strong> unless you ask us to delete them.
+          </div>
+        </details>
+      </div>
+
+      <aside class="bm-polCard" aria-label="Policy highlights">
+        <div class="bm-polCard__top">
+          <div class="bm-polBadge">Quick summary</div>
+          <div class="bm-polCard__h">The rules, kept simple</div>
+          <p class="bm-polCard__p">
+            This section reduces “what if…” messages and increases completed requests.
+          </p>
+        </div>
+
+        <ul class="bm-polBullets">
+          <li><span class="bm-polDot" aria-hidden="true"></span>Reschedule anytime — we confirm manually.</li>
+          <li><span class="bm-polDot" aria-hidden="true"></span>Cancel with {cancelHours}h notice.</li>
+          <li><span class="bm-polDot" aria-hidden="true"></span>No-show fee: {noShowFee}.</li>
+          <li><span class="bm-polDot" aria-hidden="true"></span>Marketing is opt-in only.</li>
+        </ul>
+
+        <div class="bm-polFoot">
+          <div class="bm-polSmall">
+            Data controller: <strong>{controller}</strong><br/>
+            Questions: <a class="bm-polLink" href={`mailto:${contactEmail}`}>{contactEmail}</a>
+          </div>
+
+          <a class="bm-polBtn" href={privacyHref} aria-label="Privacy policy link">
+            Privacy policy →
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

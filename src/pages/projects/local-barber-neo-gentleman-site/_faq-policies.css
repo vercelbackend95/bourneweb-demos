@@ -1,0 +1,198 @@
+/* ===== FAQ + POLICIES (Neo Gentleman) ===== */
+
+.bm-faq{
+  padding: clamp(26px, 4vw, 56px) 0;
+}
+
+.bm-faq__inner{
+  width: min(1200px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.bm-faq__kicker{
+  font-size: var(--bm-kicker-size);
+  letter-spacing: var(--bm-track-kicker);
+  text-transform: uppercase;
+  color: rgba(255,255,255,.55);
+  margin: 0 0 10px;
+}
+
+.bm-faq__title{
+  font-family: var(--bm-font-serif);
+  font-size: var(--bm-h2);
+  line-height: 1.05;
+  letter-spacing: var(--bm-track-tight);
+  margin: 0 0 10px;
+  color: rgba(255,255,255,.95);
+}
+
+.bm-faq__sub{
+  margin: 0;
+  max-width: 62ch;
+  color: rgba(255,255,255,.70);
+}
+
+.bm-faq__head{
+  margin-bottom: clamp(16px, 2.4vw, 26px);
+}
+
+.bm-faq__grid{
+  display:grid;
+  grid-template-columns: 1.05fr .95fr;
+  gap: clamp(14px, 2.6vw, 22px);
+  align-items: start;
+}
+
+.bm-faqList{
+  display:grid;
+  gap: 10px;
+}
+
+.bm-faqItem{
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+  box-shadow: 0 22px 60px rgba(0,0,0,.42);
+  overflow:hidden;
+}
+
+.bm-faqQ{
+  cursor: pointer;
+  list-style: none;
+  padding: 14px 14px;
+  font-weight: 900;
+  color: rgba(255,255,255,.90);
+  letter-spacing: .01em;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+}
+.bm-faqQ::-webkit-details-marker{ display:none; }
+
+.bm-faqQ::after{
+  content:"+";
+  opacity:.75;
+  font-weight: 900;
+  transform: translateY(-1px);
+}
+
+.bm-faqItem[open] .bm-faqQ::after{ content:"—"; }
+
+.bm-faqA{
+  padding: 0 14px 14px;
+  color: rgba(255,255,255,.72);
+  line-height: 1.6;
+  font-size: var(--bm-text-md);
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.bm-polCard{
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+  box-shadow: 0 26px 70px rgba(0,0,0,.45);
+  padding: 16px;
+}
+
+.bm-polBadge{
+  display:inline-flex;
+  align-items:center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.18);
+  font-size: var(--bm-text-xs);
+  color: rgba(255,255,255,.70);
+  margin-bottom: 10px;
+}
+
+.bm-polCard__h{
+  font-family: var(--bm-font-serif);
+  font-size: clamp(18px, 2.2vw, 22px);
+  letter-spacing: var(--bm-track-tight);
+  color: rgba(255,255,255,.94);
+  margin: 0 0 8px;
+}
+
+.bm-polCard__p{
+  margin: 0 0 12px;
+  color: rgba(255,255,255,.70);
+  font-size: var(--bm-text-md);
+}
+
+.bm-polBullets{
+  margin: 0;
+  padding: 12px 0 0;
+  list-style: none;
+  border-top: 1px solid rgba(255,255,255,.08);
+  display:grid;
+  gap: 10px;
+}
+
+.bm-polBullets li{
+  display:flex;
+  gap: 10px;
+  align-items:flex-start;
+  color: rgba(255,255,255,.74);
+  font-size: var(--bm-text-sm);
+  line-height: 1.55;
+}
+
+.bm-polDot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  margin-top: 6px;
+  background: rgba(210,170,110,.92);
+  box-shadow: 0 0 0 6px rgba(210,170,110,.12);
+  flex: 0 0 auto;
+}
+
+.bm-polFoot{
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bm-polSmall{
+  font-size: var(--bm-text-xs);
+  color: rgba(255,255,255,.62);
+  line-height: 1.6;
+}
+
+.bm-polLink{
+  color: rgba(255,255,255,.84);
+  text-decoration:none;
+  border-bottom: 1px solid rgba(210,170,110,.40);
+}
+.bm-polLink:hover{ border-bottom-color: rgba(210,170,110,.75); }
+
+.bm-polBtn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.18);
+  color: rgba(255,255,255,.78);
+  text-decoration:none;
+  font-weight: 800;
+  font-size: var(--bm-text-sm);
+}
+.bm-polBtn:hover{ border-color: rgba(255,255,255,.16); filter: brightness(1.03); }
+
+@media (max-width: 980px){
+  .bm-faq__grid{ grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px){
+  .bm-faq__inner{ width: calc(100% - 28px); }
+}

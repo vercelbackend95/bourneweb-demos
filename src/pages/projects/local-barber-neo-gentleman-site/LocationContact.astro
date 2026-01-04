@@ -1,0 +1,113 @@
+---
+const {
+  id = "location",
+  title = "Find us",
+  subtitle = "Central spot. Easy parking. Walk in like you own the place.",
+
+  // Demo placeholders — podmień na dane klienta
+  shopName = "Neo Gentleman",
+  addressLines = ["123 Example Street", "Bournemouth, BH1 1AA"],
+  phone = "+44 7000 000000",
+  whatsapp = "+44 7000 000000",
+  email = "hello@yourdomain.co.uk",
+
+  // Google Maps embed uses query — no API key needed
+  mapQuery = "Bournemouth BH1 1AA",
+  parking = "Paid street parking nearby · 2–4 min walk",
+  transport = "Bus stop around the corner · Train 10 min",
+} = Astro.props;
+
+const cleanWhatsApp = String(whatsapp).replace(/[^\d]/g, "");
+const mapsSrc =
+  `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`;
+---
+
+<section class="bm-loc" id={id} aria-label="Location and contact">
+  <div class="bm-loc__inner">
+    <header class="bm-loc__head">
+      <div>
+        <p class="bm-loc__kicker">LOCATION</p>
+        <h2 class="bm-loc__title">{title}</h2>
+        <p class="bm-loc__sub">{subtitle}</p>
+      </div>
+
+      <div class="bm-loc__cta">
+        <a class="bm-locBtn bm-locBtn--primary" href={`tel:${phone}`} aria-label="Call the shop">
+          <span class="bm-locBtn__ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+              <path d="M6.5 3.8c.7-1 2.2-1 2.9 0l1.4 2c.6.8.4 1.9-.3 2.6l-1 1c1 2 2.6 3.6 4.6 4.6l1-1c.7-.7 1.8-.9 2.6-.3l2 1.4c1 .7 1 2.2 0 2.9l-1.3 1.8c-.7 1-1.9 1.4-3 1.1-7.6-2.1-13.4-7.9-15.5-15.5-.3-1.1.1-2.3 1.1-3L6.5 3.8Z"
+                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Call
+          <span class="bm-locBtn__shine" aria-hidden="true"></span>
+        </a>
+
+        <a class="bm-locBtn" href={`https://wa.me/${cleanWhatsApp}`} target="_blank" rel="noopener" aria-label="WhatsApp the shop">
+          <span class="bm-locBtn__ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+              <path d="M12 3.5c-4.7 0-8.5 3.6-8.5 8.1 0 1.4.4 2.8 1.1 4L3.5 20.5l5.1-1.5c1.2.6 2.6 1 4 .9 4.7 0 8.5-3.6 8.5-8.1S16.7 3.5 12 3.5Z"
+                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M9.2 9.2c.3-.4.7-.4 1 0l.8 1c.3.4.2.9-.1 1.2l-.5.5c.6 1.1 1.5 2 2.6 2.6l.5-.5c.3-.3.8-.4 1.2-.1l1 .8c.4.3.4.7 0 1-.5.6-1.3.8-2 .6-2.8-.8-5-3-5.8-5.8-.2-.7 0-1.5.6-2Z"
+                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          WhatsApp
+        </a>
+      </div>
+    </header>
+
+    <div class="bm-loc__grid">
+      <div class="bm-locMap" aria-label="Map">
+        <div class="bm-locMap__frame">
+          <iframe
+            title={`${shopName} map`}
+            src={mapsSrc}
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <div class="bm-locMap__hint">
+          Tap to open Maps · Easy route
+        </div>
+      </div>
+
+      <aside class="bm-locCard" aria-label="Contact details">
+        <div class="bm-locCard__top">
+          <div class="bm-locBadge">Open by appointment</div>
+          <div class="bm-locCard__h">{shopName}</div>
+          <div class="bm-locCard__addr">
+            {addressLines.map((l) => <div>{l}</div>)}
+          </div>
+        </div>
+
+        <div class="bm-locMeta">
+          <div class="bm-locMeta__row">
+            <div class="bm-locMeta__k">Parking</div>
+            <div class="bm-locMeta__v">{parking}</div>
+          </div>
+          <div class="bm-locMeta__row">
+            <div class="bm-locMeta__k">Transport</div>
+            <div class="bm-locMeta__v">{transport}</div>
+          </div>
+          <div class="bm-locMeta__row">
+            <div class="bm-locMeta__k">Email</div>
+            <div class="bm-locMeta__v">
+              <a class="bm-locLink" href={`mailto:${email}`}>{email}</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="bm-locCard__actions">
+          <a class="bm-locMini" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`} target="_blank" rel="noopener">
+            Directions →
+          </a>
+          <a class="bm-locMini" href={`mailto:${email}?subject=${encodeURIComponent("Booking enquiry")}`}>
+            Email us →
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
