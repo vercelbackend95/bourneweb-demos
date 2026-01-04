@@ -1,4 +1,5 @@
 // src/pages/projects/local-barber-neo-gentleman-site/api/booking.ts
+export const prerender = false;
 export async function POST({ request }: { request: Request }) {
   try {
     const RESEND_API_KEY = import.meta.env.RESEND_API_KEY as string | undefined;
