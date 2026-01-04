@@ -2,83 +2,135 @@
 import Layout from "./Layout.astro";
 
 const {
-  title = "Launch checklist · Neo Gentleman Demo",
-  shopName = "Neo Gentleman",
+  title = "Launch & Care · Neo Gentleman Demo",
+  agencyName = "BourneWeb",
   contactEmail = "hello@yourdomain.co.uk",
+  contactWhatsApp = "+44 7000 000000",
 } = Astro.props;
+
+const wa = `https://wa.me/${String(contactWhatsApp).replace(/[^\d]/g, "")}`;
 ---
 
-<Layout title={title} description="Launch checklist for the Neo Gentleman barber demo">
-  <main class="bm-launch" aria-label="Launch checklist">
+<Layout title={title} description="Launch onboarding + monthly care packages">
+  <main class="bm-launch" aria-label="Launch and monthly care">
     <div class="bm-launch__inner">
       <header class="bm-launch__head">
-        <p class="bm-launch__kicker">SALES PACK</p>
-        <h1 class="bm-launch__title">Launch checklist</h1>
+        <p class="bm-launch__kicker">CLIENT GUIDE</p>
+        <h1 class="bm-launch__title">Launch & monthly care</h1>
         <p class="bm-launch__sub">
-          Clear steps for launching this site for your barbershop — no tech headaches.
+          You don’t need to touch “hosting” or “tech stuff”. We launch it for you — then keep it sharp.
         </p>
       </header>
 
       <section class="bm-launch__card">
-        <h2>What you’ll need</h2>
-        <ul>
-          <li><strong>Domain</strong> (e.g. {shopName.toLowerCase().replace(/\s+/g, "")}.co.uk)</li>
-          <li><strong>Business inbox</strong> for booking requests (recommended)</li>
-          <li><strong>Phone / WhatsApp</strong> for customer follow-up</li>
-          <li><strong>Photos</strong> (shop + work), logo optional</li>
-          <li><strong>Service list + prices</strong></li>
-          <li><strong>Opening hours</strong> + policies (cancel / no-show)</li>
-        </ul>
+        <h2>How it works</h2>
+        <div class="bm-launch__grid">
+          <div class="bm-launch__pill">
+            <div class="bm-launch__pillK">Step 1</div>
+            <div class="bm-launch__pillT">You send details</div>
+            <div class="bm-launch__pillP">Email, phone, address, opening hours, services & prices, photos.</div>
+          </div>
 
-        <h2>How bookings work (safe & realistic)</h2>
-        <p>
-          Customers send a <strong>booking request</strong>. The shop receives it instantly and follows up to confirm.
-          This avoids pretending there’s a “hard calendar” and keeps everything reliable.
-        </p>
+          <div class="bm-launch__pill">
+            <div class="bm-launch__pillK">Step 2</div>
+            <div class="bm-launch__pillT">We launch your website</div>
+            <div class="bm-launch__pillP">Domain, hosting, email setup, booking requests to your inbox.</div>
+          </div>
 
-        <h2>Go live in ~20 minutes</h2>
-        <ol>
-          <li>Deploy the site (Vercel).</li>
-          <li>Connect your domain (optional for demo, recommended for live).</li>
-          <li>Add email sending (Resend) + set your shop inbox.</li>
-          <li>Update address, map query, phone, WhatsApp.</li>
-          <li>Test on mobile: send a booking request.</li>
-        </ol>
-
-        <h2>Environment variables (copy-paste)</h2>
-        <pre class="bm-launch__code"><code>RESEND_API_KEY=re_...
-BOOKING_BARBER_EMAIL=shop@yourdomain.co.uk
-BOOKING_FROM_EMAIL=Your Shop &lt;onboarding@resend.dev&gt;
-BOOKING_SHOP_NAME=Your Shop Name
-BOOKING_CLIENT_NOTIFY=none</code></pre>
-
-        <p class="bm-launch__note">
-          Tip: When you have a verified domain, set <code>BOOKING_FROM_EMAIL</code> to a real sender on your domain.
-        </p>
-
-        <h2>Links</h2>
-        <div class="bm-launch__links">
-          <a class="bm-launch__btn" href="/projects/local-barber-neo-gentleman-site">Open demo site →</a>
-          <a class="bm-launch__btn" href="/projects/local-barber-neo-gentleman-site/privacy">Privacy policy →</a>
+          <div class="bm-launch__pill">
+            <div class="bm-launch__pillK">Step 3</div>
+            <div class="bm-launch__pillT">We maintain it monthly</div>
+            <div class="bm-launch__pillP">Updates, small edits, fixes, performance checks. You focus on clients.</div>
+          </div>
         </div>
 
         <div class="bm-launch__hr"></div>
 
-        <h2>Need help launching?</h2>
-        <p>
-          Email: <a class="bm-launch__link" href={`mailto:${contactEmail}`}>{contactEmail}</a>
-        </p>
-      </section>
+        <h2>What we need from you (copy & fill)</h2>
+        <pre class="bm-launch__code"><code>BUSINESS NAME:
+ADDRESS:
+PHONE:
+WHATSAPP (optional):
+EMAIL FOR BOOKINGS (where requests should arrive):
 
-      <div class="bm-launch__back">
-        <a class="bm-launch__ghost" href="/projects/local-barber-neo-gentleman-site">Back to site →</a>
-      </div>
+OPENING HOURS:
+SERVICES + PRICES (or send your current price list photo):
+POLICIES (optional): cancellation / no-show / deposits
+
+PHOTOS:
+- 5–10 haircut/beard photos
+- 2–4 shop photos
+LOGO (optional):
+INSTAGRAM (optional):
+GOOGLE BUSINESS link (optional):</code></pre>
+
+        <p class="bm-launch__note">
+          Don’t have everything? No problem. We can launch with a clean starter set and update later.
+        </p>
+
+        <div class="bm-launch__hr"></div>
+
+        <h2>Monthly care packages (example)</h2>
+        <div class="bm-pack">
+          <div class="bm-pack__card">
+            <div class="bm-pack__name">Care</div>
+            <div class="bm-pack__price">£39/mo</div>
+            <ul class="bm-pack__list">
+              <li>Small edits (hours, prices, text)</li>
+              <li>Monthly health check</li>
+              <li>Spam protection & form monitoring</li>
+            </ul>
+          </div>
+
+          <div class="bm-pack__card bm-pack__card--gold">
+            <div class="bm-pack__badge">Most picked</div>
+            <div class="bm-pack__name">Care+</div>
+            <div class="bm-pack__price">£79/mo</div>
+            <ul class="bm-pack__list">
+              <li>Everything in Care</li>
+              <li>Up to 2 content updates/month</li>
+              <li>Priority fixes</li>
+              <li>Seasonal promos (simple banners)</li>
+            </ul>
+          </div>
+
+          <div class="bm-pack__card">
+            <div class="bm-pack__name">Care Pro</div>
+            <div class="bm-pack__price">£149/mo</div>
+            <ul class="bm-pack__list">
+              <li>Everything in Care+</li>
+              <li>Up to 6 updates/month</li>
+              <li>Gallery refresh & optimization</li>
+              <li>Conversion improvements (ongoing)</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="bm-launch__note">
+          Packages are examples — we tailor for your shop size and how often you want updates.
+        </p>
+
+        <div class="bm-launch__hr"></div>
+
+        <h2>Book a quick chat</h2>
+        <div class="bm-launch__cta">
+          <a class="bm-launch__btn bm-launch__btn--gold" href={`mailto:${contactEmail}?subject=${encodeURIComponent("Neo Gentleman demo — launch & care")}`}>
+            Email {agencyName} →
+          </a>
+          <a class="bm-launch__btn" href={wa} target="_blank" rel="noopener">
+            WhatsApp →
+          </a>
+          <a class="bm-launch__btn" href="/projects/local-barber-neo-gentleman-site">
+            Back to demo →
+          </a>
+        </div>
+      </section>
     </div>
   </main>
 
   <style>
     .bm-launch{ padding: clamp(26px, 4vw, 56px) 0; }
-    .bm-launch__inner{ width:min(900px, calc(100% - 40px)); margin:0 auto; }
+    .bm-launch__inner{ width:min(980px, calc(100% - 40px)); margin:0 auto; }
     .bm-launch__head{ margin-bottom: 18px; }
     .bm-launch__kicker{
       font-size: var(--bm-kicker-size);
@@ -95,7 +147,7 @@ BOOKING_CLIENT_NOTIFY=none</code></pre>
       margin: 0 0 10px;
       color: rgba(255,255,255,.95);
     }
-    .bm-launch__sub{ margin:0; color: rgba(255,255,255,.70); max-width: 64ch; }
+    .bm-launch__sub{ margin:0; color: rgba(255,255,255,.70); max-width: 70ch; }
 
     .bm-launch__card{
       border-radius: 22px;
@@ -107,16 +159,45 @@ BOOKING_CLIENT_NOTIFY=none</code></pre>
       line-height: 1.7;
     }
     .bm-launch__card h2{
-      margin: 16px 0 6px;
+      margin: 16px 0 10px;
       color: rgba(255,255,255,.92);
       font-size: 16px;
       letter-spacing: .01em;
     }
-    .bm-launch__card ul, .bm-launch__card ol{ margin: 6px 0 0; padding-left: 18px; }
-    .bm-launch__card code{ color: rgba(255,255,255,.84); }
+
+    .bm-launch__grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .bm-launch__pill{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      padding: 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .bm-launch__pillK{
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.55);
+      margin-bottom: 6px;
+    }
+    .bm-launch__pillT{
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+    .bm-launch__pillP{
+      color: rgba(255,255,255,.70);
+      font-size: 13px;
+      line-height: 1.55;
+    }
 
     .bm-launch__code{
-      margin: 10px 0 0;
+      margin: 0;
       padding: 12px 12px;
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.10);
@@ -132,7 +213,65 @@ BOOKING_CLIENT_NOTIFY=none</code></pre>
       font-size: 12px;
     }
 
-    .bm-launch__links{
+    .bm-launch__hr{
+      height: 1px;
+      background: rgba(255,255,255,.08);
+      margin: 14px 0;
+    }
+
+    .bm-pack{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .bm-pack__card{
+      position: relative;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      padding: 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .bm-pack__card--gold{
+      border-color: rgba(210,170,110,.35);
+      background: rgba(210,170,110,.10);
+    }
+    .bm-pack__badge{
+      position:absolute;
+      top: 12px;
+      right: 12px;
+      height: 20px;
+      padding: 0 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      border: 1px solid rgba(210,170,110,.40);
+      background: rgba(210,170,110,.16);
+      color: rgba(255,255,255,.86);
+    }
+    .bm-pack__name{
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      letter-spacing: .01em;
+    }
+    .bm-pack__price{
+      margin-top: 4px;
+      font-family: var(--bm-font-serif);
+      color: rgba(255,255,255,.95);
+      font-size: 22px;
+      letter-spacing: var(--bm-track-tight);
+    }
+    .bm-pack__list{
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: rgba(255,255,255,.72);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .bm-launch__cta{
       margin-top: 10px;
       display:flex;
       gap: 10px;
@@ -153,28 +292,15 @@ BOOKING_CLIENT_NOTIFY=none</code></pre>
       font-size: var(--bm-text-sm);
     }
     .bm-launch__btn:hover{ border-color: rgba(255,255,255,.16); filter: brightness(1.03); }
-
-    .bm-launch__hr{
-      height: 1px;
-      background: rgba(255,255,255,.08);
-      margin: 14px 0;
+    .bm-launch__btn--gold{
+      color: rgba(20,14,8,.95);
+      background: linear-gradient(180deg, rgba(225,190,128,.95), rgba(200,160,95,.92));
+      border: 1px solid rgba(255,255,255,.18);
     }
 
-    .bm-launch__link{
-      color: rgba(255,255,255,.84);
-      text-decoration:none;
-      border-bottom: 1px solid rgba(210,170,110,.40);
+    @media (max-width: 980px){
+      .bm-launch__grid, .bm-pack{ grid-template-columns: 1fr; }
     }
-    .bm-launch__link:hover{ border-bottom-color: rgba(210,170,110,.75); }
-
-    .bm-launch__back{ margin-top: 14px; }
-    .bm-launch__ghost{
-      color: rgba(255,255,255,.70);
-      text-decoration:none;
-      border-bottom: 1px solid rgba(210,170,110,.40);
-    }
-    .bm-launch__ghost:hover{ border-bottom-color: rgba(210,170,110,.75); }
-
     @media (max-width: 640px){
       .bm-launch__inner{ width: calc(100% - 28px); }
     }
