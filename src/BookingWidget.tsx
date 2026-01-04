@@ -210,6 +210,7 @@ export default function BookingWidget() {
   const phoneRef = useRef<HTMLInputElement | null>(null);
 
   const [name, setName] = useState("");
+  const [email, setEmail] = useState(""); // ✅ NEW (optional)
   const [notes, setNotes] = useState("");
 
   const [sending, setSending] = useState(false);
@@ -262,6 +263,7 @@ export default function BookingWidget() {
     setTime(null);
     setPhone("");
     setName("");
+    setEmail(""); // ✅ NEW
     setNotes("");
   };
 
@@ -289,7 +291,10 @@ export default function BookingWidget() {
   const [barberOpen, setBarberOpen] = useState(false);
 
   const step1SummaryLine1 = useMemo(() => (!service ? "Select a service" : `${service.name} • ${service.mins} min`), [service]);
-  const step1SummaryLine2 = useMemo(() => (barberKey === null ? "No preference (fastest)" : barber ? `${barber.name} • ${barber.role}` : "No preference (fastest)"), [barberKey, barber]);
+  const step1SummaryLine2 = useMemo(
+    () => (barberKey === null ? "No preference (fastest)" : barber ? `${barber.name} • ${barber.role}` : "No preference (fastest)"),
+    [barberKey, barber]
+  );
 
   const summaryFull = useMemo(() => {
     const s = service ? `${service.name} · £${service.price}` : "—";
@@ -333,7 +338,14 @@ export default function BookingWidget() {
     setSheetOpen(true);
   };
 
-  const primaryLabel = useMemo(() => (step === 1 ? "Choose date" : step === 2 ? "Choose time" : sending ? "Confirming…" : "Confirm"), [step, sending]);
+  const primaryLabel = useMemo(
+    () => (step === 1 ? "Choose date" : step === 2 ? "Choose time" : sending ? "Confirming…" : "Confirm"),
+    [step, sending]
+  );
+
+  // ✅ Reads Vercel env (client-side). Default demo.
+  const mode = String(((import.meta as any)?.env?.PUBLIC_BOOKING_MODE ?? "demo")).toLowerCase();
+  const bookingEndpoint = "/projects/local-barber-neo-gentleman-site/api/booking";
 
   const onPrimary = async () => {
     if (step === 1) {
@@ -347,10 +359,47 @@ export default function BookingWidget() {
       return;
     }
     if (!step3Ready || sending) return;
+
     setSending(true);
-    await new Promise((r) => setTimeout(r, 650));
-    setSending(false);
-    alert("Booked (demo) ✅");
+
+    try {
+      // DEMO fallback
+      if (mode !== "live") {
+        await new Promise((r) => setTimeout(r, 650));
+        alert("Booked (demo) ✅");
+        return;
+      }
+
+      // LIVE: send to server endpoint
+      const payload = {
+        service: service ? { key: service.key, name: service.name, mins: service.mins, price: service.price } : null,
+        barber: barber ? { key: barber.key, name: barber.name, role: barber.role } : null,
+        date: isoKey(date),
+        time,
+        endTime,
+        phone,
+        name,
+        email: email.trim() || null,
+        notes,
+      };
+
+      const res = await fetch(bookingEndpoint, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({} as any));
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.error || "Booking request failed");
+      }
+
+      alert("Request sent ✅ Check your inbox.");
+    } catch (err: any) {
+      alert(`Couldn’t send booking 😬\n${err?.message ?? "Try again."}`);
+    } finally {
+      setSending(false);
+    }
   };
 
   const contentStepClass = step === 2 ? "is-step2" : step === 3 ? "is-step3" : "is-step1";
@@ -377,7 +426,6 @@ export default function BookingWidget() {
           </div>
         </header>
 
-        {/* ✅ CHANGE: step class so CSS can tune calendar */}
         <main className={`bmw__content ${contentStepClass}`} aria-live="polite">
           {step === 1 ? (
             <section className="bmw__panelStep1" aria-label="Step 1">
@@ -530,13 +578,23 @@ export default function BookingWidget() {
           {step === 2 ? (
             <section className="bmw__panelLite bmw__panelMonth" aria-label="Step 2">
               <div className="bmw__monthTop">
-                <button type="button" className="bmw__iconBtn" onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))} aria-label="Previous month">
+                <button
+                  type="button"
+                  className="bmw__iconBtn"
+                  onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
+                  aria-label="Previous month"
+                >
                   ‹
                 </button>
 
                 <div className="bmw__monthTitle">{prettyMonth(viewMonth)}</div>
 
-                <button type="button" className="bmw__iconBtn" onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))} aria-label="Next month">
+                <button
+                  type="button"
+                  className="bmw__iconBtn"
+                  onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
+                  aria-label="Next month"
+                >
                   ›
                 </button>
               </div>
@@ -731,9 +789,30 @@ export default function BookingWidget() {
                       <input className="bmw__input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" aria-label="Name" />
                     </label>
 
+                    {/* ✅ NEW: email optional */}
+                    <label className="bmw__field">
+                      <span style={{ display: "block", fontSize: 12, color: "rgba(255,255,255,.60)", marginBottom: 6 }}>Email (optional)</span>
+                      <input
+                        className="bmw__input"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@example.com"
+                        autoComplete="email"
+                        inputMode="email"
+                        aria-label="Email"
+                      />
+                    </label>
+
                     <label className="bmw__field">
                       <span style={{ display: "block", fontSize: 12, color: "rgba(255,255,255,.60)", marginBottom: 6 }}>Notes</span>
-                      <textarea className="bmw__input bmw__textarea" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Beard trim? Skin fade length? Any allergies?" aria-label="Notes" />
+                      <textarea
+                        className="bmw__input bmw__textarea"
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        rows={3}
+                        placeholder="Beard trim? Skin fade length? Any allergies?"
+                        aria-label="Notes"
+                      />
                     </label>
                   </>
                 )}
