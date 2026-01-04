@@ -213,6 +213,9 @@ export default function BookingWidget() {
   const [email, setEmail] = useState(""); // optional
   const [notes, setNotes] = useState("");
 
+  // ✅ honeypot (bots fill it)
+  const [website, setWebsite] = useState("");
+
   // ✅ GDPR / consent
   const [consentBooking, setConsentBooking] = useState(false);
   const [consentMarketing, setConsentMarketing] = useState(false);
@@ -281,6 +284,7 @@ export default function BookingWidget() {
     setName("");
     setEmail("");
     setNotes("");
+    setWebsite("");
     setConsentBooking(false);
     setConsentMarketing(false);
   };
@@ -377,6 +381,7 @@ export default function BookingWidget() {
     setName("");
     setEmail("");
     setNotes("");
+    setWebsite("");
     setConsentBooking(false);
     setConsentMarketing(false);
     setBarberOpen(false);
@@ -421,6 +426,7 @@ export default function BookingWidget() {
         name,
         email: email.trim() || null,
         notes,
+        website, // ✅ honeypot
         consent: {
           booking: consentBooking,
           marketing: consentMarketing,
@@ -841,6 +847,19 @@ export default function BookingWidget() {
                         </a>
                         .
                       </div>
+                    </div>
+
+                    {/* ✅ Honeypot (must be hidden via CSS .bmw__hp) */}
+                    <div className="bmw__hp" aria-hidden="true">
+                      <label>
+                        Website
+                        <input
+                          tabIndex={-1}
+                          autoComplete="off"
+                          value={website}
+                          onChange={(e) => setWebsite(e.target.value)}
+                        />
+                      </label>
                     </div>
                   </div>
                 ) : null}

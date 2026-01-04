@@ -1142,3 +1142,11 @@
   border-bottom: 1px solid rgba(210,170,110,.40);
 }
 .bm-consent__link:hover{ border-bottom-color: rgba(210,170,110,.75); }
+.bmw__hp{
+  position:absolute;
+  left:-9999px;
+  top:auto;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+}

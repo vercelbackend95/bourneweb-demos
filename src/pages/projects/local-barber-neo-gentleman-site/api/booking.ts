@@ -9,52 +9,84 @@ export async function POST({ request }: { request: Request }) {
       (import.meta.env.BOOKING_FROM_EMAIL as string | undefined) ??
       "Neo Gentleman <onboarding@resend.dev>";
 
-    // In DEMO: this is your lead inbox (you = "barber")
     const TO_BARBER = import.meta.env.BOOKING_BARBER_EMAIL as string | undefined;
 
     const SHOP = (import.meta.env.BOOKING_SHOP_NAME as string | undefined) ?? "Neo Gentleman";
+
+    // client notify:
+    // none  -> never email client
+    // email -> email client if provided
+    // auto  -> same as email for now (SMS not implemented)
+    const NOTIFY = (
+      (import.meta.env.BOOKING_CLIENT_NOTIFY as string | undefined) ?? "none"
+    ).toLowerCase();
 
     if (!RESEND_API_KEY) return json({ ok: false, error: "Missing RESEND_API_KEY" }, 500);
     if (!TO_BARBER) return json({ ok: false, error: "Missing BOOKING_BARBER_EMAIL" }, 500);
 
     const body = await request.json();
 
+    // ✅ Honeypot anti-spam: bots fill hidden "website"
+    if (typeof body?.website === "string" && body.website.trim().length > 0) {
+      return json({ ok: true, ignored: true }, 200);
+    }
+
     // minimal validation
-    if (!body?.service?.name || !body?.date || !body?.time || !body?.phone) {
+    const serviceName = body?.service?.name ? String(body.service.name) : "";
+    const servicePrice = body?.service?.price ?? "";
+    const serviceMins = body?.service?.mins ?? "";
+    const date = body?.date ? String(body.date) : "";
+    const time = body?.time ? String(body.time) : "";
+    const endTime = body?.endTime ? String(body.endTime) : "";
+    const phone = body?.phone ? String(body.phone) : "";
+    const name = body?.name ? String(body.name) : "";
+    const notes = body?.notes ? String(body.notes) : "";
+    const clientEmail = typeof body?.email === "string" ? body.email.trim() : "";
+
+    const consentBooking = !!body?.consent?.booking;
+    const consentMarketing = !!body?.consent?.marketing;
+
+    if (!serviceName || !date || !time || !phone) {
       return json({ ok: false, error: "Missing required fields" }, 400);
     }
 
-    const barberLine = body?.barber?.name ? `${body.barber.name}` : "No preference";
-    const subject = `${SHOP} · New lead · ${body.service.name} · ${body.date} ${body.time}`;
+    if (!consentBooking) {
+      return json({ ok: false, error: "Missing required consent (booking)" }, 400);
+    }
 
-    const clientEmail = String(body?.email ?? "").trim();
+    const barberLine = body?.barber?.name ? String(body.barber.name) : "No preference";
+
+    const subject = `${SHOP} · Booking request · ${serviceName} · ${date} ${time}`;
 
     const detailsHtml = `
       <div style="font-family: ui-sans-serif, system-ui; line-height:1.5">
-        <h2 style="margin:0 0 8px 0;">New booking request (DEMO lead)</h2>
+        <h2 style="margin:0 0 8px 0;">New booking request</h2>
         <p style="margin:0 0 14px 0; color:#444;">${escapeHtml(SHOP)}</p>
 
         <table style="border-collapse:collapse; width:100%; max-width:640px;">
           ${row(
             "Service",
-            `${escapeHtml(body.service.name)} · £${escapeHtml(String(body.service.price ?? ""))} · ${escapeHtml(String(body.service.mins ?? ""))} min`
+            `${escapeHtml(serviceName)} · £${escapeHtml(String(servicePrice))} · ${escapeHtml(String(serviceMins))} min`
           )}
           ${row("Barber", escapeHtml(barberLine))}
-          ${row("Date", escapeHtml(body.date))}
-          ${row("Time", escapeHtml(`${body.time}${body.endTime ? "–" + body.endTime : ""}`))}
-          ${row("Phone", escapeHtml(body.phone))}
-          ${row("Name", escapeHtml(body.name || "—"))}
-          ${row("Notes", escapeHtml(body.notes || "—"))}
+          ${row("Date", escapeHtml(date))}
+          ${row("Time", escapeHtml(`${time}${endTime ? "–" + endTime : ""}`))}
+          ${row("Phone", escapeHtml(phone))}
+          ${row("Name", escapeHtml(name || "—"))}
+          ${row("Notes", escapeHtml(notes || "—"))}
           ${clientEmail ? row("Client email", escapeHtml(clientEmail)) : ""}
+          ${row("Consent (booking)", consentBooking ? "Yes" : "No")}
+          ${row("Consent (marketing)", consentMarketing ? "Yes" : "No")}
         </table>
 
         <p style="margin:18px 0 0 0; color:#666; font-size:13px;">
-          Demo mode: client does NOT receive automated emails/SMS. You follow up manually.
+          Sent from booking form.
         </p>
       </div>
     `;
 
-    const sendLead = await resendSend({
+    // 1) send to barber (always)
+    const sendBarber = await resendSend({
       apiKey: RESEND_API_KEY,
       from: FROM,
       to: TO_BARBER,
@@ -62,9 +94,46 @@ export async function POST({ request }: { request: Request }) {
       html: detailsHtml,
     });
 
-    if (!sendLead.ok) return json({ ok: false, error: sendLead.error }, 502);
+    if (!sendBarber.ok) return json({ ok: false, error: sendBarber.error }, 502);
 
-    return json({ ok: true }, 200);
+    // 2) optional: client confirmation email
+    const allowEmail = NOTIFY === "email" || NOTIFY === "auto";
+    let clientNotified = false;
+
+    if (clientEmail && allowEmail) {
+      const clientSubject = `${SHOP} · Request received · ${date} ${time}`;
+      const clientHtml = `
+        <div style="font-family: ui-sans-serif, system-ui; line-height:1.5">
+          <h2 style="margin:0 0 8px 0;">Request received ✅</h2>
+          <p style="margin:0 0 14px 0; color:#444;">
+            We’ll follow up shortly to confirm. No marketing.
+          </p>
+
+          <p style="margin:0 0 10px 0;">
+            <strong>${escapeHtml(serviceName)}</strong><br/>
+            ${escapeHtml(date)} · ${escapeHtml(time)}${endTime ? "–" + escapeHtml(endTime) : ""}<br/>
+            Barber: ${escapeHtml(barberLine)}
+          </p>
+
+          <p style="margin:14px 0 0 0; color:#666; font-size:13px;">
+            To reschedule or cancel, reply to this email or contact the shop.
+          </p>
+        </div>
+      `;
+
+      const sendClient = await resendSend({
+        apiKey: RESEND_API_KEY,
+        from: FROM,
+        to: clientEmail,
+        subject: clientSubject,
+        html: clientHtml,
+      });
+
+      clientNotified = !!sendClient.ok;
+      // Jeśli mail do klienta się nie wyśle — nie blokujemy requestu (barber i tak dostał).
+    }
+
+    return json({ ok: true, clientNotified }, 200);
   } catch (e: any) {
     return json({ ok: false, error: e?.message ?? "Unknown error" }, 500);
   }
