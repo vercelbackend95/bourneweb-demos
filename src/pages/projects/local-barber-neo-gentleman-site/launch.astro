@@ -1,0 +1,182 @@
+---
+import Layout from "./Layout.astro";
+
+const {
+  title = "Launch checklist · Neo Gentleman Demo",
+  shopName = "Neo Gentleman",
+  contactEmail = "hello@yourdomain.co.uk",
+} = Astro.props;
+---
+
+<Layout title={title} description="Launch checklist for the Neo Gentleman barber demo">
+  <main class="bm-launch" aria-label="Launch checklist">
+    <div class="bm-launch__inner">
+      <header class="bm-launch__head">
+        <p class="bm-launch__kicker">SALES PACK</p>
+        <h1 class="bm-launch__title">Launch checklist</h1>
+        <p class="bm-launch__sub">
+          Clear steps for launching this site for your barbershop — no tech headaches.
+        </p>
+      </header>
+
+      <section class="bm-launch__card">
+        <h2>What you’ll need</h2>
+        <ul>
+          <li><strong>Domain</strong> (e.g. {shopName.toLowerCase().replace(/\s+/g, "")}.co.uk)</li>
+          <li><strong>Business inbox</strong> for booking requests (recommended)</li>
+          <li><strong>Phone / WhatsApp</strong> for customer follow-up</li>
+          <li><strong>Photos</strong> (shop + work), logo optional</li>
+          <li><strong>Service list + prices</strong></li>
+          <li><strong>Opening hours</strong> + policies (cancel / no-show)</li>
+        </ul>
+
+        <h2>How bookings work (safe & realistic)</h2>
+        <p>
+          Customers send a <strong>booking request</strong>. The shop receives it instantly and follows up to confirm.
+          This avoids pretending there’s a “hard calendar” and keeps everything reliable.
+        </p>
+
+        <h2>Go live in ~20 minutes</h2>
+        <ol>
+          <li>Deploy the site (Vercel).</li>
+          <li>Connect your domain (optional for demo, recommended for live).</li>
+          <li>Add email sending (Resend) + set your shop inbox.</li>
+          <li>Update address, map query, phone, WhatsApp.</li>
+          <li>Test on mobile: send a booking request.</li>
+        </ol>
+
+        <h2>Environment variables (copy-paste)</h2>
+        <pre class="bm-launch__code"><code>RESEND_API_KEY=re_...
+BOOKING_BARBER_EMAIL=shop@yourdomain.co.uk
+BOOKING_FROM_EMAIL=Your Shop &lt;onboarding@resend.dev&gt;
+BOOKING_SHOP_NAME=Your Shop Name
+BOOKING_CLIENT_NOTIFY=none</code></pre>
+
+        <p class="bm-launch__note">
+          Tip: When you have a verified domain, set <code>BOOKING_FROM_EMAIL</code> to a real sender on your domain.
+        </p>
+
+        <h2>Links</h2>
+        <div class="bm-launch__links">
+          <a class="bm-launch__btn" href="/projects/local-barber-neo-gentleman-site">Open demo site →</a>
+          <a class="bm-launch__btn" href="/projects/local-barber-neo-gentleman-site/privacy">Privacy policy →</a>
+        </div>
+
+        <div class="bm-launch__hr"></div>
+
+        <h2>Need help launching?</h2>
+        <p>
+          Email: <a class="bm-launch__link" href={`mailto:${contactEmail}`}>{contactEmail}</a>
+        </p>
+      </section>
+
+      <div class="bm-launch__back">
+        <a class="bm-launch__ghost" href="/projects/local-barber-neo-gentleman-site">Back to site →</a>
+      </div>
+    </div>
+  </main>
+
+  <style>
+    .bm-launch{ padding: clamp(26px, 4vw, 56px) 0; }
+    .bm-launch__inner{ width:min(900px, calc(100% - 40px)); margin:0 auto; }
+    .bm-launch__head{ margin-bottom: 18px; }
+    .bm-launch__kicker{
+      font-size: var(--bm-kicker-size);
+      letter-spacing: var(--bm-track-kicker);
+      text-transform: uppercase;
+      color: rgba(255,255,255,.55);
+      margin: 0 0 10px;
+    }
+    .bm-launch__title{
+      font-family: var(--bm-font-serif);
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.05;
+      letter-spacing: var(--bm-track-tight);
+      margin: 0 0 10px;
+      color: rgba(255,255,255,.95);
+    }
+    .bm-launch__sub{ margin:0; color: rgba(255,255,255,.70); max-width: 64ch; }
+
+    .bm-launch__card{
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      box-shadow: 0 26px 70px rgba(0,0,0,.45);
+      padding: 18px;
+      color: rgba(255,255,255,.74);
+      line-height: 1.7;
+    }
+    .bm-launch__card h2{
+      margin: 16px 0 6px;
+      color: rgba(255,255,255,.92);
+      font-size: 16px;
+      letter-spacing: .01em;
+    }
+    .bm-launch__card ul, .bm-launch__card ol{ margin: 6px 0 0; padding-left: 18px; }
+    .bm-launch__card code{ color: rgba(255,255,255,.84); }
+
+    .bm-launch__code{
+      margin: 10px 0 0;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      overflow:auto;
+      color: rgba(255,255,255,.82);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .bm-launch__note{
+      margin: 10px 0 0;
+      color: rgba(255,255,255,.60);
+      font-size: 12px;
+    }
+
+    .bm-launch__links{
+      margin-top: 10px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .bm-launch__btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.78);
+      text-decoration:none;
+      font-weight: 800;
+      font-size: var(--bm-text-sm);
+    }
+    .bm-launch__btn:hover{ border-color: rgba(255,255,255,.16); filter: brightness(1.03); }
+
+    .bm-launch__hr{
+      height: 1px;
+      background: rgba(255,255,255,.08);
+      margin: 14px 0;
+    }
+
+    .bm-launch__link{
+      color: rgba(255,255,255,.84);
+      text-decoration:none;
+      border-bottom: 1px solid rgba(210,170,110,.40);
+    }
+    .bm-launch__link:hover{ border-bottom-color: rgba(210,170,110,.75); }
+
+    .bm-launch__back{ margin-top: 14px; }
+    .bm-launch__ghost{
+      color: rgba(255,255,255,.70);
+      text-decoration:none;
+      border-bottom: 1px solid rgba(210,170,110,.40);
+    }
+    .bm-launch__ghost:hover{ border-bottom-color: rgba(210,170,110,.75); }
+
+    @media (max-width: 640px){
+      .bm-launch__inner{ width: calc(100% - 28px); }
+    }
+  </style>
+</Layout>
