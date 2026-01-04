@@ -1092,3 +1092,53 @@
   background: rgba(255,120,120,.08);
   color: rgba(255,225,225,.92);
 }
+/* ===== CONSENT (GDPR) ===== */
+.bm-consent{
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  display: grid;
+  gap: 10px;
+}
+
+.bm-consent__row{
+  display:flex;
+  gap: 10px;
+  align-items:flex-start;
+  cursor: pointer;
+}
+
+.bm-consent__box{
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: rgba(210,170,110,.92);
+}
+
+.bm-consent__text{
+  color: rgba(255,255,255,.74);
+  font-size: var(--bm-text-sm);
+  line-height: 1.45;
+}
+
+.bm-consent__req{
+  color: rgba(255,255,255,.55);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-left: 6px;
+}
+
+.bm-consent__fine{
+  color: rgba(255,255,255,.56);
+  font-size: var(--bm-text-xs);
+  line-height: 1.6;
+}
+
+.bm-consent__link{
+  color: rgba(255,255,255,.84);
+  text-decoration:none;
+  border-bottom: 1px solid rgba(210,170,110,.40);
+}
+.bm-consent__link:hover{ border-bottom-color: rgba(210,170,110,.75); }

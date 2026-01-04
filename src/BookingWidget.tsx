@@ -213,6 +213,10 @@ export default function BookingWidget() {
   const [email, setEmail] = useState(""); // optional
   const [notes, setNotes] = useState("");
 
+  // ✅ GDPR / consent
+  const [consentBooking, setConsentBooking] = useState(false);
+  const [consentMarketing, setConsentMarketing] = useState(false);
+
   const [sending, setSending] = useState(false);
 
   // ✅ Premium result feedback (no alerts)
@@ -277,11 +281,13 @@ export default function BookingWidget() {
     setName("");
     setEmail("");
     setNotes("");
+    setConsentBooking(false);
+    setConsentMarketing(false);
   };
 
   const step1Ready = !!service;
   const step2Ready = startOfDay(date) >= minDay;
-  const step3Ready = !!time && phoneOk;
+  const step3Ready = !!time && phoneOk && consentBooking;
 
   const title = useMemo(() => (step === 1 ? "Choose a service" : step === 2 ? "Pick a date" : "Pick a time"), [step]);
   const progressPct = useMemo(() => (step / 3) * 100, [step]);
@@ -371,6 +377,8 @@ export default function BookingWidget() {
     setName("");
     setEmail("");
     setNotes("");
+    setConsentBooking(false);
+    setConsentMarketing(false);
     setBarberOpen(false);
   };
 
@@ -387,7 +395,16 @@ export default function BookingWidget() {
       setStep(3);
       return;
     }
-    if (!step3Ready || sending) return;
+
+    if (sending) return;
+
+    // ✅ hard gate on consent
+    if (!time || !phoneOk) return;
+    if (!consentBooking) {
+      setSubmitState("error");
+      setSubmitMsg("Please agree to be contacted about your booking request.");
+      return;
+    }
 
     setSending(true);
     setSubmitState("idle");
@@ -404,6 +421,10 @@ export default function BookingWidget() {
         name,
         email: email.trim() || null,
         notes,
+        consent: {
+          booking: consentBooking,
+          marketing: consentMarketing,
+        },
       };
 
       const res = await fetch(bookingEndpoint, {
@@ -418,7 +439,7 @@ export default function BookingWidget() {
       }
 
       setSubmitState("success");
-      setSubmitMsg("Request received. We’ll confirm by text. No marketing.");
+      setSubmitMsg("Request received. We’ll follow up manually. No marketing.");
 
       window.setTimeout(() => {
         resetForm();
@@ -775,11 +796,51 @@ export default function BookingWidget() {
                       >
                         Add details (optional)
                       </button>
+
                       {phone.length > 0 && !isPhoneValid(phone) ? (
                         <div className="bmw__softErr">Enter a valid UK number.</div>
                       ) : (
-                        <div className="bmw__miniHint">We’ll text to confirm. No marketing.</div>
+                        <div className="bmw__miniHint">We’ll follow up manually. No marketing.</div>
                       )}
+                    </div>
+
+                    {/* ✅ GDPR consent block */}
+                    <div className="bmw__consent">
+                      <label className="bmw__consentRow">
+                        <input
+                          className="bmw__consentBox"
+                          type="checkbox"
+                          checked={consentBooking}
+                          onChange={(e) => {
+                            resetNotice();
+                            setConsentBooking(e.target.checked);
+                          }}
+                        />
+                        <span className="bmw__consentText">
+                          I agree to be contacted about my booking request. <span className="bmw__consentReq">Required</span>
+                        </span>
+                      </label>
+
+                      <label className="bmw__consentRow">
+                        <input
+                          className="bmw__consentBox"
+                          type="checkbox"
+                          checked={consentMarketing}
+                          onChange={(e) => {
+                            resetNotice();
+                            setConsentMarketing(e.target.checked);
+                          }}
+                        />
+                        <span className="bmw__consentText">I’d like to receive occasional offers (optional).</span>
+                      </label>
+
+                      <div className="bmw__consentFine">
+                        We use your details only to manage this request.{" "}
+                        <a className="bmw__consentLink" href="/projects/local-barber-neo-gentleman-site/privacy">
+                          Privacy policy
+                        </a>
+                        .
+                      </div>
                     </div>
                   </div>
                 ) : null}

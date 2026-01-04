@@ -1,0 +1,160 @@
+---
+import Layout from "./Layout.astro";
+
+const {
+  title = "Privacy Policy · Neo Gentleman",
+  controller = "Neo Gentleman (Demo)",
+  contactEmail = "hello@yourdomain.co.uk",
+  retention = "90 days",
+} = Astro.props;
+---
+
+<Layout title={title} description="Privacy policy for booking enquiries">
+  <main class="bm-legal" aria-label="Privacy Policy">
+    <div class="bm-legal__inner">
+      <header class="bm-legal__head">
+        <p class="bm-legal__kicker">LEGAL</p>
+        <h1 class="bm-legal__title">Privacy Policy</h1>
+        <p class="bm-legal__sub">
+          Short, clear, UK-friendly. No drama.
+        </p>
+      </header>
+
+      <section class="bm-legal__card">
+        <h2>Who we are</h2>
+        <p>
+          The data controller is <strong>{controller}</strong>. If you have questions, contact
+          <a class="bm-legal__link" href={`mailto:${contactEmail}`}> {contactEmail}</a>.
+        </p>
+
+        <h2>What we collect</h2>
+        <ul>
+          <li>Contact details you provide (phone, optional email, name).</li>
+          <li>Booking request details (service, preferred date/time, notes).</li>
+          <li>Basic technical info needed to operate the website (e.g. request logs).</li>
+        </ul>
+
+        <h2>Why we use it</h2>
+        <ul>
+          <li>To contact you about your booking request.</li>
+          <li>To manage scheduling and respond to changes/cancellations.</li>
+          <li>To prevent abuse and keep the service reliable.</li>
+        </ul>
+
+        <h2>Legal basis</h2>
+        <ul>
+          <li><strong>Contract / steps before a contract</strong> (handling your booking request).</li>
+          <li><strong>Legitimate interests</strong> (running the business, preventing fraud/abuse).</li>
+          <li><strong>Consent</strong> (only if you opt in to marketing).</li>
+        </ul>
+
+        <h2>How long we keep it</h2>
+        <p>
+          Booking enquiries are typically kept for <strong>{retention}</strong>, unless we need longer for legal,
+          tax, or dispute reasons, or you ask us to delete it (where applicable).
+        </p>
+
+        <h2>Who we share it with</h2>
+        <p>
+          We may use email providers to deliver messages (e.g. transactional email).
+          We do not sell your data.
+        </p>
+
+        <h2>Your rights</h2>
+        <ul>
+          <li>Access, correction, deletion (where applicable).</li>
+          <li>Restriction and objection.</li>
+          <li>Data portability (where applicable).</li>
+          <li>Withdraw consent for marketing at any time.</li>
+        </ul>
+
+        <h2>Marketing</h2>
+        <p>
+          Marketing messages are <strong>opt-in only</strong>. If you do not tick marketing, you’ll only be contacted
+          about your booking request.
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          Email: <a class="bm-legal__link" href={`mailto:${contactEmail}`}>{contactEmail}</a>
+        </p>
+
+        <p class="bm-legal__small">
+          Demo note: this policy is a template. Final version should be tailored to the business and its processors.
+        </p>
+      </section>
+
+      <div class="bm-legal__back">
+        <a class="bm-legal__btn" href="/projects/local-barber-neo-gentleman-site#policies">Back to site →</a>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .bm-legal{ padding: clamp(26px, 4vw, 56px) 0; }
+  .bm-legal__inner{ width:min(900px, calc(100% - 40px)); margin:0 auto; }
+  .bm-legal__head{ margin-bottom: 18px; }
+  .bm-legal__kicker{
+    font-size: var(--bm-kicker-size);
+    letter-spacing: var(--bm-track-kicker);
+    text-transform: uppercase;
+    color: rgba(255,255,255,.55);
+    margin: 0 0 10px;
+  }
+  .bm-legal__title{
+    font-family: var(--bm-font-serif);
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.05;
+    letter-spacing: var(--bm-track-tight);
+    margin: 0 0 10px;
+    color: rgba(255,255,255,.95);
+  }
+  .bm-legal__sub{ margin:0; color: rgba(255,255,255,.70); max-width: 62ch; }
+
+  .bm-legal__card{
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.03);
+    box-shadow: 0 26px 70px rgba(0,0,0,.45);
+    padding: 18px;
+    color: rgba(255,255,255,.74);
+    line-height: 1.7;
+  }
+  .bm-legal__card h2{
+    margin: 16px 0 6px;
+    color: rgba(255,255,255,.92);
+    font-size: 16px;
+    letter-spacing: .01em;
+  }
+  .bm-legal__card ul{ margin: 6px 0 0; padding-left: 18px; }
+  .bm-legal__card li{ margin: 4px 0; }
+  .bm-legal__link{
+    color: rgba(255,255,255,.84);
+    text-decoration:none;
+    border-bottom: 1px solid rgba(210,170,110,.40);
+  }
+  .bm-legal__link:hover{ border-bottom-color: rgba(210,170,110,.75); }
+  .bm-legal__small{ margin-top: 14px; font-size: 12px; color: rgba(255,255,255,.55); }
+
+  .bm-legal__back{ margin-top: 14px; }
+  .bm-legal__btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.18);
+    color: rgba(255,255,255,.78);
+    text-decoration:none;
+    font-weight: 800;
+    font-size: var(--bm-text-sm);
+  }
+  .bm-legal__btn:hover{ border-color: rgba(255,255,255,.16); filter: brightness(1.03); }
+
+  @media (max-width: 640px){
+    .bm-legal__inner{ width: calc(100% - 28px); }
+  }
+</style>
