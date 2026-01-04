@@ -1072,3 +1072,23 @@
   border-radius: 999px;
   background: rgba(255,255,255,0.20);
 }
+.bmw__notice{
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.25;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.05);
+  color: rgba(255,255,255,.78);
+}
+.bmw__notice.is-ok{
+  border-color: rgba(120,255,170,.18);
+  background: rgba(120,255,170,.08);
+  color: rgba(220,255,235,.92);
+}
+.bmw__notice.is-bad{
+  border-color: rgba(255,120,120,.18);
+  background: rgba(255,120,120,.08);
+  color: rgba(255,225,225,.92);
+}

@@ -215,6 +215,17 @@ export default function BookingWidget() {
 
   const [sending, setSending] = useState(false);
 
+  // ✅ Premium result feedback (no alerts)
+  const [submitState, setSubmitState] = useState<"idle" | "success" | "error">("idle");
+  const [submitMsg, setSubmitMsg] = useState<string>("");
+
+  const resetNotice = () => {
+    if (submitState !== "idle") {
+      setSubmitState("idle");
+      setSubmitMsg("");
+    }
+  };
+
   const minDay = useMemo(() => startOfDay(new Date()), []);
   const [viewMonth, setViewMonth] = useState<Date>(() => new Date(date.getFullYear(), date.getMonth(), 1));
   useEffect(() => setViewMonth(new Date(date.getFullYear(), date.getMonth(), 1)), [date]);
@@ -258,6 +269,7 @@ export default function BookingWidget() {
   }, [grid.cells, minDay, serviceKey]);
 
   const pickDate = (d: Date) => {
+    resetNotice();
     const dd = startOfDay(d);
     setDate(dd);
     setTime(null);
@@ -275,7 +287,10 @@ export default function BookingWidget() {
   const progressPct = useMemo(() => (step / 3) * 100, [step]);
 
   const serviceIds = ["skinfade", "haircutbeard", "hottowel"] as ServiceKey[];
-  const serviceRadio = useRovingRadio<ServiceKey>(serviceIds, serviceKey, (id) => setServiceKey(id));
+  const serviceRadio = useRovingRadio<ServiceKey>(serviceIds, serviceKey, (id) => {
+    resetNotice();
+    setServiceKey(id);
+  });
 
   const barberIds = ["any", "mason", "oliver", "theo"] as const;
   const barberSelectedId = barberKey ?? "any";
@@ -283,6 +298,7 @@ export default function BookingWidget() {
     barberIds as any,
     barberSelectedId as any,
     (id) => {
+      resetNotice();
       if (id === "any") setBarberKey(null);
       else setBarberKey(id as BarberKey);
     }
@@ -339,27 +355,43 @@ export default function BookingWidget() {
   };
 
   const primaryLabel = useMemo(
-    () => (step === 1 ? "Choose date" : step === 2 ? "Choose time" : sending ? "Confirming…" : "Confirm"),
+    () => (step === 1 ? "Choose date" : step === 2 ? "Choose time" : sending ? "Sending…" : "Confirm"),
     [step, sending]
   );
 
-  // ✅ Endpoint within demo folder (Astro file route)
+  // ✅ API endpoint
   const bookingEndpoint = "/projects/local-barber-neo-gentleman-site/api/booking";
+
+  const resetForm = () => {
+    setStep(1);
+    setServiceKey(null);
+    setBarberKey(null);
+    setTime(null);
+    setPhone("");
+    setName("");
+    setEmail("");
+    setNotes("");
+    setBarberOpen(false);
+  };
 
   const onPrimary = async () => {
     if (step === 1) {
       if (!step1Ready) return;
+      resetNotice();
       setStep(2);
       return;
     }
     if (step === 2) {
       if (!step2Ready) return;
+      resetNotice();
       setStep(3);
       return;
     }
     if (!step3Ready || sending) return;
 
     setSending(true);
+    setSubmitState("idle");
+    setSubmitMsg("");
 
     try {
       const payload = {
@@ -385,10 +417,17 @@ export default function BookingWidget() {
         throw new Error(data?.error || "Booking request failed");
       }
 
-      alert("Request sent ✅ Check your inbox.");
-    } catch {
-      // If API route missing / server error -> fallback DEMO
-      alert("Booked (demo) ✅");
+      setSubmitState("success");
+      setSubmitMsg("Request received. We’ll confirm by text. No marketing.");
+
+      window.setTimeout(() => {
+        resetForm();
+        setSubmitState("idle");
+        setSubmitMsg("");
+      }, 1800);
+    } catch (err: any) {
+      setSubmitState("error");
+      setSubmitMsg(err?.message ? `Couldn’t send: ${err.message}` : "Couldn’t send. Try again.");
     } finally {
       setSending(false);
     }
@@ -436,7 +475,10 @@ export default function BookingWidget() {
                         role="radio"
                         aria-checked={selected}
                         className={`bmw__serviceRow ${selected ? "is-selected" : ""}`}
-                        onClick={() => setServiceKey(s.key)}
+                        onClick={() => {
+                          resetNotice();
+                          setServiceKey(s.key);
+                        }}
                       >
                         <span className="bmw__serviceMain">
                           <span className="bmw__serviceTop">
@@ -473,7 +515,10 @@ export default function BookingWidget() {
                 <button
                   type="button"
                   className="bmw__accordionBtn"
-                  onClick={() => setBarberOpen((v) => !v)}
+                  onClick={() => {
+                    resetNotice();
+                    setBarberOpen((v) => !v);
+                  }}
                   aria-expanded={barberOpen}
                   aria-controls="bmw-barber-panel"
                 >
@@ -502,7 +547,10 @@ export default function BookingWidget() {
                       role="radio"
                       aria-checked={barberKey === null}
                       className={`bmw__barberRow ${barberKey === null ? "is-selected" : ""}`}
-                      onClick={() => setBarberKey(null)}
+                      onClick={() => {
+                        resetNotice();
+                        setBarberKey(null);
+                      }}
                     >
                       <span className="bmw__avatarSm" aria-hidden="true">
                         <img src={ANY_BARBER_PHOTO} alt="" loading="lazy" />
@@ -535,7 +583,10 @@ export default function BookingWidget() {
                           role="radio"
                           aria-checked={selected}
                           className={`bmw__barberRow ${selected ? "is-selected" : ""}`}
-                          onClick={() => setBarberKey(b.key)}
+                          onClick={() => {
+                            resetNotice();
+                            setBarberKey(b.key);
+                          }}
                         >
                           <span className="bmw__avatarSm" aria-hidden="true">
                             <img src={b.photo} alt="" loading="lazy" />
@@ -573,7 +624,10 @@ export default function BookingWidget() {
                 <button
                   type="button"
                   className="bmw__iconBtn"
-                  onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
+                  onClick={() => {
+                    resetNotice();
+                    setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1));
+                  }}
                   aria-label="Previous month"
                 >
                   ‹
@@ -584,7 +638,10 @@ export default function BookingWidget() {
                 <button
                   type="button"
                   className="bmw__iconBtn"
-                  onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
+                  onClick={() => {
+                    resetNotice();
+                    setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1));
+                  }}
                   aria-label="Next month"
                 >
                   ›
@@ -668,7 +725,10 @@ export default function BookingWidget() {
                             key={t}
                             type="button"
                             className={`bmw__timeTile2 ${selected ? "is-selected" : ""}`}
-                            onClick={() => setTime(t)}
+                            onClick={() => {
+                              resetNotice();
+                              setTime(t);
+                            }}
                             aria-pressed={selected}
                             aria-label={`Select time ${t}`}
                           >
@@ -692,7 +752,10 @@ export default function BookingWidget() {
                         ref={phoneRef}
                         className={`bmw__input ${phone.length > 0 && !isPhoneValid(phone) ? "is-warnSoft" : ""}`}
                         value={phone}
-                        onChange={(e) => setPhone(formatUKPhone(e.target.value))}
+                        onChange={(e) => {
+                          resetNotice();
+                          setPhone(formatUKPhone(e.target.value));
+                        }}
                         placeholder="+44 7xxx xxx xxx"
                         autoComplete="tel"
                         inputMode="tel"
@@ -701,7 +764,15 @@ export default function BookingWidget() {
                     </div>
 
                     <div className="bmw__miniActions">
-                      <button type="button" className="bmw__linkBtn" onClick={openDetailsSheet} aria-label="Add details">
+                      <button
+                        type="button"
+                        className="bmw__linkBtn"
+                        onClick={() => {
+                          resetNotice();
+                          openDetailsSheet();
+                        }}
+                        aria-label="Add details"
+                      >
                         Add details (optional)
                       </button>
                       {phone.length > 0 && !isPhoneValid(phone) ? (
@@ -718,10 +789,18 @@ export default function BookingWidget() {
         </main>
 
         <footer className="bmw__footerLite">
+          {submitState !== "idle" ? (
+            <div className={`bmw__notice ${submitState === "success" ? "is-ok" : "is-bad"}`}>{submitMsg}</div>
+          ) : null}
+
           <button
             type="button"
             className="bmw__btnBack"
-            onClick={() => (step === 1 ? null : setStep((prev) => (prev === 3 ? 2 : 1)))}
+            onClick={() => {
+              resetNotice();
+              if (step === 1) return;
+              setStep((prev) => (prev === 3 ? 2 : 1));
+            }}
             disabled={step === 1}
             aria-label="Back"
           >
@@ -732,7 +811,15 @@ export default function BookingWidget() {
           </button>
 
           {step === 1 ? (
-            <button type="button" className="bmw__summaryBtn2" onClick={openSummarySheet} aria-label="Open booking summary">
+            <button
+              type="button"
+              className="bmw__summaryBtn2"
+              onClick={() => {
+                resetNotice();
+                openSummarySheet();
+              }}
+              aria-label="Open booking summary"
+            >
               <span className="bmw__summary2">
                 <span className="bmw__sumL1">{step1SummaryLine1}</span>
                 <span className="bmw__sumL2">{step1SummaryLine2}</span>
@@ -740,7 +827,16 @@ export default function BookingWidget() {
               {service ? <span className="bmw__sumPrice">£{service.price}</span> : null}
             </button>
           ) : (
-            <button type="button" className="bmw__summaryBtn" onClick={openSummarySheet} aria-label="Open booking summary" title={summaryFull}>
+            <button
+              type="button"
+              className="bmw__summaryBtn"
+              onClick={() => {
+                resetNotice();
+                openSummarySheet();
+              }}
+              aria-label="Open booking summary"
+              title={summaryFull}
+            >
               <span className="bmw__summaryLine">{summaryCompact}</span>
             </button>
           )}
@@ -758,12 +854,29 @@ export default function BookingWidget() {
 
         {sheetOpen ? (
           <div className="bmw__sheetRoot" role="presentation">
-            <button type="button" className="bmw__sheetOverlay" onClick={() => setSheetOpen(false)} aria-label="Close overlay" />
+            <button
+              type="button"
+              className="bmw__sheetOverlay"
+              onClick={() => {
+                resetNotice();
+                setSheetOpen(false);
+              }}
+              aria-label="Close overlay"
+            />
 
             <div className="bmw__sheet" role="dialog" aria-modal="true" aria-label="Details">
               <div className="bmw__sheetTop">
                 <div className="bmw__sheetTitle">{sheetMode === "summary" ? "Summary" : "Add details"}</div>
-                <button ref={sheetCloseRef} type="button" className="bmw__sheetClose" onClick={() => setSheetOpen(false)} aria-label="Close">
+                <button
+                  ref={sheetCloseRef}
+                  type="button"
+                  className="bmw__sheetClose"
+                  onClick={() => {
+                    resetNotice();
+                    setSheetOpen(false);
+                  }}
+                  aria-label="Close"
+                >
                   ✕
                 </button>
               </div>
@@ -781,7 +894,10 @@ export default function BookingWidget() {
                       <input
                         className="bmw__input"
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => {
+                          resetNotice();
+                          setName(e.target.value);
+                        }}
                         placeholder="Your name"
                         autoComplete="name"
                         aria-label="Name"
@@ -789,11 +905,16 @@ export default function BookingWidget() {
                     </label>
 
                     <label className="bmw__field">
-                      <span style={{ display: "block", fontSize: 12, color: "rgba(255,255,255,.60)", marginBottom: 6 }}>Email (optional)</span>
+                      <span style={{ display: "block", fontSize: 12, color: "rgba(255,255,255,.60)", marginBottom: 6 }}>
+                        Email (optional)
+                      </span>
                       <input
                         className="bmw__input"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          resetNotice();
+                          setEmail(e.target.value);
+                        }}
                         placeholder="you@example.com"
                         autoComplete="email"
                         inputMode="email"
@@ -806,7 +927,10 @@ export default function BookingWidget() {
                       <textarea
                         className="bmw__input bmw__textarea"
                         value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
+                        onChange={(e) => {
+                          resetNotice();
+                          setNotes(e.target.value);
+                        }}
                         rows={3}
                         placeholder="Beard trim? Skin fade length? Any allergies?"
                         aria-label="Notes"
