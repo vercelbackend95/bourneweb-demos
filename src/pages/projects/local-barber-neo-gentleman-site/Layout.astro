@@ -6,6 +6,8 @@ const {
 
 import "./_local-barber-neo-gentleman-site.css";
 import TopNav from "./TopNav.astro";
+import StickyBookPill from "./StickyBookPill.astro";
+
 ---
 
 <!doctype html>
@@ -20,7 +22,7 @@ import TopNav from "./TopNav.astro";
       if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 
       // Hash-e sekcji, które NIE mają wymuszać lądowania w środku strony przy starcie/reload
-      const SECTION_HASHES = new Set(["#top", "#gallery", "#services", "#products", "#book", "#shop"]);
+      const SECTION_HASHES = new Set(["#top", "#gallery", "#services", "#shop", "#book", "#shop"]);
 
       const navType = () => {
         const nav = performance.getEntriesByType?.("navigation")?.[0];
@@ -85,5 +87,7 @@ import TopNav from "./TopNav.astro";
 
     <TopNav />
     <slot />
+    <StickyBookPill />
+
   </body>
 </html>

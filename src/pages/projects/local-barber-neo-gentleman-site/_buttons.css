@@ -358,3 +358,173 @@
     opacity: 0 !important;
   }
 }
+/* =========================================================
+   Underline Slide (high-end, subtle, breathing)
+   Apply to: View services / Browse full shop / footer links etc.
+   ========================================================= */
+
+:root{
+  --bm-ul-color: rgba(199,162,106,.62);
+  --bm-ul-thick: 1px;
+  --bm-ul-offset: 2px;     /* distance from text baseline */
+  --bm-ul-gap: 0px;        /* 0 = no notch, >0 = notch */
+  --bm-ul-dur: 520ms;
+  --bm-ul-ease: cubic-bezier(.2,.9,.2,1);
+}
+
+/* ✅ Utility class if you ever want it elsewhere */
+.bm-uSlide{
+  position: relative;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ✅ Targets (no HTML changes needed) */
+a.bm-products__all,
+a.bm-products__link,
+a.bm-foot__fineLink,
+a.bm-foot__link,
+a.bm-footMail,
+a.bm-linkPlain{
+  position: relative;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Kill old static underlines so you don’t get “double line” */
+a.bm-products__all,
+a.bm-products__link,
+a.bm-foot__fineLink,
+a.bm-footMail{
+  border-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Notch “sometimes” (picked targets) */
+a.bm-products__all,
+a.bm-foot__fineLink,
+a.bm-footMail{
+  --bm-ul-gap: 6px;
+}
+
+/* The underline itself */
+.bm-uSlide::after,
+a.bm-products__all::after,
+a.bm-products__link::after,
+a.bm-foot__fineLink::after,
+a.bm-foot__link::after,
+a.bm-footMail::after,
+a.bm-linkPlain::after{
+  content:"";
+  position:absolute;
+
+  /* inset tuned to each component’s padding */
+  left: 10px;
+  right: 10px;
+
+  /* “under” the text */
+  bottom: var(--bm-ul-offset);
+  height: var(--bm-ul-thick);
+
+  /* smooth line + optional notch (gap) */
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--bm-ul-color) 14%,
+    var(--bm-ul-color) calc(50% - var(--bm-ul-gap)),
+    transparent     calc(50% - var(--bm-ul-gap)),
+    transparent     calc(50% + var(--bm-ul-gap)),
+    var(--bm-ul-color) calc(50% + var(--bm-ul-gap)),
+    var(--bm-ul-color) 86%,
+    transparent 100%
+  );
+
+  opacity: 0;
+  transform-origin: left;
+  transform: translate3d(-10px, 4px, 0) scaleX(.35);
+  filter: drop-shadow(0 0 10px rgba(199,162,106,.14));
+
+  pointer-events:none;
+
+  transition:
+    transform var(--bm-ul-dur) var(--bm-ul-ease),
+    opacity 180ms ease,
+    filter 240ms ease;
+}
+
+/* Per-component insets (so it feels custom, not generic) */
+a.bm-products__all::after{ left: 0; right: 0; bottom: -2px; }
+a.bm-products__link::after{ left: 0; right: 0; bottom: -2px; }
+a.bm-foot__fineLink::after{ left: 0; right: 0; bottom: -2px; }
+a.bm-footMail::after{ left: 0; right: 0; bottom: -2px; }
+a.bm-foot__link::after{ left: 12px; right: 12px; bottom: 8px; opacity: 0; } /* inside pill */
+a.bm-linkPlain::after{ left: 12px; right: 12px; bottom: 10px; }            /* inside button */
+
+/* Hover + focus-visible (keyboard gets the love too) */
+@media (hover:hover){
+  .bm-uSlide:hover::after,
+  a.bm-products__all:hover::after,
+  a.bm-products__link:hover::after,
+  a.bm-foot__fineLink:hover::after,
+  a.bm-foot__link:hover::after,
+  a.bm-footMail:hover::after,
+  a.bm-linkPlain:hover::after{
+    opacity: 1;
+    transform: translate3d(0,0,0) scaleX(1);
+    filter: drop-shadow(0 0 14px rgba(199,162,106,.22));
+  }
+}
+
+.bm-uSlide:focus-visible::after,
+a.bm-products__all:focus-visible::after,
+a.bm-products__link:focus-visible::after,
+a.bm-foot__fineLink:focus-visible::after,
+a.bm-foot__link:focus-visible::after,
+a.bm-footMail:focus-visible::after,
+a.bm-linkPlain:focus-visible::after{
+  opacity: 1;
+  transform: translate3d(0,0,0) scaleX(1);
+}
+
+/* Press micro-feedback */
+.bm-uSlide:active::after,
+a.bm-products__all:active::after,
+a.bm-products__link:active::after,
+a.bm-foot__fineLink:active::after,
+a.bm-foot__link:active::after,
+a.bm-footMail:active::after,
+a.bm-linkPlain:active::after{
+  opacity: .95;
+  transform: translate3d(0,0,0) scaleX(.96);
+}
+
+/* Reduced motion: no slide, just fade in */
+@media (prefers-reduced-motion: reduce){
+  .bm-uSlide::after,
+  a.bm-products__all::after,
+  a.bm-products__link::after,
+  a.bm-foot__fineLink::after,
+  a.bm-foot__link::after,
+  a.bm-footMail::after,
+  a.bm-linkPlain::after{
+    transition: opacity 120ms ease;
+    transform: none;
+    opacity: 0;
+  }
+  .bm-uSlide:hover::after,
+  a.bm-products__all:hover::after,
+  a.bm-products__link:hover::after,
+  a.bm-foot__fineLink:hover::after,
+  a.bm-foot__link:hover::after,
+  a.bm-footMail:hover::after,
+  a.bm-linkPlain:hover::after,
+  .bm-uSlide:focus-visible::after,
+  a.bm-products__all:focus-visible::after,
+  a.bm-products__link:focus-visible::after,
+  a.bm-foot__fineLink:focus-visible::after,
+  a.bm-foot__link:focus-visible::after,
+  a.bm-footMail:focus-visible::after,
+  a.bm-linkPlain:focus-visible::after{
+    opacity: 1;
+  }
+}

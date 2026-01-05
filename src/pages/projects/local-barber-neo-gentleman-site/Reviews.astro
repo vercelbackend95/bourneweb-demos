@@ -1,0 +1,164 @@
+---
+const {
+  id = "reviews",
+  title = "What clients say",
+  subtitle = "Google-style feedback — clean, real-looking, demo-safe.",
+  rating = "4.9",
+  count = "300+",
+  sourceNote = "Example reviews for demo purposes.",
+  googleHref = "https://www.google.com/search?q=barbershop+google+reviews",
+} = Astro.props;
+
+const stars = [1, 2, 3, 4, 5];
+
+const reviews = [
+  {
+    name: "James W.",
+    date: "2 weeks ago",
+    via: "Reviewed on mobile",
+    text: "Super clean fade. No rush, no drama. Exactly the vibe you want — sharp, calm, professional.",
+  },
+  {
+    name: "Ollie R.",
+    date: "1 month ago",
+    text: "Beard line-up was surgical. Great attention to detail and the place feels premium without trying too hard.",
+  },
+  {
+    name: "David P.",
+    date: "3 months ago",
+    text: "Booked in minutes, chair on time, cut came out flawless. Solid craft and a relaxed atmosphere.",
+  },
+  {
+    name: "Tom K.",
+    date: "4 months ago",
+    text: "Best trim I’ve had in ages. Proper consultation, clean finish, and the aftercare tips were on point.",
+  },
+  {
+    name: "Ben S.",
+    date: "6 months ago",
+    text: "Skin fade blend is crazy good. You can tell they take pride in the work. Will be back.",
+  },
+  {
+    name: "Liam C.",
+    date: "8 months ago",
+    text: "The whole experience feels high-end. Crisp work, tidy studio, and the booking flow is smooth.",
+  },
+];
+
+function initials(name) {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((p) => p[0])
+    .join("")
+    .toUpperCase();
+}
+---
+
+<section class="bm-rev" id={id} aria-label="Reviews">
+  <div class="bm-rev__inner">
+    <header class="bm-rev__head">
+      <div>
+        <p class="bm-rev__kicker">REVIEWS</p>
+        <h2 class="bm-rev__title">{title}</h2>
+        <p class="bm-rev__sub">{subtitle}</p>
+      </div>
+
+      <div class="bm-rev__summary" aria-label={`Rating ${rating} out of 5 from ${count} reviews`}>
+        <div class="bm-rev__g">
+          <span class="bm-rev__gMark" aria-hidden="true">
+            <!-- Minimal "G" (not official logo) -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M20 12.2c0 4.6-3.1 7.8-8 7.8a8 8 0 1 1 0-16c2.1 0 3.9.7 5.3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M20 12h-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M20 12v4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+
+          <div class="bm-rev__gTxt">
+            <div class="bm-rev__line1">
+              <span class="bm-rev__rating">{rating}</span>
+
+              <span class="bm-rev__stars bm-revStars" aria-hidden="true">
+                {stars.map((_, i) => (
+                  <svg class="bm-rev__star bm-revStar" style={`--s:${i}`} width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2.7l2.8 5.9 6.5.9-4.8 4.6 1.2 6.5L12 17.9 6.3 20.6l1.2-6.5L2.7 9.5l6.5-.9L12 2.7Z" fill="currentColor"/>
+                  </svg>
+                ))}
+              </span>
+
+              <span class="bm-revChip" aria-label="Verified">
+                <svg class="bm-revChip__ic" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M20 7.5 10.5 17 4 10.5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Verified
+              </span>
+            </div>
+
+            <div class="bm-rev__line2">
+              <span class="bm-rev__count">{count} reviews</span>
+              <span class="bm-rev__dot" aria-hidden="true">·</span>
+              <a class="bm-rev__google bm-uSlide" href={googleHref} target="_blank" rel="noreferrer">
+                View on Google
+              </a>
+            </div>
+
+            <small class="bm-rev__note">{sourceNote}</small>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="bm-rev__rail" aria-label="Review cards">
+      {reviews.map((r) => (
+        <article class="bm-revCard" aria-label={`Review by ${r.name}`}>
+          {/* Google mark (top-right) + tooltip */}
+          <span class="bm-revCard__gMark" aria-hidden="true" data-tip="Google">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M20 12.2c0 4.6-3.1 7.8-8 7.8a8 8 0 1 1 0-16c2.1 0 3.9.7 5.3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M20 12h-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M20 12v4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+
+          <div class="bm-revCard__top">
+            <div class="bm-revCard__avatar" aria-hidden="true">{initials(r.name)}</div>
+
+            <div class="bm-revCard__who">
+              <div class="bm-revCard__nameRow">
+                <div class="bm-revCard__name">{r.name}</div>
+                <span class="bm-revChip bm-revChip--sm" aria-label="Verified">
+                  <svg class="bm-revChip__ic" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 7.5 10.5 17 4 10.5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Verified
+                </span>
+              </div>
+
+              <div class="bm-revCard__meta">
+                <span class="bm-revCard__stars bm-revStars" aria-hidden="true">
+                  {stars.map((_, i) => (
+                    <svg class="bm-revCard__star bm-revStar" style={`--s:${i}`} width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2.7l2.8 5.9 6.5.9-4.8 4.6 1.2 6.5L12 17.9 6.3 20.6l1.2-6.5L2.7 9.5l6.5-.9L12 2.7Z" fill="currentColor"/>
+                    </svg>
+                  ))}
+                </span>
+
+                <span class="bm-revCard__date">{r.date}</span>
+
+                {r.via && (
+                  <>
+                    <span class="bm-revCard__sep" aria-hidden="true">·</span>
+                    <span class="bm-revCard__via">{r.via}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <p class="bm-revCard__text">“{r.text}”</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
