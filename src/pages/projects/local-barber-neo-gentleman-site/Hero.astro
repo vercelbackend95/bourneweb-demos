@@ -7,7 +7,13 @@ const {
   titleLine1 = "Sharp fades.",
   titleLine2 = "Calm ritual.",
   lead = "Crafted cuts, clean lines — hot towel finish included. Pick a service and we’ll line up the best slot.",
-  openHours = "10:00–20:00",
+
+  // ✅ UK format everywhere
+  openHours = "10am–8pm",
+  opensAt = "10am",
+  openFrom = 10,
+  openTo = 20,
+
   proof1 = "3000+ cuts",
 
   photoUrl = "https://images.unsplash.com/photo-1599351431618-3174d19c93a5?auto=format&fit=crop&w=2400&q=80",
@@ -22,9 +28,19 @@ const {
       <p class="bm-kicker">{kicker}</p>
       <p class="bm-punchline">{punchline}</p>
 
-      <div class="bm-openNow" aria-label="Open today">
+      <!-- ✅ Open / Closed pill (UK) -->
+      <div
+        class="bm-openNow"
+        aria-label="Opening status"
+        data-bm-openpill
+        data-open-hours={openHours}
+        data-opens-at={opensAt}
+        data-open-from={String(openFrom)}
+        data-open-to={String(openTo)}
+      >
         <span class="bm-openDot" aria-hidden="true"></span>
-        <span class="bm-openTxt">Open today <strong>{openHours}</strong></span>
+        <span class="bm-openTxt" data-bm-openTxt>Open ·</span>
+        <strong class="bm-openHrs" data-bm-openHrs>{openHours}</strong>
       </div>
 
       <h1 class="bm-title">
@@ -95,6 +111,46 @@ const {
       const root = document.querySelector("[data-bm-hero]");
       if (!root) return;
 
+      // ===== Open / Closed pill (UK) =====
+      const pill = root.querySelector("[data-bm-openpill]");
+      const txt = root.querySelector("[data-bm-openTxt]");
+      const hrs = root.querySelector("[data-bm-openHrs]");
+
+      function parseNum(v, fallback){
+        const n = Number(v);
+        return Number.isFinite(n) ? n : fallback;
+      }
+
+      function isOpenNow(d, fromH, toH){
+        const mins = d.getHours() * 60 + d.getMinutes();
+        return mins >= fromH * 60 && mins < toH * 60;
+      }
+
+      function renderOpen(){
+        if (!pill || !txt || !hrs) return;
+
+        const fromH = parseNum(pill.dataset.openFrom, 10);
+        const toH = parseNum(pill.dataset.openTo, 20);
+        const hoursText = pill.dataset.openHours || "10am–8pm";
+        const opensAt = pill.dataset.opensAt || "10am";
+
+        const open = isOpenNow(new Date(), fromH, toH);
+
+        if (open){
+          pill.classList.remove("is-closed");
+          txt.textContent = "Open ·";
+          hrs.textContent = hoursText;
+        } else {
+          pill.classList.add("is-closed");
+          txt.textContent = `Closed · opens ${opensAt}`;
+          hrs.textContent = "";
+        }
+      }
+
+      renderOpen();
+      setInterval(renderOpen, 30 * 1000);
+
+      // ===== entrance animation =====
       const reduce =
         window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -105,7 +161,9 @@ const {
             { threshold: 0.25 }
           );
           io.observe(root);
-        } catch { root.classList.add("is-in"); }
+        } catch {
+          root.classList.add("is-in");
+        }
       } else {
         root.classList.add("is-in");
       }

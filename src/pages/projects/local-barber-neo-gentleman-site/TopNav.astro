@@ -21,17 +21,16 @@ const {
       <div class="bm-links" aria-label="Primary">
         <a class="bm-link" href="#gallery">Gallery</a>
         <a class="bm-link" href="#services">Services</a>
-        <a class="bm-link" href="#book">Book</a>
         <a class="bm-link" href="#shop">Shop</a>
+        <a class="bm-link" href="#book">Book</a>
       </div>
 
-
       <div class="bm-navRight">
-        <!-- ✅ Open status (10–22) -->
+        <!-- ✅ Open status (UK) -->
         <div class="bm-openBadge" aria-label="Opening status" data-bm-openbadge>
           <span class="bm-openBadge__dot" aria-hidden="true"></span>
-          <span class="bm-openBadge__txt" data-bm-openTxt>Open now</span>
-          <span class="bm-openBadge__hrs" data-bm-openHrs>10:00–22:00</span>
+          <span class="bm-openBadge__txt" data-bm-openTxt>Open ·</span>
+          <span class="bm-openBadge__hrs" data-bm-openHrs>10am–8pm</span>
         </div>
 
         <a class="bm-miniCall" href="tel:+440000000000" aria-label="Call us">
@@ -67,10 +66,9 @@ const {
       <div class="bm-drawer__links" aria-label="Mobile links">
         <a class="bm-dLink" href="#gallery" data-bm-navlink>Gallery</a>
         <a class="bm-dLink" href="#services" data-bm-navlink>Services</a>
-        <a class="bm-dLink" href="#book" data-bm-navlink>Book</a>
         <a class="bm-dLink" href="#shop" data-bm-navlink>Shop</a>
+        <a class="bm-dLink" href="#book" data-bm-navlink>Book</a>
       </div>
-
 
       <div class="bm-drawer__ctaRow">
         <a class="bm-drawerCta" href="#book" data-bm-navlink>
@@ -85,8 +83,8 @@ const {
       <!-- ✅ dynamic line (red when closed) -->
       <p class="bm-drawer__fine">
         <span class="bm-openLine__loc">Central</span>
-        <span class="bm-openLine" data-bm-openLine>Open now</span>
-        <span class="bm-openLine__hrs" data-bm-openLineHrs>10:00–22:00</span>
+        <span class="bm-openLine" data-bm-openLine>Open ·</span>
+        <span class="bm-openLine__hrs" data-bm-openLineHrs>10am–8pm</span>
       </p>
     </div>
   </div>
@@ -101,9 +99,9 @@ const {
       const closeEls = Array.from(wrap.querySelectorAll('[data-bm-close]'));
       const navLinks = Array.from(wrap.querySelectorAll('[data-bm-navlink]'));
 
-      // ===== OPEN STATUS (10–22) =====
+      // ===== OPEN STATUS (UK: 10am–8pm) =====
       const OPEN_FROM = 10; // 10:00
-      const OPEN_TO = 22;   // 22:00
+      const OPEN_TO = 20;   // 20:00
 
       const badge = wrap.querySelector('[data-bm-openbadge]');
       const badgeTxt = wrap.querySelector('[data-bm-openTxt]');
@@ -112,7 +110,9 @@ const {
       const line = wrap.querySelector('[data-bm-openLine]');
       const lineHrs = wrap.querySelector('[data-bm-openLineHrs]');
 
-      const hrsText = "10:00–22:00";
+      const hrsText = "10am–8pm";
+      const closedText = "Closed · opens 10am";
+      const openText = "Open ·";
 
       function isOpenNow(d){
         const h = d.getHours();
@@ -127,19 +127,22 @@ const {
         const now = new Date();
         const open = isOpenNow(now);
 
-        if (badgeHrs) badgeHrs.textContent = hrsText;
-        if (lineHrs) lineHrs.textContent = hrsText;
-
         if (open){
           badge?.classList.remove('is-closed');
-          if (badgeTxt) badgeTxt.textContent = "Open now";
+          if (badgeTxt) badgeTxt.textContent = openText;
+          if (badgeHrs) badgeHrs.textContent = hrsText;
+
           line?.classList.remove('is-closed');
-          if (line) line.textContent = "Open now";
+          if (line) line.textContent = openText;
+          if (lineHrs) lineHrs.textContent = hrsText;
         } else {
           badge?.classList.add('is-closed');
-          if (badgeTxt) badgeTxt.textContent = "Closed";
+          if (badgeTxt) badgeTxt.textContent = closedText;
+          if (badgeHrs) badgeHrs.textContent = "";
+
           line?.classList.add('is-closed');
-          if (line) line.textContent = "Closed";
+          if (line) line.textContent = closedText;
+          if (lineHrs) lineHrs.textContent = "";
         }
       }
 

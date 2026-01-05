@@ -9,7 +9,7 @@
   position: relative;
   background:
     radial-gradient(900px 700px at 50% 30%, rgba(255,255,255,.03), transparent 60%),
-    linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.0));
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,0));
   padding: clamp(56px, 7vw, 90px) 0;
   overflow: hidden;
 }
@@ -24,11 +24,11 @@
 /* Stage: circle + arrows */
 .bm-services__stage{
   margin-top: 8px;
-  display:grid;
+  display: grid;
   grid-template-columns: 64px 1fr 64px;
-  align-items:center;
+  align-items: center;
   gap: 22px;
-  justify-items:center;
+  justify-items: center;
   padding: 18px 0 10px;
 }
 
@@ -43,14 +43,16 @@
   box-shadow: 0 22px 80px rgba(0,0,0,.35);
   transition: transform .15s ease, border-color .15s ease, color .15s ease, background .15s ease;
 }
+
 .bm-arrow:hover{
   transform: translateY(-1px);
   border-color: rgba(199,162,106,.30);
   color: rgba(255,255,255,.86);
   background: rgba(199,162,106,.06);
 }
+
 .bm-arrow span{
-  display:inline-block;
+  display: inline-block;
   transform: translateY(-1px);
   font-size: 18px;
 }
@@ -65,8 +67,10 @@
   background-size: cover;
   background-position: center;
   position: relative;
-  overflow:hidden;
-  transform: scale(calc(1 - (var(--bm-svc-flash) * .01)));
+  overflow: hidden;
+
+  /* ✅ FIX: scale + translateZ in ONE transform (no override) */
+  transform: translateZ(0) scale(calc(1 - (var(--bm-svc-flash) * .01)));
   transition: transform .14s ease, filter .14s ease;
   filter: saturate(.98) contrast(1.06);
 
@@ -75,20 +79,19 @@
   cursor: grab;
 
   will-change: transform;
-  transform: translateZ(0);
 }
 
 .bm-services.is-swipeX .bm-circle{ cursor: grabbing; }
 
 .bm-circle::after{
-  content:"";
-  position:absolute;
-  inset:0;
+  content: "";
+  position: absolute;
+  inset: 0;
   background:
     radial-gradient(700px 520px at 60% 20%, rgba(0,0,0,.18), transparent 60%),
     radial-gradient(700px 520px at 30% 70%, rgba(0,0,0,.38), transparent 62%),
     radial-gradient(700px 520px at 50% 50%, transparent 62%, rgba(0,0,0,.48) 100%);
-  pointer-events:none;
+  pointer-events: none;
 }
 
 /* =========================
@@ -116,26 +119,26 @@
   position: relative;
   overflow: hidden;
   border-radius: 18px;
-
   padding: 10px 0;
 
   touch-action: pan-y;
 }
 
-
 .bm-services__capsViewport::before,
 .bm-services__capsViewport::after{
-  content:"";
-  position:absolute;
+  content: "";
+  position: absolute;
   top: 0;
   bottom: 0;
   width: clamp(18px, 2.6vw, 30px);
-  pointer-events:none;
+  pointer-events: none;
 }
+
 .bm-services__capsViewport::before{
   left: 0;
   background: linear-gradient(90deg, rgba(0,0,0,.38), transparent);
 }
+
 .bm-services__capsViewport::after{
   right: 0;
   background: linear-gradient(270deg, rgba(0,0,0,.38), transparent);
@@ -198,10 +201,10 @@
 
 .bm-services__bottom{
   margin-top: 10px;
-  display:grid;
+  display: grid;
   grid-template-columns: 1fr;
   gap: clamp(12px, 2.4vw, 18px);
-  align-items:start;
+  align-items: start;
   justify-items: center;
 }
 
@@ -235,7 +238,7 @@
 
 .bm-mini__badge{
   display: inline-grid;
-  place-items:center;
+  place-items: center;
 
   min-width: 64px;
   padding: 10px 12px;
@@ -265,9 +268,9 @@
 }
 
 .bm-priceRow{
-  display:grid;
+  display: grid;
   grid-template-columns: minmax(0, auto) 1fr auto;
-  align-items:center;
+  align-items: center;
   gap: 12px;
   padding: 10px 0;
   border-bottom: 1px solid rgba(255,255,255,.06);
@@ -335,6 +338,7 @@
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
+
   .bm-arrow span{ font-size: 16px; }
 
   .bm-arrow--prev{ left: 0; }
@@ -346,13 +350,10 @@
     margin-bottom: 8px;
   }
 
-@media (max-width: 640px){
   .bm-services__capsViewport{
     padding: 8px 0;
     border-radius: 16px;
   }
-}
-
 
   .bm-services__capsTrack{
     gap: 18px;
