@@ -148,6 +148,15 @@ body.bm-noScroll{
   transition: color .14s ease, background .14s ease, transform .14s ease;
   text-decoration:none;
 }
+.bm-link,
+.bm-link:visited,
+.bm-link:hover,
+.bm-link:active,
+.bm-link:focus,
+.bm-link:focus-visible{
+  text-decoration: none;
+}
+
 .bm-link:hover{
   color: rgba(255,255,255,.92);
   background: rgba(199,162,106,.08);
