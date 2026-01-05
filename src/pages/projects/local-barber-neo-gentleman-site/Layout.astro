@@ -7,7 +7,6 @@ const {
 import "./_local-barber-neo-gentleman-site.css";
 import TopNav from "./TopNav.astro";
 import StickyBookPill from "./StickyBookPill.astro";
-
 ---
 
 <!doctype html>
@@ -22,7 +21,7 @@ import StickyBookPill from "./StickyBookPill.astro";
       if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 
       // Hash-e sekcji, które NIE mają wymuszać lądowania w środku strony przy starcie/reload
-      const SECTION_HASHES = new Set(["#top", "#gallery", "#services", "#shop", "#book", "#shop"]);
+      const SECTION_HASHES = new Set(["#top", "#gallery", "#services", "#products", "#book", "#shop"]);
 
       const navType = () => {
         const nav = performance.getEntriesByType?.("navigation")?.[0];
@@ -70,9 +69,30 @@ import StickyBookPill from "./StickyBookPill.astro";
       window.addEventListener("load", forceTop);
       window.addEventListener("pageshow", forceTop);          // Safari / bfcache
       document.addEventListener("astro:page-load", forceTop); // Astro navigations
+
+      // ===== Open booking from sticky pill (or any element with data-bm-open-booking) =====
+      document.addEventListener("click", (e) => {
+        const t = e.target;
+        if (!(t instanceof Element)) return;
+
+        const trigger = t.closest("[data-bm-open-booking]");
+        if (!trigger) return;
+
+        // allow "open in new tab" etc. when it's a link
+        const isLink = trigger instanceof HTMLAnchorElement;
+        const mouse = e instanceof MouseEvent ? e : null;
+
+        if (isLink) {
+          if (mouse && mouse.button !== 0) return;
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        }
+
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("bm:open-booking"));
+      });
     </script>
 
-    <!-- Typography: load real fonts (no more fallback roulette) -->
+    <!-- Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -87,7 +107,7 @@ import StickyBookPill from "./StickyBookPill.astro";
 
     <TopNav />
     <slot />
-    <StickyBookPill />
 
+    <StickyBookPill />
   </body>
 </html>

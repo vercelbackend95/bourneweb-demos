@@ -24,40 +24,37 @@ function usePrefersReducedMotionSSR() {
   const [reduce, setReduce] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-    if (!mq) return;
-    const set = () => setReduce(!!mq.matches);
+    const set = () => setReduce(!!mq?.matches);
     set();
-    mq.addEventListener?.("change", set);
-    return () => mq.removeEventListener?.("change", set);
+    mq?.addEventListener?.("change", set);
+    return () => mq?.removeEventListener?.("change", set);
   }, []);
   return reduce;
 }
 
-function lockScroll(on: boolean) {
+function lockScroll(lock: boolean) {
   const html = document.documentElement;
   const body = document.body;
 
-  if (!on) {
-    const y = body.dataset.bwScrollY;
-    if (y) {
-      body.style.position = "";
-      body.style.top = "";
-      body.style.left = "";
-      body.style.right = "";
-      body.style.width = "";
-      html.style.overflow = "";
-      body.style.overflow = "";
-      window.scrollTo(0, Number(y));
-      delete body.dataset.bwScrollY;
-    }
+  if (!lock) {
+    const y = parseInt(body.dataset.lockY || "0", 10) || 0;
+    html.style.overflow = "";
+    body.style.overflow = "";
+    body.style.position = "";
+    body.style.top = "";
+    body.style.left = "";
+    body.style.right = "";
+    body.style.width = "";
+    delete body.dataset.lockY;
+    window.scrollTo(0, y);
     return;
   }
 
-  const scrollY = window.scrollY || 0;
-  body.dataset.bwScrollY = String(scrollY);
+  const y = window.scrollY || 0;
+  body.dataset.lockY = String(y);
 
   body.style.position = "fixed";
-  body.style.top = `-${scrollY}px`;
+  body.style.top = `-${y}px`;
   body.style.left = "0";
   body.style.right = "0";
   body.style.width = "100%";
@@ -66,7 +63,7 @@ function lockScroll(on: boolean) {
 }
 
 export default function BookingLauncher({
-  ctaLabel = "Book online",
+  ctaLabel = "BOOK ONLINE",
   desktopBp = 900,
 }: Props) {
   const reduce = usePrefersReducedMotionSSR();
@@ -75,15 +72,16 @@ export default function BookingLauncher({
 
   const [open, setOpen] = useState(false);
 
+  const dragControls = useDragControls();
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const bodyRef = useRef<HTMLDivElement | null>(null);
 
-  // swipe to close
-  const dragControls = useDragControls();
-
-  // body-initiated drag (only when scrolled to top)
+  // allow body-initiated drag when scrolled to top
   const startYRef = useRef<number | null>(null);
   const canBodyDragRef = useRef(false);
+
+  const CLOSE_DRAG_PX = 120;
+  const CLOSE_VEL = 850;
 
   useEffect(() => {
     if (!open) return;
@@ -100,129 +98,161 @@ export default function BookingLauncher({
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  // ✅ Open from sticky pill / anywhere
+  useEffect(() => {
+    const openFromOutside = () => setOpen(true);
+    window.addEventListener("bm:open-booking", openFromOutside as EventListener);
+    return () =>
+      window.removeEventListener("bm:open-booking", openFromOutside as EventListener);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     requestAnimationFrame(() => sheetRef.current?.focus());
   }, [open]);
 
-  // ✅ Morph ONLY on desktop (mobile = bottom sheet)
-  const layoutId = !reduce && isDesktop ? "booking-morph" : undefined;
-
   const sheetTransition = reduce
     ? { type: "tween" as const, duration: 0.22 }
-    : { type: "spring" as const, stiffness: 420, damping: 38, mass: 0.9 };
+    : { type: "spring" as const, stiffness: 420, damping: 38, mass: 0.8 };
 
-  const shouldCloseFromDrag = (offsetY: number, velocityY: number) => {
-    // "dismiss power" like native sheets: distance + a chunk of velocity
-    const power = offsetY + velocityY * 0.18;
+  const backdropTransition = reduce
+    ? { type: "tween" as const, duration: 0.18 }
+    : { type: "tween" as const, duration: 0.22 };
 
-    // tuned: easy, but not accidental
-    const farEnough = offsetY > 90;     // was 120
-    const fastEnough = velocityY > 650; // was 900
-    const powered = power > 160;
+  function canStartBodyDrag(e: PointerEvent) {
+    const body = bodyRef.current;
+    if (!body) return false;
 
-    return farEnough || fastEnough || powered;
-  };
+    if ((e as any).button != null && (e as any).button !== 0) return false;
+    if (body.scrollTop > 0) return false;
+
+    const target = e.target as Element | null;
+    if (!target) return false;
+
+    if (
+      target.closest(
+        "button, a, input, select, textarea, [role='button'], [data-no-drag]"
+      )
+    )
+      return false;
+
+    return true;
+  }
 
   return (
     <>
-      {!open && (
-        <motion.button
-          type="button"
-          className="bw-launcher__cta"
-          layoutId={layoutId}
-          onClick={() => setOpen(true)}
-          whileTap={reduce ? undefined : { scale: 0.985 }}
-        >
-          <span className="bw-launcher__ctaTxt">{ctaLabel}</span>
-          <span className="bw-launcher__ctaIcon" aria-hidden="true">
-            →
-          </span>
-        </motion.button>
-      )}
+      {/* ✅ Launcher CTA (the one from your screenshot) */}
+      <button
+        className="bw-launcher__cta"
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Open booking"
+      >
+        <span className="bw-launcher__ctaTxt">{ctaLabel}</span>
+        <span className="bw-launcher__ctaIcon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M9 6l6 6-6 6"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+      </button>
 
       <AnimatePresence>
         {open && (
           <div
             className={`bw-launcher__portal ${isDesktop ? "is-desktop" : "is-mobile"}`}
-            role="presentation"
+            aria-label="Booking portal"
           >
+            {/* Backdrop */}
             <motion.button
-              type="button"
               className="bw-launcher__overlay"
+              type="button"
               aria-label="Close booking"
               onClick={() => setOpen(false)}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { duration: 0.18 } }}
-              exit={{ opacity: 0, transition: { duration: 0.18 } }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={backdropTransition}
             />
 
+            {/* Sheet / modal */}
             <motion.div
-              ref={sheetRef}
-              tabIndex={-1}
+              className={`bw-launcher__sheet ${isDesktop ? "is-desktop" : "is-mobile"}`}
               role="dialog"
               aria-modal="true"
-              aria-label="Online booking"
-              className={`bw-launcher__sheet ${isDesktop ? "is-desktop" : "is-mobile"}`}
-              layoutId={layoutId}
+              aria-label="Booking"
+              ref={sheetRef}
+              tabIndex={-1}
               initial={
                 isDesktop
-                  ? (reduce ? { opacity: 0, scale: 0.985 } : false)
-                  : { y: "100%" }
+                  ? reduce
+                    ? { opacity: 0, scale: 0.98 }
+                    : { opacity: 0, scale: 0.985 }
+                  : reduce
+                  ? { y: 12, opacity: 0 }
+                  : { y: 18, opacity: 0 }
               }
-              animate={
-                isDesktop
-                  ? (reduce ? { opacity: 1, scale: 1, transition: sheetTransition } : undefined)
-                  : { y: 0, transition: sheetTransition }
-              }
-              exit={
-                isDesktop
-                  ? (reduce ? { opacity: 0, scale: 0.985, transition: sheetTransition } : undefined)
-                  : { y: "100%", transition: sheetTransition }
-              }
+              animate={isDesktop ? { opacity: 1, scale: 1 } : { y: 0, opacity: 1 }}
+              exit={isDesktop ? { opacity: 0, scale: 0.985 } : { y: 18, opacity: 0 }}
+              transition={sheetTransition}
               drag={isMobile ? "y" : false}
+              dragListener={false}
               dragControls={dragControls}
-              dragListener={false} // we start drag manually (handle + body when at top)
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={0.22}
+              dragConstraints={isMobile ? { top: 0, bottom: 260 } : undefined}
+              dragElastic={isMobile ? 0.1 : undefined}
               onDragEnd={(_, info) => {
                 if (!isMobile) return;
-                if (shouldCloseFromDrag(info.offset.y, info.velocity.y)) setOpen(false);
+                const shouldClose =
+                  info.offset.y > CLOSE_DRAG_PX || info.velocity.y > CLOSE_VEL;
+                if (shouldClose) setOpen(false);
               }}
             >
-              {/* ✅ bigger, easier grab area */}
-              {isMobile ? (
-                <div
+              {/* Mobile grab */}
+              {isMobile && (
+                <button
                   className="bw-launcher__grab"
-                  aria-hidden="true"
-                  onPointerDown={(e) => dragControls.start(e)}
+                  type="button"
+                  aria-label="Drag down to close"
+                  onPointerDown={(e) => dragControls.start(e as any)}
+                  onClick={() => setOpen(false)}
                 />
-              ) : null}
+              )}
 
-              {/* scrollable content + swipe-down from content when scrollTop == 0 */}
+              {/* Header (matches your section copy vibe) */}
+              <div className="bw-launcher__head">
+                <p className="bw-launcher__kicker">BOOK ONLINE</p>
+                <h3 className="bw-launcher__headline">Book fast. Look sharp.</h3>
+              </div>
+
+              {/* Body */}
               <div
-                ref={bodyRef}
                 className="bw-launcher__body"
-                onPointerDown={(e) => {
+                ref={bodyRef}
+                onPointerDownCapture={(e) => {
                   if (!isMobile) return;
-                  startYRef.current = e.clientY;
-                  const el = bodyRef.current;
-                  canBodyDragRef.current = !!el && el.scrollTop <= 0;
+                  const pe = e.nativeEvent as PointerEvent;
+                  startYRef.current = pe.clientY;
+                  canBodyDragRef.current = canStartBodyDrag(pe);
                 }}
-                onPointerMove={(e) => {
+                onPointerMoveCapture={(e) => {
                   if (!isMobile) return;
                   if (!canBodyDragRef.current) return;
+                  const pe = e.nativeEvent as PointerEvent;
                   if (startYRef.current == null) return;
 
-                  const dy = e.clientY - startYRef.current;
-
-                  // user is pulling DOWN (not scrolling up)
-                  if (dy > 10) {
+                  const dy = pe.clientY - startYRef.current;
+                  if (dy > 6) {
+                    dragControls.start(e as any);
                     canBodyDragRef.current = false;
-                    dragControls.start(e);
+                    startYRef.current = null;
                   }
                 }}
-                onPointerUp={() => {
+                onPointerUpCapture={() => {
                   startYRef.current = null;
                   canBodyDragRef.current = false;
                 }}

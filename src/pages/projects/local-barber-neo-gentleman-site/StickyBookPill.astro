@@ -8,7 +8,12 @@ const {
 ---
 
 <div class="bm-pillBook" data-bm-pill aria-hidden="true">
-  <a class="bm-pillBook__a" href={href} aria-label="Book an appointment">
+  <a
+    class="bm-pillBook__a"
+    href={href}
+    aria-label="Open booking form"
+    data-bm-open-booking
+  >
     <span class="bm-pillBook__dot" aria-hidden="true"></span>
     <span class="bm-pillBook__txt">{label}</span>
     <span class="bm-pillBook__hint">{hint}</span>
@@ -41,7 +46,7 @@ const {
     const shopHref     = pickLink('shop')?.getAttribute('href')     || '#shop';
     const bookHref     = pickLink('book')?.getAttribute('href')     || '#book';
 
-    // ensure pill scrolls to the same place as your nav "Book"
+    // ensure pill scrolls to the same place as your nav "Book" (fallback if JS booking event fails)
     if (a && bookHref) a.setAttribute('href', bookHref);
 
     const servicesEl = document.querySelector(servicesHref);
@@ -94,7 +99,6 @@ const {
     obs(footerEl, (inView) => { if (inView) { shouldHide = true; apply(); } }, { root:null, threshold: 0.06 });
 
     // --- fallback (always works): show after user scrolls past hero-ish area
-    // If IO couldn't bind to any targets, use scrollY threshold.
     const needFallback = !servicesEl && !shopEl;
     let ticking = false;
 
@@ -125,7 +129,6 @@ const {
       window.addEventListener('resize', onScroll, { passive: true });
       onScroll();
     } else {
-      // still ensure it can appear if user already scrolled (e.g., refresh mid-page)
       onScroll();
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onScroll, { passive: true });
