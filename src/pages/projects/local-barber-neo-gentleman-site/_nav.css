@@ -430,3 +430,13 @@ body.bm-noScroll{
   .bm-burger{ display:flex; }
   .bm-brand{ min-width: auto; }
 }
+/* === Mobile: hide open/closed + hours (top bar + drawer fine line) === */
+@media (max-width: 820px){
+  .bm-openBadge{
+    display: none !important;
+  }
+
+  .bm-drawer__fine{
+    display: none !important;
+  }
+}

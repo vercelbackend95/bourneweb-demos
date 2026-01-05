@@ -15,7 +15,6 @@ const reviews = [
   {
     name: "James W.",
     date: "2 weeks ago",
-    via: "Reviewed on mobile",
     text: "Super clean fade. No rush, no drama. Exactly the vibe you want — sharp, calm, professional.",
   },
   {
@@ -146,12 +145,7 @@ function initials(name) {
 
                 <span class="bm-revCard__date">{r.date}</span>
 
-                {r.via && (
-                  <>
-                    <span class="bm-revCard__sep" aria-hidden="true">·</span>
-                    <span class="bm-revCard__via">{r.via}</span>
-                  </>
-                )}
+
               </div>
             </div>
           </div>
