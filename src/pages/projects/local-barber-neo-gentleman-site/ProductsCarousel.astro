@@ -295,183 +295,193 @@ const heartIcon = heartSvg
   </div>
 
   <script is:inline>
-    (function () {
-      // 🔒 Scope: only THIS section (prevents grabbing another [data-bm-reveal] elsewhere)
-      const section = document.currentScript?.closest('section.bm-products');
-      if (!section) return;
+  (function () {
+    // ✅ scope tylko do tej sekcji (zero przypadkowego querySelectora)
+    const section = document.currentScript?.closest('section.bm-products');
+    if (!section) return;
 
-      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // ===== Reveal =====
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            section.classList.add('is-in');
-            if (reduce) section.classList.add('is-reduced');
-            io.disconnect();
-          }
-        });
-      }, { threshold: 0.18 });
-
-      io.observe(section);
-
-      // ===== Quick add micro-feedback =====
-      section.querySelectorAll('[data-bm-buy]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          btn.classList.add('is-added');
-          btn.textContent = 'Added ✓';
-          setTimeout(() => { btn.classList.remove('is-added'); btn.textContent = 'Quick add'; }, 950);
-        });
-      });
-
-      // ===== Wishlist (heart) =====
-      const WISH_KEY = 'bm:wishlist:v1';
-
-      function readWish(){
-        try{
-          const raw = localStorage.getItem(WISH_KEY);
-          const parsed = raw ? JSON.parse(raw) : [];
-          return Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : [];
-        }catch(_e){
-          return [];
+    // ===== Reveal =====
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          section.classList.add('is-in');
+          if (reduce) section.classList.add('is-reduced');
+          io.disconnect();
         }
+      });
+    }, { threshold: 0.18 });
+
+    io.observe(section);
+
+    // ===== Quick add micro-feedback =====
+    section.querySelectorAll('[data-bm-buy]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        btn.classList.add('is-added');
+        btn.textContent = 'Added ✓';
+        setTimeout(() => { btn.classList.remove('is-added'); btn.textContent = 'Quick add'; }, 950);
+      });
+    });
+
+    // ===== Wishlist (heart) =====
+    const WISH_KEY = 'bm:wishlist:v1';
+
+    function readWish(){
+      try{
+        const raw = localStorage.getItem(WISH_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed.map(String).map(s => s.trim()).filter(Boolean) : [];
+      }catch(_e){
+        return [];
       }
+    }
 
-      function writeWish(items){
-        try{ localStorage.setItem(WISH_KEY, JSON.stringify(items)); }catch(_e){}
-        window.dispatchEvent(new CustomEvent('bm:wishlist-change', { detail: { items } }));
-      }
+    function writeWish(items){
+      try{ localStorage.setItem(WISH_KEY, JSON.stringify(items)); }catch(_e){}
+      window.dispatchEvent(new CustomEvent('bm:wishlist-change', { detail: { items } }));
+    }
 
-      function labelFrom(btn){
-        const card = btn.closest('.bm-product');
-        if (!card) return null;
-        const name = card.querySelector('.bm-product__name')?.textContent?.trim();
-        const price = card.querySelector('.bm-product__price')?.textContent?.trim();
-        if (!name) return null;
-        return price ? `${name} · ${price}` : name;
-      }
+    function labelFrom(btn){
+      const card = btn.closest('.bm-product');
+      if (!card) return null;
+      const name = card.querySelector('.bm-product__name')?.textContent?.trim();
+      const price = card.querySelector('.bm-product__price')?.textContent?.trim();
+      if (!name) return null;
+      return price ? `${name} · ${price}` : name;
+    }
 
-      function syncWishBtn(btn, items){
-        const label = labelFrom(btn);
-        if (!label) return;
-        const on = items.includes(label);
-        btn.classList.toggle('is-wished', on);
-        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-        btn.setAttribute('data-bm-wish-label', label);
-      }
+    function syncWishBtn(btn, items){
+      const label = labelFrom(btn);
+      if (!label) return;
+      const on = items.includes(label);
+      btn.classList.toggle('is-wished', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.setAttribute('data-bm-wish-label', label);
+    }
 
-      const wishBtns = Array.from(section.querySelectorAll('.bm-product .bm-icon'));
-      if (wishBtns.length){
-        let items = readWish();
-        wishBtns.forEach((b) => syncWishBtn(b, items));
+    const wishBtns = Array.from(section.querySelectorAll('.bm-product .bm-icon'));
+    if (wishBtns.length){
+      let items = readWish();
+      wishBtns.forEach((b) => syncWishBtn(b, items));
 
-        wishBtns.forEach((b) => {
-          b.addEventListener('click', () => {
-            const label = labelFrom(b);
-            if (!label) return;
+      wishBtns.forEach((b) => {
+        b.addEventListener('click', (e) => {
+          // ✅ nie pozwól, żeby drag to połknął
+          e.preventDefault();
+          e.stopPropagation();
 
-            items = readWish();
-            const idx = items.indexOf(label);
-            if (idx >= 0) items.splice(idx, 1);
-            else items.push(label);
+          const label = labelFrom(b);
+          if (!label) return;
 
-            writeWish(items);
-            wishBtns.forEach((x) => syncWishBtn(x, items));
-          });
-        });
-
-        // cross-tab sync
-        window.addEventListener('storage', (e) => {
-          if (e.key !== WISH_KEY) return;
           items = readWish();
+          const idx = items.indexOf(label);
+          if (idx >= 0) items.splice(idx, 1);
+          else items.push(label);
+
+          writeWish(items);
           wishBtns.forEach((x) => syncWishBtn(x, items));
         });
-      }
-
-      // ===== Carousel logic =====
-      const viewport = section.querySelector('[data-bm-viewport]');
-      const track = section.querySelector('[data-bm-track]');
-      const prev = section.querySelector('[data-bm-prev]');
-      const next = section.querySelector('[data-bm-next]');
-      const dotsWrap = section.querySelector('[data-bm-dots]');
-      const dots = dotsWrap ? Array.from(dotsWrap.querySelectorAll('[data-bm-dot]')) : [];
-
-      if (!viewport || !track) return;
-
-      let isDown = false;
-      let startX = 0;
-      let startScroll = 0;
-
-      const setDragging = (on) => viewport.classList.toggle('is-dragging', on);
-
-      viewport.addEventListener('pointerdown', (e) => {
-        isDown = true;
-        viewport.setPointerCapture(e.pointerId);
-        startX = e.clientX;
-        startScroll = viewport.scrollLeft;
-        setDragging(true);
       });
 
-      viewport.addEventListener('pointermove', (e) => {
-        if (!isDown) return;
-        const dx = e.clientX - startX;
-        viewport.scrollLeft = startScroll - dx;
+      // cross-tab sync
+      window.addEventListener('storage', (e) => {
+        if (e.key !== WISH_KEY) return;
+        const items2 = readWish();
+        wishBtns.forEach((x) => syncWishBtn(x, items2));
       });
+    }
 
-      function endDrag() { isDown = false; setDragging(false); }
-      viewport.addEventListener('pointerup', endDrag);
-      viewport.addEventListener('pointercancel', endDrag);
-      viewport.addEventListener('mouseleave', endDrag);
+    // ===== Carousel logic =====
+    const viewport = section.querySelector('[data-bm-viewport]');
+    const track = section.querySelector('[data-bm-track]');
+    const prev = section.querySelector('[data-bm-prev]');
+    const next = section.querySelector('[data-bm-next]');
+    const dotsWrap = section.querySelector('[data-bm-dots]');
+    const dots = dotsWrap ? Array.from(dotsWrap.querySelectorAll('[data-bm-dot]')) : [];
 
-      function cardStep() {
-        const first = track.querySelector('.bm-product');
-        if (!first) return 320;
-        const rect = first.getBoundingClientRect();
-        const styles = window.getComputedStyle(track);
-        const gap = parseFloat(styles.columnGap || styles.gap || '14') || 14;
-        return rect.width + gap;
+    if (!viewport || !track) return;
+
+    let isDown = false;
+    let startX = 0;
+    let startScroll = 0;
+
+    const setDragging = (on) => viewport.classList.toggle('is-dragging', on);
+
+    viewport.addEventListener('pointerdown', (e) => {
+      // ✅ jeśli tap na button/link/input — NIE uruchamiaj drag
+      if (e.target && e.target.closest && e.target.closest('button, a, input, textarea, select, [role="button"]')) {
+        return;
       }
+      isDown = true;
+      viewport.setPointerCapture(e.pointerId);
+      startX = e.clientX;
+      startScroll = viewport.scrollLeft;
+      setDragging(true);
+    });
 
-      function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+    viewport.addEventListener('pointermove', (e) => {
+      if (!isDown) return;
+      const dx = e.clientX - startX;
+      viewport.scrollLeft = startScroll - dx;
+    });
 
-      function activeIndex() {
-        if (!dots.length) return 0;
-        const step = cardStep();
-        const idx = Math.round(viewport.scrollLeft / step);
-        return clamp(idx, 0, dots.length - 1);
-      }
+    function endDrag() { isDown = false; setDragging(false); }
+    viewport.addEventListener('pointerup', endDrag);
+    viewport.addEventListener('pointercancel', endDrag);
+    viewport.addEventListener('mouseleave', endDrag);
 
-      function scrollToIndex(idx) {
-        const step = cardStep();
-        const max = dots.length ? dots.length - 1 : 999;
-        const t = clamp(idx, 0, max);
-        viewport.scrollTo({ left: t * step, behavior: 'smooth' });
-      }
+    function cardStep() {
+      const first = track.querySelector('.bm-product');
+      if (!first) return 320;
+      const rect = first.getBoundingClientRect();
+      const styles = window.getComputedStyle(track);
+      const gap = parseFloat(styles.columnGap || styles.gap || '14') || 14;
+      return rect.width + gap;
+    }
 
-      function syncDots(){
-        if (!dots.length) return;
-        const idx = activeIndex();
-        dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
-      }
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
-      prev?.addEventListener('click', () => scrollToIndex(activeIndex() - 1));
-      next?.addEventListener('click', () => scrollToIndex(activeIndex() + 1));
+    function activeIndex() {
+      if (!dots.length) return 0;
+      const step = cardStep();
+      const idx = Math.round(viewport.scrollLeft / step);
+      return clamp(idx, 0, dots.length - 1);
+    }
 
-      dots.forEach((d) => {
-        d.addEventListener('click', () => {
-          const idx = parseInt(d.getAttribute('data-bm-dot') || '0', 10);
-          scrollToIndex(idx);
-        });
+    function scrollToIndex(idx) {
+      const step = cardStep();
+      const max = dots.length ? dots.length - 1 : 999;
+      const t = clamp(idx, 0, max);
+      viewport.scrollTo({ left: t * step, behavior: 'smooth' });
+    }
+
+    function syncDots(){
+      if (!dots.length) return;
+      const idx = activeIndex();
+      dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
+    }
+
+    prev?.addEventListener('click', () => scrollToIndex(activeIndex() - 1));
+    next?.addEventListener('click', () => scrollToIndex(activeIndex() + 1));
+
+    dots.forEach((d) => {
+      d.addEventListener('click', () => {
+        const idx = parseInt(d.getAttribute('data-bm-dot') || '0', 10);
+        scrollToIndex(idx);
       });
+    });
 
-      viewport.addEventListener('scroll', () => requestAnimationFrame(syncDots));
+    viewport.addEventListener('scroll', () => requestAnimationFrame(syncDots));
 
-      viewport.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') scrollToIndex(activeIndex() - 1);
-        if (e.key === 'ArrowRight') scrollToIndex(activeIndex() + 1);
-      });
+    viewport.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') scrollToIndex(activeIndex() - 1);
+      if (e.key === 'ArrowRight') scrollToIndex(activeIndex() + 1);
+    });
 
-      syncDots();
-    })();
-  </script>
+    syncDots();
+  })();
+</script>
+
 </section>
