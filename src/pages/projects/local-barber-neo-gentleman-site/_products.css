@@ -429,8 +429,25 @@
   background: rgba(255,255,255,.03);
   color: rgba(255,255,255,.72);
   cursor:pointer;
+
+  /* ✅ perfect centering */
+  display: grid;
+  place-items: center;
+  padding: 0;
+  line-height: 0;
+
   transition: transform .14s ease, border-color .14s ease, background .14s ease, color .14s ease;
 }
+
+.bm-icon > span{
+  display: grid;
+  place-items: center;
+}
+
+.bm-icon > span :global(svg){
+  display: block;
+}
+
 .bm-icon:hover{
   transform: translateY(-1px);
   border-color: rgba(199,162,106,.22);

@@ -7,6 +7,8 @@ const {
   ownerWhatsApp = "+447785744005",
 } = Astro.props;
 
+import whatsappSvg from "./assets/whatsapp-icon.svg?raw";
+
 const subject = encodeURIComponent("Interested in buying the Neo Gentleman barber demo");
 const body = encodeURIComponent(
   `Hi ${ownerName},\n\nI'm interested in buying the Neo Gentleman barber demo.\n\nMy business name:\nMy website (if any):\nPreferred launch date:\n\nThanks!`
@@ -19,6 +21,13 @@ const waText = encodeURIComponent(`Hi ${ownerName}! I'm interested in buying the
 const wa = `https://wa.me/${waNumber}?text=${waText}`;
 
 const ariaBackToTop = `${brand} back to top`;
+
+/** WhatsApp: keep original colors, but make gradient id UNIQUE to avoid collisions */
+const waIconFoot = whatsappSvg
+  .replace(/\s(width|height)="[^"]*"/g, "")
+  .replace(/id="paint0_linear_87_7264"/g, 'id="wa_foot_grad"')
+  .replace(/url\(#paint0_linear_87_7264\)/g, "url(#wa_foot_grad)")
+  .replace("<svg", '<svg width="18" height="18"');
 ---
 
 <footer class="bm-foot" aria-label="Footer">
@@ -75,10 +84,7 @@ const ariaBackToTop = `${brand} back to top`;
 
           <a class="bm-footBtn bm-footBtn--ghost" href={wa} target="_blank" rel="noreferrer">
             WhatsApp
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M20 11.8a7.8 7.8 0 0 1-11.7 6.8L4 20l1.5-4.1A7.8 7.8 0 1 1 20 11.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-              <path d="M8.7 9.2c.4-.4.7-.4 1.1 0l.8.8c.3.3.3.7 0 1l-.3.3c.6 1.1 1.6 2.1 2.7 2.7l.3-.3c.3-.3.7-.3 1 0l.8.8c.4.4.4.7 0 1.1-.6.6-1.5.6-2.4.2-2.1-1-4-2.9-5-5-.4-.9-.4-1.8.2-2.4Z" fill="currentColor" opacity=".9"/>
-            </svg>
+            <span aria-hidden="true" set:html={waIconFoot}></span>
           </a>
         </div>
 

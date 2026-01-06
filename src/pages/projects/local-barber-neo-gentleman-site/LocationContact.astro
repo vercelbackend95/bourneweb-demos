@@ -17,9 +17,28 @@ const {
   transport = "Bus stop around the corner · Train 10 min",
 } = Astro.props;
 
+import phoneSvg from "./assets/phone.svg?raw";
+import whatsappSvg from "./assets/whatsapp-icon.svg?raw";
+
 const cleanWhatsApp = String(whatsapp).replace(/[^\d]/g, "");
 const mapsSrc =
   `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`;
+
+/** Phone: force white via currentColor (TopNav-style) */
+const phoneIcon = phoneSvg
+  .replace(/\s(width|height)="[^"]*"/g, "")
+  .replace(/stroke="#000000"/g, 'stroke="currentColor"')
+  .replace(/stroke="#0F1729"/g, 'stroke="currentColor"')
+  .replace(/stroke="#292D32"/g, 'stroke="currentColor"')
+  .replace(/stroke-width="2"/g, 'stroke-width="1.8"')
+  .replace("<svg", '<svg width="18" height="18"');
+
+/** WhatsApp: keep original colors, but make gradient id UNIQUE to avoid collisions */
+const waIconLoc = whatsappSvg
+  .replace(/\s(width|height)="[^"]*"/g, "")
+  .replace(/id="paint0_linear_87_7264"/g, 'id="wa_loc_grad"')
+  .replace(/url\(#paint0_linear_87_7264\)/g, "url(#wa_loc_grad)")
+  .replace("<svg", '<svg width="18" height="18"');
 ---
 
 <section class="bm-loc" id={id} aria-label="Location and contact">
@@ -33,25 +52,13 @@ const mapsSrc =
 
       <div class="bm-loc__cta">
         <a class="bm-locBtn bm-locBtn--primary" href={`tel:${phone}`} aria-label="Call the shop">
-          <span class="bm-locBtn__ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-              <path d="M6.5 3.8c.7-1 2.2-1 2.9 0l1.4 2c.6.8.4 1.9-.3 2.6l-1 1c1 2 2.6 3.6 4.6 4.6l1-1c.7-.7 1.8-.9 2.6-.3l2 1.4c1 .7 1 2.2 0 2.9l-1.3 1.8c-.7 1-1.9 1.4-3 1.1-7.6-2.1-13.4-7.9-15.5-15.5-.3-1.1.1-2.3 1.1-3L6.5 3.8Z"
-                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-            </svg>
-          </span>
+          <span class="bm-locBtn__ico" aria-hidden="true" set:html={phoneIcon}></span>
           Call
           <span class="bm-locBtn__shine" aria-hidden="true"></span>
         </a>
 
         <a class="bm-locBtn" href={`https://wa.me/${cleanWhatsApp}`} target="_blank" rel="noopener" aria-label="WhatsApp the shop">
-          <span class="bm-locBtn__ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-              <path d="M12 3.5c-4.7 0-8.5 3.6-8.5 8.1 0 1.4.4 2.8 1.1 4L3.5 20.5l5.1-1.5c1.2.6 2.6 1 4 .9 4.7 0 8.5-3.6 8.5-8.1S16.7 3.5 12 3.5Z"
-                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-              <path d="M9.2 9.2c.3-.4.7-.4 1 0l.8 1c.3.4.2.9-.1 1.2l-.5.5c.6 1.1 1.5 2 2.6 2.6l.5-.5c.3-.3.8-.4 1.2-.1l1 .8c.4.3.4.7 0 1-.5.6-1.3.8-2 .6-2.8-.8-5-3-5.8-5.8-.2-.7 0-1.5.6-2Z"
-                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-            </svg>
-          </span>
+          <span class="bm-locBtn__ico" aria-hidden="true" set:html={waIconLoc}></span>
           WhatsApp
         </a>
       </div>

@@ -1,6 +1,4 @@
 ---
-
-
 const {
   kicker = "NEO GENTLEMAN · PREMIUM BARBERSHOP",
   punchline = "Precision, not speed.",
@@ -19,6 +17,19 @@ const {
   photoUrl = "https://images.unsplash.com/photo-1599351431618-3174d19c93a5?auto=format&fit=crop&w=2400&q=80",
   textureUrl = "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=2400&q=80",
 } = Astro.props;
+
+import arrowUpRightSvg from "./assets/arrow-up-right.svg?raw";
+import scissorsSvg from "./assets/scissors.svg?raw";
+import cardSvg from "./assets/card.svg?raw";
+
+/**
+ * Make SVGs predictable in UI:
+ * - force a sane size so gigantic SVGs don't explode layout
+ * - let them inherit color via currentColor (CSS controls color)
+ */
+const arrowUpRightIcon = arrowUpRightSvg.replace("<svg", '<svg width="16" height="16"');
+const scissorsIcon = scissorsSvg.replace("<svg", '<svg width="14" height="14"');
+const cardIcon = cardSvg.replace("<svg", '<svg width="14" height="14"');
 ---
 
 <main class="bm-hero" aria-label="Barber hero" data-bm-hero>
@@ -57,7 +68,8 @@ const {
         </a>
 
         <a class="bm-linkPlain" href="#services">
-          View services <span class="bm-linkPlain__arrow" aria-hidden="true">↗</span>
+          View services
+          <span class="bm-linkPlain__arrow" aria-hidden="true" set:html={arrowUpRightIcon}></span>
         </a>
       </div>
 
@@ -69,27 +81,14 @@ const {
 
         <span class="bm-proofLine">
           <span class="bm-proofItem">
-            <span class="bm-proofIco" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M8 7h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <path d="M7 10h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <path d="M6 13h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <path d="M8 17h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
-            </span>
+            <span class="bm-proofIco" aria-hidden="true" set:html={scissorsIcon}></span>
             {proof1}
           </span>
 
           <span class="bm-proofDot" aria-hidden="true">·</span>
 
           <span class="bm-proofItem">
-            <span class="bm-proofIco" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M6 7h12v10H6V7Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-                <path d="M8 10h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <path d="M9 14h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
-            </span>
+            <span class="bm-proofIco" aria-hidden="true" set:html={cardIcon}></span>
             Pay at shop
           </span>
         </span>
