@@ -11,7 +11,8 @@ export async function POST({ request }: { request: Request }) {
 
     const TO_BARBER = import.meta.env.BOOKING_BARBER_EMAIL as string | undefined;
 
-    const SHOP = (import.meta.env.BOOKING_SHOP_NAME as string | undefined) ?? "Neo Gentleman";
+    const SHOP =
+      (import.meta.env.BOOKING_SHOP_NAME as string | undefined) ?? "Neo Gentleman";
 
     // client notify:
     // none  -> never email client
@@ -21,15 +22,18 @@ export async function POST({ request }: { request: Request }) {
       (import.meta.env.BOOKING_CLIENT_NOTIFY as string | undefined) ?? "none"
     ).toLowerCase();
 
-    if (!RESEND_API_KEY) return json({ ok: false, error: "Missing RESEND_API_KEY" }, 500);
-    if (!TO_BARBER) return json({ ok: false, error: "Missing BOOKING_BARBER_EMAIL" }, 500);
-
-    const body = await request.json();
+    const body = await request.json().catch(() => ({} as any));
 
     // ✅ Honeypot anti-spam: bots fill hidden "website"
     if (typeof body?.website === "string" && body.website.trim().length > 0) {
       return json({ ok: true, ignored: true }, 200);
     }
+
+    // ✅ Wishlist from Shop (optional)
+    const wishlist = Array.isArray(body?.wishlist)
+      ? body.wishlist.map(String).map((s) => s.trim()).filter(Boolean)
+      : [];
+    const wishlistText = wishlist.length ? wishlist.join(" • ") : "";
 
     // minimal validation
     const serviceName = body?.service?.name ? String(body.service.name) : "";
@@ -49,7 +53,6 @@ export async function POST({ request }: { request: Request }) {
     if (!serviceName || !date || !time || !phone) {
       return json({ ok: false, error: "Missing required fields" }, 400);
     }
-
     if (!consentBooking) {
       return json({ ok: false, error: "Missing required consent (booking)" }, 400);
     }
@@ -74,6 +77,7 @@ export async function POST({ request }: { request: Request }) {
           ${row("Phone", escapeHtml(phone))}
           ${row("Name", escapeHtml(name || "—"))}
           ${row("Notes", escapeHtml(notes || "—"))}
+          ${wishlistText ? row("Product interest", escapeHtml(wishlistText)) : ""}
           ${clientEmail ? row("Client email", escapeHtml(clientEmail)) : ""}
           ${row("Consent (booking)", consentBooking ? "Yes" : "No")}
           ${row("Consent (marketing)", consentMarketing ? "Yes" : "No")}
@@ -85,11 +89,40 @@ export async function POST({ request }: { request: Request }) {
       </div>
     `;
 
-    // 1) send to barber (always)
+    // ✅ DEMO MODE: no env required, still "works" + returns preview
+    // (this is perfect for a demo site — no keys, no emails, but flow is real)
+    const isDemoMode = !RESEND_API_KEY || !TO_BARBER;
+    if (isDemoMode) {
+      return json(
+        {
+          ok: true,
+          demo: true,
+          preview: {
+            subject,
+            barberEmailMissing: !TO_BARBER,
+            resendKeyMissing: !RESEND_API_KEY,
+            fields: {
+              service: `${serviceName} · £${servicePrice} · ${serviceMins} min`,
+              barber: barberLine,
+              date,
+              time: `${time}${endTime ? "–" + endTime : ""}`,
+              phone,
+              name: name || "—",
+              notes: notes || "—",
+              productInterest: wishlistText || "—",
+              clientEmail: clientEmail || "—",
+            },
+          },
+        },
+        200
+      );
+    }
+
+    // 1) send to barber (real mode)
     const sendBarber = await resendSend({
-      apiKey: RESEND_API_KEY,
+      apiKey: RESEND_API_KEY!,
       from: FROM,
-      to: TO_BARBER,
+      to: TO_BARBER!,
       subject,
       html: detailsHtml,
     });
@@ -115,6 +148,15 @@ export async function POST({ request }: { request: Request }) {
             Barber: ${escapeHtml(barberLine)}
           </p>
 
+          ${
+            wishlistText
+              ? `<p style="margin:10px 0 0 0; color:#444;">
+                   <strong>Product interest:</strong><br/>
+                   ${escapeHtml(wishlistText)}
+                 </p>`
+              : ""
+          }
+
           <p style="margin:14px 0 0 0; color:#666; font-size:13px;">
             To reschedule or cancel, reply to this email or contact the shop.
           </p>
@@ -122,7 +164,7 @@ export async function POST({ request }: { request: Request }) {
       `;
 
       const sendClient = await resendSend({
-        apiKey: RESEND_API_KEY,
+        apiKey: RESEND_API_KEY!,
         from: FROM,
         to: clientEmail,
         subject: clientSubject,
@@ -130,7 +172,7 @@ export async function POST({ request }: { request: Request }) {
       });
 
       clientNotified = !!sendClient.ok;
-      // Jeśli mail do klienta się nie wyśle — nie blokujemy requestu (barber i tak dostał).
+      // jeśli mail do klienta nie wyjdzie — nie blokujemy (barber dostał).
     }
 
     return json({ ok: true, clientNotified }, 200);
@@ -164,7 +206,13 @@ function escapeHtml(s: string) {
     .replaceAll("'", "&#039;");
 }
 
-async function resendSend(opts: { apiKey: string; from: string; to: string; subject: string; html: string }) {
+async function resendSend(opts: {
+  apiKey: string;
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+}) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {

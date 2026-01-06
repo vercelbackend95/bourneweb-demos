@@ -301,6 +301,7 @@ const heartIcon = heartSvg
 
       const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+      // ===== Reveal =====
       const io = new IntersectionObserver((entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
@@ -313,6 +314,7 @@ const heartIcon = heartSvg
 
       io.observe(section);
 
+      // ===== Quick add micro-feedback =====
       section.querySelectorAll('[data-bm-buy]').forEach((btn) => {
         btn.addEventListener('click', () => {
           btn.classList.add('is-added');
@@ -321,6 +323,72 @@ const heartIcon = heartSvg
         });
       });
 
+      // ===== Wishlist (hearts) -> localStorage -> booking can read =====
+      const WISH_KEY = 'bm:wishlist:v1';
+
+      function readWish(){
+        try{
+          const raw = localStorage.getItem(WISH_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : [];
+        }catch(_e){
+          return [];
+        }
+      }
+
+      function writeWish(items){
+        try{ localStorage.setItem(WISH_KEY, JSON.stringify(items)); }catch(_e){}
+        // Same-tab signal (React widget can listen)
+        window.dispatchEvent(new CustomEvent('bm:wishlist-change', { detail: { items } }));
+      }
+
+      function labelFrom(btn){
+        const card = btn.closest('.bm-product');
+        if (!card) return null;
+        const name = card.querySelector('.bm-product__name')?.textContent?.trim();
+        const price = card.querySelector('.bm-product__price')?.textContent?.trim();
+        if (!name) return null;
+        return price ? `${name} · ${price}` : name;
+      }
+
+      function syncWishBtn(btn, items){
+        const label = labelFrom(btn);
+        if (!label) return;
+        const on = items.includes(label);
+        btn.classList.toggle('is-wished', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        btn.setAttribute('data-bm-wish-label', label);
+      }
+
+      const wishBtns = Array.from(section.querySelectorAll('button.bm-icon'));
+      if (wishBtns.length){
+        let items = readWish();
+        wishBtns.forEach((b) => syncWishBtn(b, items));
+
+        wishBtns.forEach((b) => {
+          b.addEventListener('click', () => {
+            const label = labelFrom(b);
+            if (!label) return;
+
+            items = readWish();
+            const idx = items.indexOf(label);
+            if (idx >= 0) items.splice(idx, 1);
+            else items.push(label);
+
+            writeWish(items);
+            wishBtns.forEach((x) => syncWishBtn(x, items));
+          });
+        });
+
+        // Cross-tab sync
+        window.addEventListener('storage', (e) => {
+          if (e.key !== WISH_KEY) return;
+          items = readWish();
+          wishBtns.forEach((x) => syncWishBtn(x, items));
+        });
+      }
+
+      // ===== Carousel logic =====
       const viewport = section.querySelector('[data-bm-viewport]');
       const track = section.querySelector('[data-bm-track]');
       const prev = section.querySelector('[data-bm-prev]');

@@ -28,6 +28,18 @@ const OPEN_START = 10 * 60;
 const OPEN_END = 20 * 60;
 const STEP_MIN = 15;
 
+const WISH_KEY = "bm:wishlist:v1";
+
+function readWishlist(): string[] {
+  try {
+    const raw = localStorage.getItem(WISH_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
 const pad = (n: number) => String(n).padStart(2, "0");
 const fmt = (mins: number) => `${pad(Math.floor(mins / 60))}:${pad(mins % 60)}`;
 const toMins = (hhmm: string) => {
@@ -221,6 +233,29 @@ export default function BookingWidget() {
   const [consentMarketing, setConsentMarketing] = useState(false);
 
   const [sending, setSending] = useState(false);
+
+  // ✅ Wishlist from Shop (hearts)
+  const [wishlist, setWishlist] = useState<string[]>([]);
+
+  useEffect(() => {
+    // initial read
+    setWishlist(readWishlist());
+
+    // same-tab updates (from ProductsCarousel)
+    const onWish = () => setWishlist(readWishlist());
+    window.addEventListener("bm:wishlist-change", onWish as EventListener);
+
+    // cross-tab updates
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === WISH_KEY) setWishlist(readWishlist());
+    };
+    window.addEventListener("storage", onStorage);
+
+    return () => {
+      window.removeEventListener("bm:wishlist-change", onWish as EventListener);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   // ✅ Premium result feedback (no alerts)
   const [submitState, setSubmitState] = useState<"idle" | "success" | "error">("idle");
@@ -431,6 +466,7 @@ export default function BookingWidget() {
           booking: consentBooking,
           marketing: consentMarketing,
         },
+        wishlist,
       };
 
       const res = await fetch(bookingEndpoint, {
@@ -853,12 +889,7 @@ export default function BookingWidget() {
                     <div className="bmw__hp" aria-hidden="true">
                       <label>
                         Website
-                        <input
-                          tabIndex={-1}
-                          autoComplete="off"
-                          value={website}
-                          onChange={(e) => setWebsite(e.target.value)}
-                        />
+                        <input tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
                       </label>
                     </div>
                   </div>
@@ -966,6 +997,11 @@ export default function BookingWidget() {
                   <>
                     <div style={{ fontWeight: 900, color: "rgba(255,255,255,.90)" }}>{summaryFull}</div>
                     <div style={{ marginTop: 10, color: "rgba(255,255,255,.62)" }}>Tap Back to edit, or Confirm when you’re ready.</div>
+                    {wishlist.length ? (
+                      <div style={{ marginTop: 10, color: "rgba(199,162,106,.92)", fontWeight: 800 }}>
+                        Product interest: {wishlist.join(" • ")}
+                      </div>
+                    ) : null}
                   </>
                 ) : (
                   <>
