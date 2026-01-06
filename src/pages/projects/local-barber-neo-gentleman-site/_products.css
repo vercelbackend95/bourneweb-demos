@@ -507,3 +507,76 @@
   .bm-carousel::before, .bm-carousel::after{ width: 56px; }
   .bm-product{ width: 78vw; max-width: 360px; }
 }
+/* ===== Wishlist demo toast (little bubble) ===== */
+.bm-wishToast{
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 9999;
+
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 12px 12px;
+  border-radius: 14px;
+
+  background: rgba(12,12,12,.84);
+  border: 1px solid rgba(199,162,106,.18);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter: blur(10px);
+
+  color: rgba(255,255,255,.88);
+  font-size: 12.5px;
+  line-height: 1.35;
+  letter-spacing: .01em;
+
+  transform: translateY(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.bm-wishToast.is-show{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.bm-wishToast strong{
+  color: rgba(199,162,106,.95);
+  font-weight: 900;
+}
+
+.bm-wishToast__row{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.bm-wishToast__dot{
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 999px;
+  background: rgba(199,162,106,.95);
+  box-shadow: 0 0 0 4px rgba(199,162,106,.12);
+  flex: 0 0 auto;
+}
+
+.bm-wishToast__x{
+  position:absolute;
+  right: 10px;
+  top: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.05);
+  color: rgba(255,255,255,.70);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.bm-wishToast__x:hover{
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.86);
+}

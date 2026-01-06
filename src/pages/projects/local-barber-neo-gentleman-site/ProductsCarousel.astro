@@ -52,7 +52,7 @@ const heartIcon = heartSvg
               </div>
               <div class="bm-product__actions">
                 <button class="bm-buy" type="button" data-bm-buy="Matte Clay · £16">Quick add</button>
-                <button class="bm-icon" type="button" aria-label="Save product">
+                <button class="bm-icon" type="button" aria-label="Save product" aria-pressed="false">
                   <span aria-hidden="true" set:html={heartIcon}></span>
                 </button>
               </div>
@@ -75,7 +75,7 @@ const heartIcon = heartSvg
               </div>
               <div class="bm-product__actions">
                 <button class="bm-buy" type="button" data-bm-buy="Beard Oil · £14">Quick add</button>
-                <button class="bm-icon" type="button" aria-label="Save product">
+                <button class="bm-icon" type="button" aria-label="Save product" aria-pressed="false">
                   <span aria-hidden="true" set:html={heartIcon}></span>
                 </button>
               </div>
@@ -98,7 +98,7 @@ const heartIcon = heartSvg
               </div>
               <div class="bm-product__actions">
                 <button class="bm-buy" type="button" data-bm-buy="Sea Salt Spray · £12">Quick add</button>
-                <button class="bm-icon" type="button" aria-label="Save product">
+                <button class="bm-icon" type="button" aria-label="Save product" aria-pressed="false">
                   <span aria-hidden="true" set:html={heartIcon}></span>
                 </button>
               </div>
@@ -121,7 +121,7 @@ const heartIcon = heartSvg
               </div>
               <div class="bm-product__actions">
                 <button class="bm-buy" type="button" data-bm-buy="Beard Balm · £15">Quick add</button>
-                <button class="bm-icon" type="button" aria-label="Save product">
+                <button class="bm-icon" type="button" aria-label="Save product" aria-pressed="false">
                   <span aria-hidden="true" set:html={heartIcon}></span>
                 </button>
               </div>
@@ -144,7 +144,7 @@ const heartIcon = heartSvg
               </div>
               <div class="bm-product__actions">
                 <button class="bm-buy" type="button" data-bm-buy="Daily Shampoo · £13">Quick add</button>
-                <button class="bm-icon" type="button" aria-label="Save product">
+                <button class="bm-icon" type="button" aria-label="Save product" aria-pressed="false">
                   <span aria-hidden="true" set:html={heartIcon}></span>
                 </button>
               </div>
@@ -167,7 +167,7 @@ const heartIcon = heartSvg
               </div>
               <div class="bm-product__actions">
                 <button class="bm-buy" type="button" data-bm-buy="Conditioner · £13">Quick add</button>
-                <button class="bm-icon" type="button" aria-label="Save product">
+                <button class="bm-icon" type="button" aria-label="Save product" aria-pressed="false">
                   <span aria-hidden="true" set:html={heartIcon}></span>
                 </button>
               </div>
@@ -190,7 +190,7 @@ const heartIcon = heartSvg
               </div>
               <div class="bm-product__actions">
                 <button class="bm-buy" type="button" data-bm-buy="Pre-Styler Tonic · £11">Quick add</button>
-                <button class="bm-icon" type="button" aria-label="Save product">
+                <button class="bm-icon" type="button" aria-label="Save product" aria-pressed="false">
                   <span aria-hidden="true" set:html={heartIcon}></span>
                 </button>
               </div>
@@ -213,7 +213,7 @@ const heartIcon = heartSvg
               </div>
               <div class="bm-product__actions">
                 <button class="bm-buy" type="button" data-bm-buy="Moustache Wax · £10">Quick add</button>
-                <button class="bm-icon" type="button" aria-label="Save product">
+                <button class="bm-icon" type="button" aria-label="Save product" aria-pressed="false">
                   <span aria-hidden="true" set:html={heartIcon}></span>
                 </button>
               </div>
@@ -236,7 +236,7 @@ const heartIcon = heartSvg
               </div>
               <div class="bm-product__actions">
                 <button class="bm-buy" type="button" data-bm-buy="Beard Brush · £9">Quick add</button>
-                <button class="bm-icon" type="button" aria-label="Save product">
+                <button class="bm-icon" type="button" aria-label="Save product" aria-pressed="false">
                   <span aria-hidden="true" set:html={heartIcon}></span>
                 </button>
               </div>
@@ -259,7 +259,7 @@ const heartIcon = heartSvg
               </div>
               <div class="bm-product__actions">
                 <button class="bm-buy" type="button" data-bm-buy="Pocket Comb · £7">Quick add</button>
-                <button class="bm-icon" type="button" aria-label="Save product">
+                <button class="bm-icon" type="button" aria-label="Save product" aria-pressed="false">
                   <span aria-hidden="true" set:html={heartIcon}></span>
                 </button>
               </div>
@@ -295,193 +295,253 @@ const heartIcon = heartSvg
   </div>
 
   <script is:inline>
-  (function () {
-    // ✅ scope tylko do tej sekcji (zero przypadkowego querySelectora)
-    const section = document.currentScript?.closest('section.bm-products');
-    if (!section) return;
+    (function () {
+      // ✅ scope only to this section
+      const section = document.currentScript?.closest('section.bm-products');
+      if (!section) return;
 
-    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // ===== Reveal =====
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          section.classList.add('is-in');
-          if (reduce) section.classList.add('is-reduced');
-          io.disconnect();
-        }
-      });
-    }, { threshold: 0.18 });
+      // ===== Reveal =====
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            section.classList.add('is-in');
+            if (reduce) section.classList.add('is-reduced');
+            io.disconnect();
+          }
+        });
+      }, { threshold: 0.18 });
 
-    io.observe(section);
+      io.observe(section);
 
-    // ===== Quick add micro-feedback =====
-    section.querySelectorAll('[data-bm-buy]').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        btn.classList.add('is-added');
-        btn.textContent = 'Added ✓';
-        setTimeout(() => { btn.classList.remove('is-added'); btn.textContent = 'Quick add'; }, 950);
-      });
-    });
-
-    // ===== Wishlist (heart) =====
-    const WISH_KEY = 'bm:wishlist:v1';
-
-    function readWish(){
-      try{
-        const raw = localStorage.getItem(WISH_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed.map(String).map(s => s.trim()).filter(Boolean) : [];
-      }catch(_e){
-        return [];
-      }
-    }
-
-    function writeWish(items){
-      try{ localStorage.setItem(WISH_KEY, JSON.stringify(items)); }catch(_e){}
-      window.dispatchEvent(new CustomEvent('bm:wishlist-change', { detail: { items } }));
-    }
-
-    function labelFrom(btn){
-      const card = btn.closest('.bm-product');
-      if (!card) return null;
-      const name = card.querySelector('.bm-product__name')?.textContent?.trim();
-      const price = card.querySelector('.bm-product__price')?.textContent?.trim();
-      if (!name) return null;
-      return price ? `${name} · ${price}` : name;
-    }
-
-    function syncWishBtn(btn, items){
-      const label = labelFrom(btn);
-      if (!label) return;
-      const on = items.includes(label);
-      btn.classList.toggle('is-wished', on);
-      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      btn.setAttribute('data-bm-wish-label', label);
-    }
-
-    const wishBtns = Array.from(section.querySelectorAll('.bm-product .bm-icon'));
-    if (wishBtns.length){
-      let items = readWish();
-      wishBtns.forEach((b) => syncWishBtn(b, items));
-
-      wishBtns.forEach((b) => {
-        b.addEventListener('click', (e) => {
-          // ✅ nie pozwól, żeby drag to połknął
+      // ===== Quick add micro-feedback =====
+      section.querySelectorAll('[data-bm-buy]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
           e.preventDefault();
-          e.stopPropagation();
-
-          const label = labelFrom(b);
-          if (!label) return;
-
-          items = readWish();
-          const idx = items.indexOf(label);
-          if (idx >= 0) items.splice(idx, 1);
-          else items.push(label);
-
-          writeWish(items);
-          wishBtns.forEach((x) => syncWishBtn(x, items));
+          btn.classList.add('is-added');
+          btn.textContent = 'Added ✓';
+          setTimeout(() => { btn.classList.remove('is-added'); btn.textContent = 'Quick add'; }, 950);
         });
       });
 
-      // cross-tab sync
-      window.addEventListener('storage', (e) => {
-        if (e.key !== WISH_KEY) return;
-        const items2 = readWish();
-        wishBtns.forEach((x) => syncWishBtn(x, items2));
-      });
-    }
+      // ===== Wishlist (heart -> localStorage -> booking reads) =====
+      const WISH_KEY = 'bm:wishlist:v1';
 
-    // ===== Carousel logic =====
-    const viewport = section.querySelector('[data-bm-viewport]');
-    const track = section.querySelector('[data-bm-track]');
-    const prev = section.querySelector('[data-bm-prev]');
-    const next = section.querySelector('[data-bm-next]');
-    const dotsWrap = section.querySelector('[data-bm-dots]');
-    const dots = dotsWrap ? Array.from(dotsWrap.querySelectorAll('[data-bm-dot]')) : [];
+      // ===== Demo hint bubble (toast) =====
+      const TOAST_KEY = 'bm:wishlist:hinted:v1';
+      let toastEl = null;
+      let toastTimer = null;
 
-    if (!viewport || !track) return;
+      function ensureToast(){
+        if (toastEl) return toastEl;
 
-    let isDown = false;
-    let startX = 0;
-    let startScroll = 0;
+        toastEl = document.createElement('div');
+        toastEl.className = 'bm-wishToast';
+        toastEl.setAttribute('role', 'status');
+        toastEl.setAttribute('aria-live', 'polite');
 
-    const setDragging = (on) => viewport.classList.toggle('is-dragging', on);
+        toastEl.innerHTML = `
+          <button class="bm-wishToast__x" type="button" aria-label="Close">✕</button>
+          <div class="bm-wishToast__row">
+            <span class="bm-wishToast__dot" aria-hidden="true"></span>
+            <div class="bm-wishToast__txt"></div>
+          </div>
+        `;
 
-    viewport.addEventListener('pointerdown', (e) => {
-      // ✅ jeśli tap na button/link/input — NIE uruchamiaj drag
-      if (e.target && e.target.closest && e.target.closest('button, a, input, textarea, select, [role="button"]')) {
-        return;
+        toastEl.querySelector('.bm-wishToast__x')?.addEventListener('click', () => {
+          hideToast(true);
+        });
+
+        document.body.appendChild(toastEl);
+        return toastEl;
       }
-      isDown = true;
-      viewport.setPointerCapture(e.pointerId);
-      startX = e.clientX;
-      startScroll = viewport.scrollLeft;
-      setDragging(true);
-    });
 
-    viewport.addEventListener('pointermove', (e) => {
-      if (!isDown) return;
-      const dx = e.clientX - startX;
-      viewport.scrollLeft = startScroll - dx;
-    });
+      function showToast(html){
+        const el = ensureToast();
+        const box = el.querySelector('.bm-wishToast__txt');
+        if (box) box.innerHTML = html;
 
-    function endDrag() { isDown = false; setDragging(false); }
-    viewport.addEventListener('pointerup', endDrag);
-    viewport.addEventListener('pointercancel', endDrag);
-    viewport.addEventListener('mouseleave', endDrag);
+        if (toastTimer) window.clearTimeout(toastTimer);
+        el.classList.add('is-show');
+        toastTimer = window.setTimeout(() => hideToast(false), 4200);
+      }
 
-    function cardStep() {
-      const first = track.querySelector('.bm-product');
-      if (!first) return 320;
-      const rect = first.getBoundingClientRect();
-      const styles = window.getComputedStyle(track);
-      const gap = parseFloat(styles.columnGap || styles.gap || '14') || 14;
-      return rect.width + gap;
-    }
+      function hideToast(immediate){
+        if (!toastEl) return;
+        if (toastTimer) window.clearTimeout(toastTimer);
+        toastEl.classList.remove('is-show');
+        if (immediate) return;
+      }
 
-    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+      function readWish(){
+        try{
+          const raw = localStorage.getItem(WISH_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed.map(String).map(s => s.trim()).filter(Boolean) : [];
+        }catch(_e){
+          return [];
+        }
+      }
 
-    function activeIndex() {
-      if (!dots.length) return 0;
-      const step = cardStep();
-      const idx = Math.round(viewport.scrollLeft / step);
-      return clamp(idx, 0, dots.length - 1);
-    }
+      function writeWish(items){
+        try{ localStorage.setItem(WISH_KEY, JSON.stringify(items)); }catch(_e){}
+        window.dispatchEvent(new CustomEvent('bm:wishlist-change', { detail: { items } }));
+      }
 
-    function scrollToIndex(idx) {
-      const step = cardStep();
-      const max = dots.length ? dots.length - 1 : 999;
-      const t = clamp(idx, 0, max);
-      viewport.scrollTo({ left: t * step, behavior: 'smooth' });
-    }
+      function labelFrom(btn){
+        const card = btn.closest('.bm-product');
+        if (!card) return null;
+        const name = card.querySelector('.bm-product__name')?.textContent?.trim();
+        const price = card.querySelector('.bm-product__price')?.textContent?.trim();
+        if (!name) return null;
+        return price ? `${name} · ${price}` : name;
+      }
 
-    function syncDots(){
-      if (!dots.length) return;
-      const idx = activeIndex();
-      dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
-    }
+      function syncWishBtn(btn, items){
+        const label = labelFrom(btn);
+        if (!label) return;
+        const on = items.includes(label);
+        btn.classList.toggle('is-wished', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        btn.setAttribute('data-bm-wish-label', label);
+      }
 
-    prev?.addEventListener('click', () => scrollToIndex(activeIndex() - 1));
-    next?.addEventListener('click', () => scrollToIndex(activeIndex() + 1));
+      const wishBtns = Array.from(section.querySelectorAll('.bm-product .bm-icon'));
+      if (wishBtns.length){
+        let items = readWish();
+        wishBtns.forEach((b) => syncWishBtn(b, items));
 
-    dots.forEach((d) => {
-      d.addEventListener('click', () => {
-        const idx = parseInt(d.getAttribute('data-bm-dot') || '0', 10);
-        scrollToIndex(idx);
+        wishBtns.forEach((b) => {
+          b.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const label = labelFrom(b);
+            if (!label) return;
+
+            items = readWish();
+            const idx = items.indexOf(label);
+            const removed = idx >= 0;
+
+            if (removed) items.splice(idx, 1);
+            else items.push(label);
+
+            writeWish(items);
+            wishBtns.forEach((x) => syncWishBtn(x, items));
+
+            const firstTime = !localStorage.getItem(TOAST_KEY);
+            if (firstTime) {
+              try { localStorage.setItem(TOAST_KEY, '1'); } catch(_e){}
+              showToast(
+                `<strong>Demo tip:</strong> This heart saves products to a wishlist on this device.<br/>
+                 When the client books, the barber receives these picks in the booking email — perfect for a friendly upsell next visit.<br/>
+                 <span style="opacity:.85">Optional upgrade: we can add a full online shop + card payments, and even a booking deposit.</span>`
+              );
+            } else {
+              showToast(
+                removed
+                  ? `Removed from wishlist.`
+                  : `<strong>Saved.</strong> The barber will be notified and can recommend it at the next visit.`
+              );
+            }
+          });
+        });
+
+        window.addEventListener('storage', (e) => {
+          if (e.key !== WISH_KEY) return;
+          const items2 = readWish();
+          wishBtns.forEach((x) => syncWishBtn(x, items2));
+        });
+      }
+
+      // ===== Carousel logic =====
+      const viewport = section.querySelector('[data-bm-viewport]');
+      const track = section.querySelector('[data-bm-track]');
+      const prev = section.querySelector('[data-bm-prev]');
+      const next = section.querySelector('[data-bm-next]');
+      const dotsWrap = section.querySelector('[data-bm-dots]');
+      const dots = dotsWrap ? Array.from(dotsWrap.querySelectorAll('[data-bm-dot]')) : [];
+
+      if (!viewport || !track) return;
+
+      let isDown = false;
+      let startX = 0;
+      let startScroll = 0;
+
+      const setDragging = (on) => viewport.classList.toggle('is-dragging', on);
+
+      viewport.addEventListener('pointerdown', (e) => {
+        if (e.target && e.target.closest && e.target.closest('button, a, input, textarea, select, [role="button"]')) {
+          return;
+        }
+        isDown = true;
+        viewport.setPointerCapture(e.pointerId);
+        startX = e.clientX;
+        startScroll = viewport.scrollLeft;
+        setDragging(true);
       });
-    });
 
-    viewport.addEventListener('scroll', () => requestAnimationFrame(syncDots));
+      viewport.addEventListener('pointermove', (e) => {
+        if (!isDown) return;
+        const dx = e.clientX - startX;
+        viewport.scrollLeft = startScroll - dx;
+      });
 
-    viewport.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') scrollToIndex(activeIndex() - 1);
-      if (e.key === 'ArrowRight') scrollToIndex(activeIndex() + 1);
-    });
+      function endDrag() { isDown = false; setDragging(false); }
+      viewport.addEventListener('pointerup', endDrag);
+      viewport.addEventListener('pointercancel', endDrag);
+      viewport.addEventListener('mouseleave', endDrag);
 
-    syncDots();
-  })();
-</script>
+      function cardStep() {
+        const first = track.querySelector('.bm-product');
+        if (!first) return 320;
+        const rect = first.getBoundingClientRect();
+        const styles = window.getComputedStyle(track);
+        const gap = parseFloat(styles.columnGap || styles.gap || '14') || 14;
+        return rect.width + gap;
+      }
 
+      function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+      function activeIndex() {
+        if (!dots.length) return 0;
+        const step = cardStep();
+        const idx = Math.round(viewport.scrollLeft / step);
+        return clamp(idx, 0, dots.length - 1);
+      }
+
+      function scrollToIndex(idx) {
+        const step = cardStep();
+        const max = dots.length ? dots.length - 1 : 999;
+        const t = clamp(idx, 0, max);
+        viewport.scrollTo({ left: t * step, behavior: 'smooth' });
+      }
+
+      function syncDots(){
+        if (!dots.length) return;
+        const idx = activeIndex();
+        dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
+      }
+
+      prev?.addEventListener('click', () => scrollToIndex(activeIndex() - 1));
+      next?.addEventListener('click', () => scrollToIndex(activeIndex() + 1));
+
+      dots.forEach((d) => {
+        d.addEventListener('click', () => {
+          const idx = parseInt(d.getAttribute('data-bm-dot') || '0', 10);
+          scrollToIndex(idx);
+        });
+      });
+
+      viewport.addEventListener('scroll', () => requestAnimationFrame(syncDots));
+
+      viewport.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') scrollToIndex(activeIndex() - 1);
+        if (e.key === 'ArrowRight') scrollToIndex(activeIndex() + 1);
+      });
+
+      syncDots();
+    })();
+  </script>
 </section>
