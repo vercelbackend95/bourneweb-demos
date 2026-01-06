@@ -296,7 +296,8 @@ const heartIcon = heartSvg
 
   <script is:inline>
     (function () {
-      const section = document.querySelector('[data-bm-reveal]');
+      // 🔒 Scope: only THIS section (prevents grabbing another [data-bm-reveal] elsewhere)
+      const section = document.currentScript?.closest('section.bm-products');
       if (!section) return;
 
       const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -323,7 +324,7 @@ const heartIcon = heartSvg
         });
       });
 
-      // ===== Wishlist (hearts) -> localStorage -> booking can read =====
+      // ===== Wishlist (heart) =====
       const WISH_KEY = 'bm:wishlist:v1';
 
       function readWish(){
@@ -338,7 +339,6 @@ const heartIcon = heartSvg
 
       function writeWish(items){
         try{ localStorage.setItem(WISH_KEY, JSON.stringify(items)); }catch(_e){}
-        // Same-tab signal (React widget can listen)
         window.dispatchEvent(new CustomEvent('bm:wishlist-change', { detail: { items } }));
       }
 
@@ -360,7 +360,7 @@ const heartIcon = heartSvg
         btn.setAttribute('data-bm-wish-label', label);
       }
 
-      const wishBtns = Array.from(section.querySelectorAll('button.bm-icon'));
+      const wishBtns = Array.from(section.querySelectorAll('.bm-product .bm-icon'));
       if (wishBtns.length){
         let items = readWish();
         wishBtns.forEach((b) => syncWishBtn(b, items));
@@ -380,7 +380,7 @@ const heartIcon = heartSvg
           });
         });
 
-        // Cross-tab sync
+        // cross-tab sync
         window.addEventListener('storage', (e) => {
           if (e.key !== WISH_KEY) return;
           items = readWish();

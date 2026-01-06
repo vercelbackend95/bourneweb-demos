@@ -447,6 +447,15 @@
 .bm-icon > span :global(svg){
   display: block;
 }
+/* Make heart SVG obey currentColor */
+.bm-icon svg,
+.bm-icon svg *{
+  stroke: currentColor;
+}
+
+.bm-icon.is-wished svg *{
+  fill: currentColor;
+}
 
 .bm-icon:hover{
   transform: translateY(-1px);
