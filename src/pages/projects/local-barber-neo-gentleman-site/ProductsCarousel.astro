@@ -296,7 +296,6 @@ const heartIcon = heartSvg
 
   <script is:inline>
     (function () {
-      // ✅ scope only to this section
       const section = document.currentScript?.closest('section.bm-products');
       if (!section) return;
 
@@ -312,24 +311,9 @@ const heartIcon = heartSvg
           }
         });
       }, { threshold: 0.18 });
-
       io.observe(section);
 
-      // ===== Quick add micro-feedback =====
-      section.querySelectorAll('[data-bm-buy]').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          btn.classList.add('is-added');
-          btn.textContent = 'Added ✓';
-          setTimeout(() => { btn.classList.remove('is-added'); btn.textContent = 'Quick add'; }, 950);
-        });
-      });
-
-      // ===== Wishlist (heart -> localStorage -> booking reads) =====
-      const WISH_KEY = 'bm:wishlist:v1';
-
       // ===== Demo hint bubble (toast) =====
-      const TOAST_KEY = 'bm:wishlist:hinted:v1';
       let toastEl = null;
       let toastTimer = null;
 
@@ -357,22 +341,50 @@ const heartIcon = heartSvg
         return toastEl;
       }
 
-      function showToast(html){
+      function showToast(html, sticky){
         const el = ensureToast();
         const box = el.querySelector('.bm-wishToast__txt');
         if (box) box.innerHTML = html;
 
         if (toastTimer) window.clearTimeout(toastTimer);
         el.classList.add('is-show');
-        toastTimer = window.setTimeout(() => hideToast(false), 4200);
+
+        if (!sticky) {
+          toastTimer = window.setTimeout(() => hideToast(false), 4200);
+        }
       }
 
-      function hideToast(immediate){
+      function hideToast(){
         if (!toastEl) return;
         if (toastTimer) window.clearTimeout(toastTimer);
         toastEl.classList.remove('is-show');
-        if (immediate) return;
       }
+
+      // ===== Quick add micro-feedback + tip (only the full tip) =====
+      section.querySelectorAll('[data-bm-buy]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          // micro-feedback
+          btn.classList.add('is-added');
+          btn.textContent = 'Added ✓';
+          setTimeout(() => { btn.classList.remove('is-added'); btn.textContent = 'Quick add'; }, 950);
+
+          // show ONLY the full sticky tip once per page visit
+          if (!window.__bmQuickAddTipShown) {
+            window.__bmQuickAddTipShown = true;
+            showToast(
+              `<strong>Demo tip:</strong> “Quick add” becomes <em>Add to cart</em> when a full shop + payments are enabled.<br/>
+               The client can pay instantly on the website, then collect the product at their visit — smooth, automatic, zero awkwardness.`,
+              true
+            );
+          }
+        });
+      });
+
+      // ===== Wishlist (heart -> localStorage -> booking reads) =====
+      const WISH_KEY = 'bm:wishlist:v1';
 
       function readWish(){
         try{
@@ -430,19 +442,22 @@ const heartIcon = heartSvg
             writeWish(items);
             wishBtns.forEach((x) => syncWishBtn(x, items));
 
-            const firstTime = !localStorage.getItem(TOAST_KEY);
-            if (firstTime) {
-              try { localStorage.setItem(TOAST_KEY, '1'); } catch(_e){}
+            // full sticky tip once per page visit; otherwise short auto-hide
+            if (!window.__bmWishTipShown) {
+              window.__bmWishTipShown = true;
+
               showToast(
                 `<strong>Demo tip:</strong> This heart saves products to a wishlist on this device.<br/>
                  When the client books, the barber receives these picks in the booking email — perfect for a friendly upsell next visit.<br/>
-                 <span style="opacity:.85">Optional upgrade: we can add a full online shop + card payments, and even a booking deposit.</span>`
+                 <span style="opacity:.85">Optional upgrade: we can add a full online shop + card payments, and even a booking deposit.</span>`,
+                true
               );
             } else {
               showToast(
                 removed
                   ? `Removed from wishlist.`
-                  : `<strong>Saved.</strong> The barber will be notified and can recommend it at the next visit.`
+                  : `<strong>Saved.</strong> The barber will be notified and can recommend it at the next visit.`,
+                false
               );
             }
           });
