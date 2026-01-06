@@ -1150,3 +1150,76 @@
   height:1px;
   overflow:hidden;
 }
+/* CTA — keep it calm, only shine sweep on hover */
+.bw-launcher__cta{
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  min-height: 52px;
+  width: min(320px, 100%);
+
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+
+  color: rgba(255,255,255,0.92);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+
+  /* remove “extra effects” */
+  box-shadow: none;
+  transition: none;
+  cursor: pointer;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bw-launcher__cta:hover{
+  /* no hover color changes — only shine */
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.16);
+}
+
+/* Shine sweep — same vibe as gallery tiles */
+.bw-launcher__cta::after{
+  content:"";
+  position:absolute;
+  inset:-80px -120px;
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(199,162,106,.14),
+    transparent 65%
+  );
+  transform: translateX(-55%) rotate(8deg);
+  opacity: 0;
+  transition: opacity .18s ease, transform .55s cubic-bezier(.2,.8,.2,1);
+  pointer-events:none;
+}
+
+/* Only on real hover devices (no “sticky hover” on mobile) */
+@media (hover:hover) and (pointer:fine){
+  .bw-launcher__cta:hover::after{
+    opacity: 1;
+    transform: translateX(18%) rotate(8deg);
+  }
+}
+
+/* Accessibility: keep focus visible, but not “flashy” */
+.bw-launcher__cta:focus-visible{
+  outline: 2px solid rgba(199,162,106,.55);
+  outline-offset: 3px;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .bw-launcher__cta::after{
+    transition: none;
+  }
+}

@@ -7,6 +7,8 @@ const {
   phone = "+447785744005",
   phoneLabel = "07785744005",
 } = Astro.props;
+
+import phoneSvg from "./assets/phone.svg?raw";
 ---
 
 <a class="bm-skip" href="#top">Skip to content</a>
@@ -38,11 +40,10 @@ const {
         </div>
 
         <a class="bm-miniCall" href={`tel:${phone}`} aria-label={`Call us ${phoneLabel}`}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M8.6 10.6c1.2 2.3 2.5 3.6 4.8 4.8l1.6-1.6c.3-.3.8-.4 1.2-.2 1 .4 2.1.7 3.2.8.5.1.9.5.9 1v2.6c0 .6-.5 1-1.1 1C10.8 20 4 13.2 4 4.8 4 4.3 4.4 3.8 5 3.8h2.6c.5 0 .9.4 1 .9.1 1.1.4 2.2.8 3.2.1.4 0 .9-.3 1.2l-1.5 1.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-          </svg>
+          <span class="bm-miniCall__icon" aria-hidden="true" set:html={phoneSvg} />
           <span class="bm-miniCall__txt">Call</span>
         </a>
+
 
         <a class="bm-navCta" href="#book">
           Book now
