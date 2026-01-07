@@ -1,71 +1,62 @@
 /* =========================
    Neo Gentleman — Services
+   (stable swipe + always snap)
    ========================= */
 
 .bms{
   padding: clamp(28px, 6vw, 84px) 0;
-  background: #070707;
+  background: transparent;
   color: rgba(255,255,255,.92);
 }
 
+/* ✅ szerokość jak inne sekcje */
 .bms__inner{
-  width: min(1060px, calc(100% - 40px));
+  width: min(1120px, calc(100% - 44px));
   margin: 0 auto;
+}
+@media (max-width: 520px){
+  .bms__inner{ width: calc(100% - 32px); }
 }
 
 .bms__head{
-  /* ✅ było center — ma być left jak REVIEWS */
   text-align: left;
-  margin-bottom: 26px;
-  max-width: 760px; /* vibe jak w reviews */
-}
-
-.bms__eyebrow{
-  font-size: 12px;
-  letter-spacing: .32em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,.62);
-  margin: 0 0 10px;
+  max-width: 760px;
+  margin-bottom: 18px;
 }
 
 .bms__title{
-  margin: 0;
-  font-size: clamp(28px, 3.2vw, 44px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  margin: 0 0 10px;
 }
 
-.bms__hint{
-  margin: 12px 0 0; /* ✅ było auto -> teraz startuje z lewej */
-  max-width: 58ch;
-  font-size: 13px;
-  line-height: 1.45;
-  color: rgba(255,255,255,.62);
-}
-
-/* ===== Carousel shell ===== */
+/* ===== Carousel ===== */
 
 .bms-carousel{
   position: relative;
-  margin-top: 18px;
+  margin-top: 14px;
   display: grid;
-  grid-template-columns: 84px 1fr 84px;
-  gap: 14px;
+  grid-template-columns: 64px 1fr 64px;
+  gap: 12px;
   align-items: center;
 }
 
 .bms-viewport{
   overflow: hidden;
   border-radius: 18px;
-  touch-action: pan-y; /* allow vertical scroll, we handle horizontal */
+  touch-action: pan-y;
   user-select: none;
+  cursor: grab;
 }
+.bms-viewport.is-dragging{ cursor: grabbing; }
 
 .bms-track{
   display: flex;
   will-change: transform;
   transform: translate3d(0,0,0);
-  transition: transform 420ms cubic-bezier(.22,1,.36,1);
+  transition: transform 520ms cubic-bezier(.22,1,.36,1);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .bms-track{ transition: none; }
 }
 
 .bms-slide{
@@ -77,8 +68,8 @@
 /* ===== Nav buttons ===== */
 
 .bms-nav{
-  height: 54px;
-  width: 54px;
+  height: 52px;
+  width: 52px;
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,.14);
   background: rgba(255,255,255,.03);
@@ -87,19 +78,14 @@
   place-items: center;
   cursor: pointer;
   position: relative;
-  overflow: visible;
   transition: transform .18s ease, background .18s ease, border-color .18s ease;
 }
-
 .bms-nav:hover{
   background: rgba(255,255,255,.06);
   border-color: rgba(255,255,255,.22);
   transform: translateY(-1px);
 }
-
-.bms-nav:active{
-  transform: translateY(0);
-}
+.bms-nav:active{ transform: translateY(0); }
 
 .bms-nav__icon{
   font-size: 18px;
@@ -118,16 +104,10 @@
   white-space: nowrap;
   pointer-events: none;
 }
+.bms-nav--prev .bms-nav__ghost{ left: 62px; }
+.bms-nav--next .bms-nav__ghost{ right: 62px; }
 
-.bms-nav--prev .bms-nav__ghost{
-  left: 62px;
-}
-
-.bms-nav--next .bms-nav__ghost{
-  right: 62px;
-}
-
-/* ===== Hero (image + label) ===== */
+/* ===== Hero ===== */
 
 .bms-hero{
   position: relative;
@@ -183,7 +163,7 @@
 /* ===== Price list ===== */
 
 .bms-list{
-  width: min(680px, 100%);
+  width: min(720px, 100%);
   margin: 4px auto 0;
   border-top: 1px solid rgba(255,255,255,.10);
 }
@@ -209,48 +189,11 @@
   color: rgba(212, 175, 55, .92);
 }
 
-/* ===== Bottom pill ===== */
-
-.bms-pill{
-  margin: 18px auto 0;
-  width: min(560px, 100%);
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.03);
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 14px;
-  align-items: center;
-  padding: 14px 16px;
-  box-shadow: 0 18px 70px rgba(0,0,0,.55);
-}
-
-.bms-pill__badge{
-  width: 48px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  border: 1px solid rgba(212,175,55,.30);
-  background: rgba(212,175,55,.08);
-  color: rgba(255,255,255,.92);
-  font-weight: 600;
-  letter-spacing: .06em;
-  font-size: 12px;
-}
-
-.bms-pill__text{
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.45;
-  color: rgba(255,255,255,.62);
-}
-
 /* ===== Responsive ===== */
 
 @media (max-width: 780px){
   .bms-carousel{
-    grid-template-columns: 58px 1fr 58px;
+    grid-template-columns: 52px 1fr 52px;
     gap: 10px;
   }
 
@@ -259,30 +202,18 @@
     height: 46px;
   }
 
-  .bms-nav__ghost{
-    display: none;
-  }
+  .bms-nav__ghost{ display:none; }
 
-  .bms-slide{
-    padding: 18px 14px 18px;
-  }
+  .bms-slide{ padding: 18px 14px 18px; }
 
   .bms-hero__label{
     transform: translateY(-14px);
     letter-spacing: .14em;
   }
 
-  .bms-row{
-    padding: 11px 2px;
-  }
+  .bms-row{ padding: 11px 2px; }
 }
 
 @media (max-width: 420px){
-  .bms__inner{
-    width: min(1060px, calc(100% - 28px));
-  }
-
-  .bms-hero__media{
-    width: min(320px, 78vw);
-  }
+  .bms-hero__media{ width: min(320px, 78vw); }
 }

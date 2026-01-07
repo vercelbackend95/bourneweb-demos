@@ -50,9 +50,9 @@ const categories = [
 <section class="bms" aria-label="Prices and services" id="services">
   <div class="bms__inner">
     <header class="bms__head">
-      <p class="bms__eyebrow">PRICES</p>
+      <p class="bm-kicker">PRICES</p>
       <h2 class="bms__title">Pick your service</h2>
-      <p class="bms__hint">Use arrows or swipe — image, label and prices move together.</p>
+      <p class="bm-lead">Swipe or use arrows — image, label and prices move together.</p>
     </header>
 
     <div class="bms-carousel" data-carousel>
@@ -70,8 +70,6 @@ const categories = [
                   <img class="bms-hero__img" src={cat.image} alt="" loading="lazy" />
                   <span class="bms-hero__ring" aria-hidden="true"></span>
                 </div>
-
-                <!-- ✅ NAPIS NAD ZDJĘCIEM (czytelny) -->
                 <h3 class="bms-hero__label">{cat.label}</h3>
               </div>
 
@@ -93,13 +91,6 @@ const categories = [
         <span class="bms-nav__icon" aria-hidden="true">→</span>
       </button>
     </div>
-
-    <aside class="bms-pill" aria-label="Quick stat">
-      <div class="bms-pill__badge">+10%</div>
-      <p class="bms-pill__text">
-        Most of our first-time clients book again within 30 days. Clean fades. Sharp beards. Zero drama.
-      </p>
-    </aside>
   </div>
 
   <script is:inline>
@@ -121,31 +112,49 @@ const categories = [
 
       const names = baseSlides.map((s) => (s.getAttribute("aria-label") || "").trim());
 
-      // --- build infinite loop: clone last + first
+      // ---- infinite clones (safe) ----
       const firstClone = baseSlides[0].cloneNode(true);
       const lastClone = baseSlides[baseSlides.length - 1].cloneNode(true);
       firstClone.setAttribute("data-clone", "true");
       lastClone.setAttribute("data-clone", "true");
-
       track.insertBefore(lastClone, baseSlides[0]);
       track.appendChild(firstClone);
 
       const slides = () => Array.from(track.children);
 
-      let index = 1; // start at first real slide (because 0 is lastClone)
-      let width = 0;
+      let index = 1; // first real (0 = lastClone)
+      let width = 1;
+
       let isDragging = false;
+      let axis = null; // "x" | "y" | null
+      let pointerId = null;
+
       let startX = 0;
-      let currentX = 0;
+      let startY = 0;
+      let lastX = 0;
+
       let baseTranslate = 0;
       let raf = 0;
 
+      let idleTimer = 0;
+
       const setTransition = (on) => {
-        track.style.transition = on ? "transform 420ms cubic-bezier(.22,1,.36,1)" : "none";
+        track.style.transition = on ? "transform 520ms cubic-bezier(.22,1,.36,1)" : "none";
       };
 
       const setTranslate = (x) => {
         track.style.transform = `translate3d(${x}px,0,0)`;
+      };
+
+      const updateGhostLabels = () => {
+        const total = slides().length;
+        const realCount = total - 2;
+        const realIdx = Math.min(Math.max(index - 1, 0), realCount - 1);
+        const prevIdx = (realIdx - 1 + realCount) % realCount;
+        const nextIdx = (realIdx + 1) % realCount;
+
+        prevLabelEl.textContent = names[prevIdx] || "";
+        nextLabelEl.textContent = names[nextIdx] || "";
       };
 
       const snapToIndex = (i, animate = true) => {
@@ -157,109 +166,146 @@ const categories = [
       };
 
       const normalizeIndex = () => {
-        const total = slides().length; // base + 2 clones
-        const realCount = total - 2;
-
-        // if we moved onto clones, jump (no animation) to corresponding real slide
-        if (index === 0) {
-          // was lastClone -> jump to last real
-          snapToIndex(realCount, false);
-        } else if (index === total - 1) {
-          // was firstClone -> jump to first real
-          snapToIndex(1, false);
-        }
-      };
-
-      const updateGhostLabels = () => {
         const total = slides().length;
         const realCount = total - 2;
 
-        // map current index (1..realCount) to names array (0..realCount-1)
-        const realIdx = Math.min(Math.max(index - 1, 0), realCount - 1);
-
-        const prevIdx = (realIdx - 1 + realCount) % realCount;
-        const nextIdx = (realIdx + 1) % realCount;
-
-        prevLabelEl.textContent = names[prevIdx] || "";
-        nextLabelEl.textContent = names[nextIdx] || "";
+        if (index === 0) snapToIndex(realCount, false);
+        else if (index === total - 1) snapToIndex(1, false);
       };
 
       const measure = () => {
-        width = viewport.getBoundingClientRect().width;
+        width = Math.max(1, viewport.getBoundingClientRect().width);
         snapToIndex(index, false);
       };
 
       const goPrev = () => snapToIndex(index - 1, true);
       const goNext = () => snapToIndex(index + 1, true);
 
-      // buttons
       prevBtn.addEventListener("click", goPrev);
       nextBtn.addEventListener("click", goNext);
-
-      // transition end -> normalize for infinite
       track.addEventListener("transitionend", () => normalizeIndex());
 
-      // pointer swipe (works for touch + mouse)
+      // ====== Drag that always ends in a full card ======
+      const clearIdle = () => {
+        if (idleTimer) window.clearTimeout(idleTimer);
+        idleTimer = 0;
+      };
+
+      const armIdleSnap = () => {
+        clearIdle();
+        idleTimer = window.setTimeout(() => {
+          if (isDragging) onUp(); // force end if events got lost
+        }, 140);
+      };
+
+      const addGlobalEnd = () => {
+        window.addEventListener("pointerup", onUp, { passive: true });
+        window.addEventListener("pointercancel", onUp, { passive: true });
+        window.addEventListener("blur", onUp, { passive: true });
+        document.addEventListener("visibilitychange", onVis, { passive: true });
+      };
+
+      const removeGlobalEnd = () => {
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+        window.removeEventListener("blur", onUp);
+        document.removeEventListener("visibilitychange", onVis);
+      };
+
+      const onVis = () => {
+        if (document.visibilityState !== "visible") onUp();
+      };
+
       const onDown = (e) => {
-        // only left button for mouse
         if (e.pointerType === "mouse" && e.button !== 0) return;
 
         isDragging = true;
-        startX = e.clientX;
-        currentX = startX;
+        axis = null;
+        pointerId = e.pointerId;
 
-        // stop any running animation
+        startX = e.clientX;
+        startY = e.clientY;
+        lastX = startX;
+
         cancelAnimationFrame(raf);
         setTransition(false);
 
-        // capture pointer
-        viewport.setPointerCapture?.(e.pointerId);
+        viewport.classList.add("is-dragging");
+        viewport.setPointerCapture?.(pointerId);
+
+        addGlobalEnd();
+        armIdleSnap();
       };
 
       const onMove = (e) => {
         if (!isDragging) return;
-        currentX = e.clientX;
-        const dx = currentX - startX;
+        if (pointerId != null && e.pointerId != null && e.pointerId !== pointerId) return;
 
-        cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(() => {
-          setTranslate(baseTranslate + dx);
-        });
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        lastX = e.clientX;
+
+        if (!axis) {
+          if (Math.hypot(dx, dy) < 8) return;
+          axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+
+          // vertical gesture = let page scroll, snap back
+          if (axis === "y") {
+            isDragging = false;
+            viewport.classList.remove("is-dragging");
+            removeGlobalEnd();
+            clearIdle();
+            snapToIndex(index, true);
+            axis = null;
+            pointerId = null;
+            return;
+          }
+        }
+
+        if (axis === "x") {
+          e.preventDefault();
+          armIdleSnap();
+
+          cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            setTranslate(baseTranslate + dx);
+          });
+        }
       };
 
       const onUp = () => {
         if (!isDragging) return;
+
         isDragging = false;
+        viewport.classList.remove("is-dragging");
+        removeGlobalEnd();
+        clearIdle();
 
-        const dx = currentX - startX;
-        const threshold = Math.max(44, width * 0.18);
+        const dx = lastX - startX;
+        const threshold = Math.max(48, width * 0.18);
 
-        if (dx > threshold) {
-          goPrev();
-        } else if (dx < -threshold) {
-          goNext();
+        // Always end at a full slide
+        if (axis === "x") {
+          if (dx > threshold) goPrev();
+          else if (dx < -threshold) goNext();
+          else snapToIndex(index, true);
         } else {
           snapToIndex(index, true);
         }
+
+        axis = null;
+        pointerId = null;
       };
 
       viewport.addEventListener("pointerdown", onDown);
-      viewport.addEventListener("pointermove", onMove);
-      viewport.addEventListener("pointerup", onUp);
-      viewport.addEventListener("pointercancel", onUp);
-      viewport.addEventListener("lostpointercapture", onUp);
+      viewport.addEventListener("pointermove", onMove, { passive: false });
+      viewport.addEventListener("pointerup", onUp, { passive: true });
+      viewport.addEventListener("pointercancel", onUp, { passive: true });
+      viewport.addEventListener("lostpointercapture", onUp, { passive: true });
 
-      // keyboard
-      root.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowLeft") goPrev();
-        if (e.key === "ArrowRight") goNext();
-      });
-
-      // resize
       const ro = new ResizeObserver(() => measure());
       ro.observe(viewport);
 
-      // init
       measure();
       updateGhostLabels();
       snapToIndex(1, false);
