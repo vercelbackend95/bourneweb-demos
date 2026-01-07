@@ -48,7 +48,7 @@
   touch-action: pan-y;
   user-select: none;
   cursor: grab;
-  position: relative; /* for mobile arrow overlay */
+  position: relative; /* for mobile overlay arrows */
 }
 .bms-viewport.is-dragging{ cursor: grabbing; }
 
@@ -82,7 +82,7 @@
   place-items: center;
   cursor: pointer;
   position: relative;
-  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease, opacity .18s ease;
 }
 .bms-nav:hover{
   background: rgba(255,255,255,.06);
@@ -218,50 +218,88 @@
   .bms-row{ padding: 11px 2px; }
 }
 
-/* ✅ MOBILE KING: viewport full width, arrows float over image */
+/* ✅ MOBILE KING: więcej miejsca na cennik + strzałki "w powietrzu" */
 @media (max-width: 640px){
-  /* do not reserve 64px side columns anymore */
+  /* do not reserve side columns */
   .bms-carousel{
     grid-template-columns: 1fr;
     gap: 0;
+    position: relative;
+    --hero-s: min(300px, 82vw);
   }
 
-  /* give a little extra bottom space so fixed pill doesn't eat content */
+  /* żeby fixed pill nie zjadał ostatnich wierszy */
   .bms{
-    padding-bottom: calc(clamp(28px, 6vw, 84px) + 96px);
+    padding-bottom: calc(clamp(28px, 6vw, 84px) + 110px);
   }
 
-  /* arrows overlay */
-  .bms-nav{
-    position: absolute;
-    z-index: 20;
-    top: clamp(140px, 28vw, 190px); /* roughly center of the circle */
-    transform: translateY(-50%);
-    width: 48px;
-    height: 48px;
-    background: rgba(0,0,0,.22);
-    backdrop-filter: blur(6px);
+  /* ciaśniej = więcej treści na ekranie */
+  .bms-slide{
+    padding: 14px 12px 12px;
   }
-  .bms-nav:hover{ transform: translateY(-50%); } /* keep hover from jumping on touch */
-  .bms-nav--prev{ left: 10px; }
-  .bms-nav--next{ right: 10px; }
 
-  /* label scales down so it doesn't get cut */
-  .bms-hero__label{
-    font-size: clamp(28px, 8.5vw, 52px);
-    letter-spacing: .12em;
-    padding: 0 14px;
-    transform: translateY(-12px);
+  /* HERO mniejsze i niższe */
+  .bms-hero{
+    padding: 2px 0 8px;
   }
 
   .bms-hero__media{
-    width: min(320px, 78vw);
+    width: var(--hero-s);
   }
 
-  .bms-slide{
-    padding-left: 12px;
-    padding-right: 12px;
+  .bms-hero__label{
+    font-size: clamp(24px, 9.2vw, 46px);
+    letter-spacing: .11em;
+    padding: 0 14px;
+    transform: translateY(-10px);
   }
+
+  /* LISTA na pełną szerokość + oddech */
+  .bms-list{
+    width: 100%;
+    margin: 2px auto 0;
+    padding: 0 6px;
+  }
+
+  .bms-row{
+    padding: 10px 2px;
+    gap: 12px;
+  }
+
+  .bms-row__name{
+    letter-spacing: .14em;
+  }
+
+  .bms-row__price{
+    letter-spacing: .10em;
+  }
+
+  /* STRZAŁKI: duchy nad kołem, nie przeszkadzają w cenniku */
+  .bms-nav{
+    position: absolute;
+    z-index: 30;
+    top: calc(10px + (var(--hero-s) / 2));
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+
+    background: rgba(0,0,0,.16);
+    border-color: rgba(255,255,255,.14);
+    opacity: .78;
+
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .bms-nav:hover{
+    transform: translateY(-50%);
+  }
+
+  /* lekko poza content */
+  .bms-nav--prev{ left: -2px; }
+  .bms-nav--next{ right: -2px; }
+
+  .bms-nav__ghost{ display:none; }
 }
 
 @media (max-width: 420px){
