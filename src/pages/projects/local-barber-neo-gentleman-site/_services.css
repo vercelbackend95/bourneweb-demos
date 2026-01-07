@@ -11,11 +11,14 @@
 
 /* ✅ szerokość jak inne sekcje */
 .bms__inner{
-  width: min(1120px, calc(100% - 44px));
+  width: min(1200px, calc(100% - 44px));
   margin: 0 auto;
 }
 @media (max-width: 520px){
   .bms__inner{ width: calc(100% - 32px); }
+}
+@media (max-width: 420px){
+  .bms__inner{ width: calc(100% - 28px); }
 }
 
 .bms__head{

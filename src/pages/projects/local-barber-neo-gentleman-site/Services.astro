@@ -51,7 +51,7 @@ const categories = [
   <div class="bms__inner">
     <header class="bms__head">
       <p class="bm-kicker">PRICES</p>
-      <h2 class="bms__title">Pick your service</h2>
+      <h2>Pick your service</h2>
       <p class="bm-lead">Swipe or use arrows — image, label and prices move together.</p>
     </header>
 
@@ -228,6 +228,7 @@ const categories = [
         lastX = startX;
 
         cancelAnimationFrame(raf);
+        raf = 0;
         setTransition(false);
 
         viewport.classList.add("is-dragging");
@@ -275,6 +276,10 @@ const categories = [
 
       const onUp = () => {
         if (!isDragging) return;
+
+        // ✅ kill any late RAF that could overwrite the snap
+        cancelAnimationFrame(raf);
+        raf = 0;
 
         isDragging = false;
         viewport.classList.remove("is-dragging");
