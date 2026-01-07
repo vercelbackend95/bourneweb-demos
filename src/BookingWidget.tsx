@@ -1,7 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
+import {
+  SERVICE_CATEGORIES,
+  BOOKING_SERVICES,
+  type BookingService,
+  type ServiceCategoryKey,
+} from "./pages/projects/local-barber-neo-gentleman-site/servicesCatalog";
+
 type BarberKey = "mason" | "oliver" | "theo";
-type ServiceKey = "skinfade" | "haircutbeard" | "hottowel";
+type ServiceKey = BookingService["key"];
 type Step = 1 | 2 | 3;
 
 type Barber = {
@@ -14,15 +21,7 @@ type Barber = {
   photo: string;
 };
 
-type Service = {
-  key: ServiceKey;
-  name: string;
-  mins: number;
-  price: number;
-  desc: string;
-  details: string;
-  badge?: "Most popular" | "Best value";
-};
+type Service = BookingService;
 
 const OPEN_START = 10 * 60;
 const OPEN_END = 20 * 60;
@@ -169,11 +168,7 @@ const BARBERS = [
 
 const ANY_BARBER_PHOTO = avatarDataURI("NP", "#a78a5a");
 
-const SERVICES: Service[] = [
-  { key: "skinfade", name: "Skin fade", mins: 50, price: 28, desc: "Clean blend, crisp edges.", details: "Clean blend, crisp edges. Includes line-up + tidy finish.", badge: "Most popular" },
-  { key: "haircutbeard", name: "Haircut + beard", mins: 60, price: 30, desc: "Full refresh, balanced shape.", details: "Haircut + beard tidy. Balanced shape, clean neckline.", badge: "Best value" },
-  { key: "hottowel", name: "Hot towel shave", mins: 30, price: 18, desc: "Warm towel, close finish.", details: "Warm towel + close shave. Sensitive-skin friendly." },
-];
+const SERVICES: Service[] = BOOKING_SERVICES;
 
 function getMonthGrid(view: Date) {
   const y = view.getFullYear();
@@ -210,10 +205,20 @@ export default function BookingWidget() {
   const [step, setStep] = useState<Step>(1);
 
   const [barberKey, setBarberKey] = useState<BarberKey | null>(null);
+
+  // ✅ kategorie + usługi (spójne z Services)
+  const [categoryKey, setCategoryKey] = useState<ServiceCategoryKey>("cuts");
   const [serviceKey, setServiceKey] = useState<ServiceKey | null>(null);
 
   const barber = useMemo(() => BARBERS.find((b) => b.key === barberKey) || null, [barberKey]);
   const service = useMemo(() => SERVICES.find((s) => s.key === serviceKey) || null, [serviceKey]);
+
+  const activeCategory = useMemo(
+    () => SERVICE_CATEGORIES.find((c) => c.key === categoryKey) ?? SERVICE_CATEGORIES[0],
+    [categoryKey]
+  );
+
+  const visibleServices = useMemo(() => SERVICES.filter((s) => s.category === activeCategory.key), [activeCategory.key]);
 
   const [date, setDate] = useState<Date>(startOfDay(new Date()));
   const [time, setTime] = useState<string | null>(null);
@@ -266,6 +271,15 @@ export default function BookingWidget() {
       setSubmitState("idle");
       setSubmitMsg("");
     }
+  };
+
+  const pickCategory = (k: ServiceCategoryKey) => {
+    resetNotice();
+    setCategoryKey(k);
+
+    // jeśli obecnie wybrana usługa nie pasuje do kategorii – czyścimy wybór (zero przypadkowych rezerwacji)
+    const cur = serviceKey ? SERVICES.find((s) => s.key === serviceKey) : null;
+    if (cur && cur.category !== k) setServiceKey(null);
   };
 
   const minDay = useMemo(() => startOfDay(new Date()), []);
@@ -331,9 +345,11 @@ export default function BookingWidget() {
   const title = useMemo(() => (step === 1 ? "Choose a service" : step === 2 ? "Pick a date" : "Pick a time"), [step]);
   const progressPct = useMemo(() => (step / 3) * 100, [step]);
 
-  const serviceIds = ["skinfade", "haircutbeard", "hottowel"] as ServiceKey[];
+  const serviceIds = useMemo(() => visibleServices.map((s) => s.key as ServiceKey), [visibleServices]);
   const serviceRadio = useRovingRadio<ServiceKey>(serviceIds, serviceKey, (id) => {
     resetNotice();
+    const picked = SERVICES.find((s) => s.key === id) || null;
+    if (picked) setCategoryKey(picked.category);
     setServiceKey(id);
   });
 
@@ -358,7 +374,7 @@ export default function BookingWidget() {
   );
 
   const summaryFull = useMemo(() => {
-    const s = service ? `${service.name} · £${service.price}` : "—";
+    const s = service ? `${service.name} · ${service.priceLabel}` : "—";
     const b = barber ? ` · ${barber.name}` : " · No preference";
     const d = step >= 2 ? ` · ${prettyDayLong(date)}` : "";
     const t = step >= 3 && time ? ` · ${time}${endTime ? `–${endTime}` : ""}` : "";
@@ -367,7 +383,7 @@ export default function BookingWidget() {
 
   const summaryCompact = useMemo(() => {
     if (!service) return "—";
-    const base = `${service.name} · £${service.price}`;
+    const base = `${service.name} · ${service.priceLabel}`;
     const d = step >= 2 ? ` · ${prettyDayShort(date)}` : "";
     const t = step >= 3 && time ? ` · ${time}${endTime ? `–${endTime}` : ""}` : "";
     return `${base}${d}${t}`;
@@ -409,6 +425,7 @@ export default function BookingWidget() {
 
   const resetForm = () => {
     setStep(1);
+    setCategoryKey("cuts");
     setServiceKey(null);
     setBarberKey(null);
     setTime(null);
@@ -452,7 +469,16 @@ export default function BookingWidget() {
 
     try {
       const payload = {
-        service: service ? { key: service.key, name: service.name, mins: service.mins, price: service.price } : null,
+        service: service
+          ? {
+              key: service.key,
+              category: service.category,
+              name: service.name,
+              mins: service.mins,
+              price: service.price,
+              priceLabel: service.priceLabel,
+            }
+          : null,
         barber: barber ? { key: barber.key, name: barber.name, role: barber.role } : null,
         date: isoKey(date),
         time,
@@ -528,8 +554,32 @@ export default function BookingWidget() {
                   <div className="bmw__labelSmall">Service (required)</div>
                 </div>
 
+                {/* ✅ CATEGORY CHIPS */}
+                <div className="bmw__chips" role="tablist" aria-label="Service categories">
+                  {SERVICE_CATEGORIES.map((c) => {
+                    const active = c.key === categoryKey;
+                    return (
+                      <button
+                        key={c.key}
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        className={`bmw__chip ${active ? "is-active" : ""}`}
+                        onClick={() => pickCategory(c.key)}
+                      >
+                        <span className="bmw__chipLabel">{c.label}</span>
+                        <span className="bmw__chipCount" aria-hidden="true">
+                          {c.services.length}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="bmw__chipHint">{activeCategory.blurb}</div>
+
                 <div className="bmw__serviceList" role="radiogroup" aria-label="Choose a service" onKeyDown={serviceRadio.onKeyDown}>
-                  {SERVICES.map((s) => {
+                  {visibleServices.map((s) => {
                     const selected = s.key === serviceKey;
                     return (
                       <button
@@ -540,6 +590,7 @@ export default function BookingWidget() {
                         className={`bmw__serviceRow ${selected ? "is-selected" : ""}`}
                         onClick={() => {
                           resetNotice();
+                          setCategoryKey(s.category);
                           setServiceKey(s.key);
                         }}
                       >
@@ -559,7 +610,7 @@ export default function BookingWidget() {
                         </span>
 
                         <span className="bmw__serviceRight">
-                          <span className="bmw__price">£{s.price}</span>
+                          <span className="bmw__price">{s.priceLabel}</span>
                           <span className={`bmw__check ${selected ? "is-on" : ""}`} aria-hidden="true">
                             ✓
                           </span>
@@ -935,7 +986,7 @@ export default function BookingWidget() {
                 <span className="bmw__sumL1">{step1SummaryLine1}</span>
                 <span className="bmw__sumL2">{step1SummaryLine2}</span>
               </span>
-              {service ? <span className="bmw__sumPrice">£{service.price}</span> : null}
+              {service ? <span className="bmw__sumPrice">{service.priceLabel}</span> : null}
             </button>
           ) : (
             <button

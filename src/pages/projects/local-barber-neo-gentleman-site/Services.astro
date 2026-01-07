@@ -1,15 +1,32 @@
 ---
+import { SERVICE_CATEGORIES } from "./servicesCatalog";
+
 const { id = "services" } = Astro.props;
+
+const firstCat = SERVICE_CATEGORIES?.[0] ?? {
+  key: "cuts",
+  label: "Cuts",
+  img: "",
+  services: [],
+};
+
+const view = (SERVICE_CATEGORIES ?? []).map((c) => ({
+  key: c.key,
+  label: c.label,
+  img: c.img,
+  items: (c.services ?? []).map((s) => [s.name, s.priceLabel]),
+}));
+
+const safeJson = JSON.stringify(view).replace(/</g, "\\u003c");
 ---
 
-<section class="bm-services" id={id} aria-label="Prices & Services">
+<section class="bm-services" id={id} aria-label="Prices & Services" data-svc-root>
   <div class="bm-services__inner">
-    <!-- Header like GALLERY -->
     <header class="bm-gal__head">
       <div>
         <p class="bm-gal__kicker">PRICES &amp; SERVICES.</p>
         <h2 class="bm-gal__title">Pick your service</h2>
-        <p class="bm-gal__sub">Swipe the circle or tap arrows — prices update live.</p>
+        <p class="bm-gal__sub">Swipe / drag or tap arrows — prices update live.</p>
       </div>
     </header>
 
@@ -18,21 +35,34 @@ const { id = "services" } = Astro.props;
         <span aria-hidden="true">←</span>
       </button>
 
-      <div class="bm-circle" role="img" aria-label="Service preview image" data-svc-circle></div>
+      <div
+        class="bm-circle"
+        role="img"
+        aria-label={`Service preview: ${firstCat.label}`}
+        data-svc-circle
+        style={`background-image:
+          radial-gradient(700px 520px at 35% 30%, rgba(199,162,106,.18), transparent 60%),
+          url("${firstCat.img}")`}
+      ></div>
 
       <button class="bm-arrow bm-arrow--next" type="button" aria-label="Next category" data-svc-next>
         <span aria-hidden="true">→</span>
       </button>
     </div>
 
-    <!-- ✅ Category carousel (overlay on the circle, active always centered) -->
     <nav class="bm-services__caps" aria-label="Service categories">
       <div class="bm-services__capsViewport" data-caps-viewport>
         <div class="bm-services__capsTrack" data-caps-track>
-          <!-- base 3 (JS will replace with 3x loop clones) -->
-          <button class="bm-services__capItem" type="button" data-caps-item="0">CUTS</button>
-          <button class="bm-services__capItem" type="button" data-caps-item="1">BEARD &amp; SHAVE</button>
-          <button class="bm-services__capItem" type="button" data-caps-item="2">EXTRAS</button>
+          {SERVICE_CATEGORIES.map((c, idx) => (
+            <button
+              class={`bm-services__capItem ${idx === 0 ? "is-active" : ""}`}
+              type="button"
+              data-caps-logical={idx}
+              aria-current={idx === 0 ? "true" : "false"}
+            >
+              {c.label}
+            </button>
+          ))}
         </div>
       </div>
     </nav>
@@ -40,11 +70,16 @@ const { id = "services" } = Astro.props;
     <div class="bm-services__bottom">
       <div class="bm-services__prices" aria-label="Service price list">
         <div class="bm-priceGrid" data-svc-list>
-          <!-- JS fills list -->
+          {firstCat.services.map((s) => (
+            <div class="bm-priceRow">
+              <span class="bm-priceRow__name">{s.name}</span>
+              <span class="bm-priceRow__dots" aria-hidden="true"></span>
+              <span class="bm-priceRow__price">{s.priceLabel}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <!-- Social proof under prices -->
       <div class="bm-services__mini" aria-label="Social proof">
         <div class="bm-mini__badge">+10%</div>
         <p class="bm-mini__text">
@@ -54,281 +89,273 @@ const { id = "services" } = Astro.props;
     </div>
   </div>
 
+  <script type="application/json" data-svc-json>{safeJson}</script>
+
   <script is:inline>
-    (function () {
-      const root = document.currentScript?.closest(".bm-services");
-      if (!root) return;
-
-      const data = [
-        {
-          key: "cuts",
-          label: "CUTS",
-          img: "https://images.unsplash.com/photo-1599351431618-3174d19c93a5?auto=format&fit=crop&w=1400&q=80",
-          items: [
-            ["Men’s haircut", "£22"],
-            ["Men’s haircut “Admiral”", "£26"],
-            ["Skin fade", "£28"],
-            ["Haircut + beard", "£30"],
-            ["Children’s haircut", "£17"],
-            ["Hair wash + style", "£8"],
-            ["Hair treatments", "£7–£15"],
-          ],
-        },
-        {
-          key: "beard_shave",
-          label: "BEARD & SHAVE",
-          img: "https://images.unsplash.com/photo-1517832606299-7ae9b720a186?auto=format&fit=crop&w=1400&q=80",
-          items: [
-            ["Beard care (shape)", "£7"],
-            ["Beard trim", "£14"],
-            ["Beard sculpt + line-up", "£16"],
-            ["Beard colouring", "£15"],
-            ["Shaving (regular)", "£12"],
-            ["Hot towel shave", "£18"],
-          ],
-        },
-        {
-          key: "extras",
-          label: "EXTRAS",
-          img: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1400&q=80",
-          items: [
-            ["Eyebrows", "£6"],
-            ["Nose wax", "£8"],
-            ["Face cleanse", "£10"],
-            ["Black mask", "£12"],
-            ["Steam towel finish", "£8"],
-            ["Head massage", "£10"],
-            ["Scalp detox", "£16"],
-          ],
-        },
-      ];
-
-      // ---- elements
-      const circleEl = root.querySelector("[data-svc-circle]");
-      const listEl = root.querySelector("[data-svc-list]");
-      const prev = root.querySelector("[data-svc-prev]");
-      const next = root.querySelector("[data-svc-next]");
-
-      const capsViewport = root.querySelector("[data-caps-viewport]");
-      const capsTrack = root.querySelector("[data-caps-track]");
-
-      // ---- state
-      const N = data.length;
-      const BASE = N;           // middle copy start
-      let i = 0;                // logical index: 0..N-1
-      let pos = BASE + i;       // physical index in duplicated track
-
-      function flash() {
-        root.style.setProperty("--bm-svc-flash", "1");
-        setTimeout(() => root.style.setProperty("--bm-svc-flash", "0"), 140);
-      }
-
-      function clamp(n, min, max) {
-        return Math.max(min, Math.min(max, n));
-      }
-
-      // Build "infinite" caps: 3 copies of the N items (total 3N buttons)
-      function buildCapsLoop() {
-        if (!capsTrack) return;
-
-        const baseBtns = Array.from(capsTrack.querySelectorAll("[data-caps-item]"));
-        if (baseBtns.length !== N) return;
-
-        const clones = [];
-
-        for (let rep = 0; rep < 3; rep++) {
-          for (let k = 0; k < N; k++) {
-            const src = baseBtns[k];
-            const btn = src.cloneNode(true);
-            btn.classList.remove("is-active");
-            btn.setAttribute("aria-current", "false");
-            btn.dataset.capsLogical = String(k);          // logical index
-            btn.dataset.capsPos = String(rep * N + k);    // physical position
-            clones.push(btn);
-          }
-        }
-
-        capsTrack.innerHTML = "";
-        clones.forEach((b) => capsTrack.appendChild(b));
-      }
-
-      function getCapsButtons() {
-        return Array.from(capsTrack?.querySelectorAll("[data-caps-pos]") || []);
-      }
-
-      function setActiveMiddleCopy(logicalIdx) {
-        // active ONLY on the middle copy element: pos = BASE + logical
-        const targetPos = BASE + logicalIdx;
-        const all = getCapsButtons();
-        all.forEach((btn) => {
-          const active = Number(btn.dataset.capsPos) === targetPos;
-          btn.classList.toggle("is-active", active);
-          btn.setAttribute("aria-current", active ? "true" : "false");
-        });
-      }
-
-      function centerCapsByPos(p, smooth = true) {
-        if (!capsViewport || !capsTrack) return;
-        const btn = capsTrack.querySelector(`[data-caps-pos="${p}"]`);
-        if (!btn) return;
-
-        const vpW = capsViewport.clientWidth;
-        const trackW = capsTrack.scrollWidth;
-
-        const itemCenter = btn.offsetLeft + btn.offsetWidth / 2;
-        let tx = vpW / 2 - itemCenter;
-
-        const minTx = vpW - trackW;
-        const maxTx = 0;
-        tx = clamp(tx, minTx, maxTx);
-
-        capsTrack.style.transitionDuration = smooth ? "260ms" : "0ms";
-        capsTrack.style.transform = `translate3d(${tx}px, 0, 0)`;
-      }
-
-      // wrap physical pos back into the middle copy (infinite illusion)
-      function normalizePos() {
-        if (pos < N) {
-          pos += N;
-          centerCapsByPos(pos, false);
-        } else if (pos >= 2 * N) {
-          pos -= N;
-          centerCapsByPos(pos, false);
-        }
-      }
-
-      function render(logicalIdx) {
-        const d = data[logicalIdx];
-
-        if (circleEl) {
-          circleEl.setAttribute("aria-label", `Service preview: ${d.label}`);
-          circleEl.style.backgroundImage =
-            `radial-gradient(700px 520px at 35% 30%, rgba(199,162,106,.18), transparent 60%),
-             url("${d.img}")`;
-        }
-
-        if (listEl) {
-          listEl.innerHTML = "";
-          d.items.forEach(([name, price]) => {
-            const row = document.createElement("div");
-            row.className = "bm-priceRow";
-
-            const nameEl = document.createElement("span");
-            nameEl.className = "bm-priceRow__name";
-            nameEl.textContent = name;
-
-            const dotsEl = document.createElement("span");
-            dotsEl.className = "bm-priceRow__dots";
-            dotsEl.setAttribute("aria-hidden", "true");
-
-            const priceEl = document.createElement("span");
-            priceEl.className = "bm-priceRow__price";
-            priceEl.textContent = price;
-
-            row.appendChild(nameEl);
-            row.appendChild(dotsEl);
-            row.appendChild(priceEl);
-            listEl.appendChild(row);
-          });
-        }
-
-        requestAnimationFrame(() => {
-          setActiveMiddleCopy(logicalIdx);
-          centerCapsByPos(pos, true);
-          setTimeout(normalizePos, 280);
-        });
-      }
-
-      function goToLogical(nextLogical) {
-        i = (nextLogical + N) % N;
-        pos = BASE + i; // ✅ always snap to middle copy => perfect neighbors
-        flash();
-        render(i);
-      }
-
-      function step(dir) {
-        pos += dir;
-        i = (i + dir + N) % N;
-        flash();
-        render(i);
-      }
-
-      // init caps loop + listeners
-      buildCapsLoop();
-
-      // click any cap => jump to that category (centered)
-      root.addEventListener("click", (e) => {
-        const btn = e.target?.closest?.("[data-caps-logical]");
-        if (!btn) return;
-        const logical = Number(btn.dataset.capsLogical);
-        if (Number.isNaN(logical)) return;
-        if (logical === i) return;
-        goToLogical(logical);
-      });
-
-      prev?.addEventListener("click", () => step(-1));
-      next?.addEventListener("click", () => step(1));
-
-      // swipe on circle
-      let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false, axis = null;
+    (() => {
       const THRESH_LOCK = 8;
       const THRESH_SWIPE = 34;
 
-      function begin(x, y) {
-        dragging = true;
-        axis = null;
-        startX = x; startY = y;
-        dx = 0; dy = 0;
-      }
+      const boot = () => {
+        document.querySelectorAll("[data-svc-root]").forEach((root) => {
+          if (!(root instanceof HTMLElement)) return;
+          if (root.dataset.svcInit === "1") return;
 
-      function move(x, y, ev) {
-        if (!dragging) return;
-        dx = x - startX;
-        dy = y - startY;
-
-        if (!axis) {
-          if (Math.hypot(dx, dy) < THRESH_LOCK) return;
-          axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
-          if (axis === "x") root.classList.add("is-swipeX");
-        }
-
-        if (axis === "x") ev?.preventDefault?.();
-      }
-
-      function end() {
-        if (!dragging) return;
-        dragging = false;
-
-        if (axis === "x") {
-          root.classList.remove("is-swipeX");
-          const horiz = Math.abs(dx);
-          const vert = Math.abs(dy);
-          if (horiz > THRESH_SWIPE && horiz > vert * 1.2) {
-            step(dx > 0 ? -1 : 1);
-          }
-        }
-        axis = null;
-      }
-
-      if (circleEl) {
-        circleEl.addEventListener("pointerdown", (e) => {
-          begin(e.clientX, e.clientY);
-          circleEl.setPointerCapture?.(e.pointerId);
+          root.dataset.svcInit = "1";
+          root.dataset.svcReady = "1"; // ✅ debug: pojawia się jako data-svc-ready="1"
+          initServices(root);
         });
-        circleEl.addEventListener("pointermove", (e) => move(e.clientX, e.clientY, e));
-        circleEl.addEventListener("pointerup", end);
-        circleEl.addEventListener("pointercancel", end);
-        circleEl.addEventListener("lostpointercapture", end);
+      };
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", boot, { once: true });
+      } else {
+        boot();
       }
 
-      // keep centered on resize
-      window.addEventListener("resize", () => {
-        setActiveMiddleCopy(i);
-        centerCapsByPos(pos, false);
-      }, { passive: true });
+      document.addEventListener?.("astro:page-load", boot);
+      document.addEventListener?.("astro:after-swap", boot);
 
-      // init
-      goToLogical(0);
+      function initServices(root) {
+        const jsonEl = root.querySelector("[data-svc-json]");
+        if (!jsonEl) return;
+
+        let data = [];
+        try {
+          data = JSON.parse(jsonEl.textContent || "[]");
+        } catch (e) {
+          console.error("[Services] JSON parse failed", e);
+          return;
+        }
+
+        const circleEl = root.querySelector("[data-svc-circle]");
+        const listEl = root.querySelector("[data-svc-list]");
+        const prev = root.querySelector("[data-svc-prev]");
+        const next = root.querySelector("[data-svc-next]");
+        const capsViewport = root.querySelector("[data-caps-viewport]");
+        const capsTrack = root.querySelector("[data-caps-track]");
+
+        const N = data.length;
+        if (!N || !capsTrack) return;
+
+        const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+
+        // micro “swipe breath”
+        let flashT = 0;
+        const flash = () => {
+          root.style.setProperty("--bm-svc-flash", "1");
+          clearTimeout(flashT);
+          flashT = window.setTimeout(() => root.style.setProperty("--bm-svc-flash", "0"), 160);
+        };
+
+        // ===== Infinite caps (3x clones) =====
+        const buildCapsLoop = () => {
+          const base = Array.from(capsTrack.querySelectorAll("[data-caps-logical]"));
+          if (base.length !== N) return;
+
+          const clones = [];
+          for (let rep = 0; rep < 3; rep++) {
+            for (let k = 0; k < N; k++) {
+              const btn = base[k].cloneNode(true);
+              btn.classList.remove("is-active");
+              btn.setAttribute("aria-current", "false");
+              btn.dataset.capsLogical = String(k);
+              btn.dataset.capsPos = String(rep * N + k);
+              clones.push(btn);
+            }
+          }
+
+          capsTrack.innerHTML = "";
+          clones.forEach((b) => capsTrack.appendChild(b));
+        };
+
+        const getCapsButtons = () => Array.from(capsTrack.querySelectorAll("[data-caps-pos]"));
+
+        const BASE = N; // middle copy
+        let i = 0;
+        let pos = BASE + i;
+
+        const setActiveMiddleCopy = (logicalIdx) => {
+          const targetPos = BASE + logicalIdx;
+          getCapsButtons().forEach((btn) => {
+            const active = Number(btn.dataset.capsPos) === targetPos;
+            btn.classList.toggle("is-active", active);
+            btn.setAttribute("aria-current", active ? "true" : "false");
+          });
+        };
+
+        const centerCapsByPos = (p, smooth = true) => {
+          if (!capsViewport) return;
+          const btn = capsTrack.querySelector('[data-caps-pos="' + p + '"]');
+          if (!btn) return;
+
+          const vpW = capsViewport.clientWidth;
+          const trackW = capsTrack.scrollWidth;
+          const itemCenter = btn.offsetLeft + btn.offsetWidth / 2;
+
+          let tx = vpW / 2 - itemCenter;
+
+          const minTx = Math.min(vpW - trackW, 0);
+          tx = clamp(tx, minTx, 0);
+
+          capsTrack.style.transitionDuration = smooth ? "260ms" : "0ms";
+          capsTrack.style.transform = "translate3d(" + tx + "px,0,0)";
+        };
+
+        const normalizePos = () => {
+          if (pos < N) {
+            pos += N;
+            centerCapsByPos(pos, false);
+          } else if (pos >= 2 * N) {
+            pos -= N;
+            centerCapsByPos(pos, false);
+          }
+        };
+
+        const render = (logicalIdx) => {
+          const d = data[logicalIdx];
+
+          if (circleEl) {
+            circleEl.setAttribute("aria-label", "Service preview: " + d.label);
+            circleEl.style.backgroundImage =
+              'radial-gradient(700px 520px at 35% 30%, rgba(199,162,106,.18), transparent 60%), url("' +
+              d.img +
+              '")';
+          }
+
+          if (listEl) {
+            listEl.innerHTML = "";
+            d.items.forEach((pair) => {
+              const row = document.createElement("div");
+              row.className = "bm-priceRow";
+
+              const nameEl = document.createElement("span");
+              nameEl.className = "bm-priceRow__name";
+              nameEl.textContent = pair[0];
+
+              const dotsEl = document.createElement("span");
+              dotsEl.className = "bm-priceRow__dots";
+              dotsEl.setAttribute("aria-hidden", "true");
+
+              const priceEl = document.createElement("span");
+              priceEl.className = "bm-priceRow__price";
+              priceEl.textContent = pair[1];
+
+              row.appendChild(nameEl);
+              row.appendChild(dotsEl);
+              row.appendChild(priceEl);
+              listEl.appendChild(row);
+            });
+          }
+
+          requestAnimationFrame(() => {
+            setActiveMiddleCopy(logicalIdx);
+            centerCapsByPos(pos, true);
+            setTimeout(normalizePos, 280);
+          });
+        };
+
+        const goToLogical = (nextLogical) => {
+          i = (nextLogical + N) % N;
+          pos = BASE + i;
+          flash();
+          render(i);
+        };
+
+        const step = (dir) => {
+          pos += dir;
+          i = (i + dir + N) % N;
+          flash();
+          render(i);
+        };
+
+        buildCapsLoop();
+
+        // click labels
+        root.addEventListener("click", (e) => {
+          const t = e.target;
+          if (!(t instanceof Element)) return;
+          const btn = t.closest("[data-caps-logical]");
+          if (!btn) return;
+
+          const logical = Number(btn.dataset.capsLogical);
+          if (Number.isNaN(logical)) return;
+          if (logical === i) return;
+
+          goToLogical(logical);
+        });
+
+        prev && prev.addEventListener("click", () => step(-1));
+        next && next.addEventListener("click", () => step(1));
+
+        // swipe / drag
+        const attachSwipe = (el) => {
+          if (!el) return;
+
+          let startX = 0, startY = 0, dx = 0, dy = 0;
+          let dragging = false;
+          let axis = null;
+
+          const begin = (x, y) => {
+            dragging = true;
+            axis = null;
+            startX = x; startY = y;
+            dx = 0; dy = 0;
+          };
+
+          const move = (x, y, ev) => {
+            if (!dragging) return;
+            dx = x - startX;
+            dy = y - startY;
+
+            if (!axis) {
+              if (Math.hypot(dx, dy) < THRESH_LOCK) return;
+              axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+              if (axis === "x") root.classList.add("is-swipeX");
+            }
+
+            if (axis === "x") ev.preventDefault();
+          };
+
+          const end = () => {
+            if (!dragging) return;
+            dragging = false;
+            root.classList.remove("is-swipeX");
+
+            if (axis === "x") {
+              const horiz = Math.abs(dx);
+              const vert = Math.abs(dy);
+              if (horiz > THRESH_SWIPE && horiz > vert * 1.2) step(dx > 0 ? -1 : 1);
+            }
+            axis = null;
+          };
+
+          el.addEventListener("pointerdown", (e) => {
+            if (e.pointerType === "mouse" && e.button !== 0) return;
+            begin(e.clientX, e.clientY);
+            el.setPointerCapture?.(e.pointerId);
+          });
+
+          // ✅ passive:false żeby preventDefault działał (Firefox)
+          el.addEventListener("pointermove", (e) => move(e.clientX, e.clientY, e), { passive: false });
+          el.addEventListener("pointerup", end);
+          el.addEventListener("pointercancel", end);
+          el.addEventListener("lostpointercapture", end);
+        };
+
+        attachSwipe(circleEl);
+        attachSwipe(capsViewport);
+
+        const recenter = () => {
+          setActiveMiddleCopy(i);
+          centerCapsByPos(pos, false);
+        };
+
+        window.addEventListener("resize", recenter, { passive: true });
+        window.addEventListener("load", recenter, { passive: true });
+
+        goToLogical(0);
+      }
     })();
   </script>
 </section>
