@@ -3,10 +3,18 @@ const { id = "services" } = Astro.props;
 
 import { SERVICE_CATEGORIES } from "./servicesCatalog";
 
-const cats = SERVICE_CATEGORIES ?? [];
+// ✅ pancerne dane (nigdy nie wybuchnie)
+const catsRaw = Array.isArray(SERVICE_CATEGORIES) ? SERVICE_CATEGORIES : [];
+const cats = catsRaw.map((c) => ({
+  key: String(c?.key ?? ""),
+  label: String(c?.label ?? "Category"),
+  img: String(c?.img ?? ""),
+  services: Array.isArray(c?.services) ? c.services : [],
+}));
+
 const N = cats.length;
 
-// do pętli nieskończonej: [last, ...cats, first]
+// loop: [last, ...cats, first] dla nieskończonej karuzeli
 const loop = N > 1 ? [cats[N - 1], ...cats, cats[0]] : cats;
 
 const bg = (img) =>
@@ -19,67 +27,74 @@ const bg = (img) =>
       <div>
         <p class="bm-gal__kicker">PRICES &amp; SERVICES.</p>
         <h2 class="bm-gal__title">Pick your service</h2>
-        <p class="bm-gal__sub">Use the arrows — image, label and prices slide together.</p>
+        <p class="bm-gal__sub">Use arrows or swipe — image, label and prices move together.</p>
       </div>
     </header>
 
-    <div class="bm-svcCarousel" aria-roledescription="carousel">
-      <button class="bm-arrow bm-arrow--prev" type="button" aria-label="Previous category" data-svc-prev>
-        <span aria-hidden="true">←</span>
-      </button>
+    {N === 0 ? (
+      <div class="bm-services__bottom">
+        <div class="bm-services__prices">
+          <div class="bm-priceGrid">
+            <div class="bm-priceRow">
+              <span class="bm-priceRow__name">No services found</span>
+              <span class="bm-priceRow__price">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div class="bm-svcCarousel" aria-roledescription="carousel">
+        <button class="bm-arrow bm-arrow--prev" type="button" aria-label="Previous category" data-svc-prev>
+          <span aria-hidden="true">←</span>
+        </button>
 
-      <div class="bm-svcViewport" data-svc-viewport>
-        <div class="bm-svcTrack" data-svc-track style="transform: translate3d(-100%,0,0);">
-          {loop.map((c, idx) => (
-            <article
-              class="bm-svcSlide"
-              aria-roledescription="slide"
-              aria-label={`${c.label}`}
-              data-svc-slide
-              data-svc-logical={N > 1 ? String((idx - 1 + N) % N) : "0"}
-            >
-              <div class="bm-svcStage">
-                <div
-                  class="bm-circle bm-svcCircle"
-                  role="img"
-                  aria-label={`Service preview: ${c.label}`}
-                  style={`background-image: ${bg(c.img)}`}
-                ></div>
+        <div class="bm-svcViewport" data-svc-viewport>
+          <div class="bm-svcTrack" data-svc-track style="transform: translate3d(-100%,0,0);">
+            {loop.map((c) => (
+              <article class="bm-svcSlide" aria-roledescription="slide" aria-label={c.label} data-svc-slide>
+                <div class="bm-svcStage">
+                  <div
+                    class="bm-svcCircle"
+                    role="img"
+                    aria-label={`Service preview: ${c.label}`}
+                    style={`background-image: ${bg(c.img)}`}
+                  ></div>
 
-                <div class="bm-svcLabelWrap" aria-label="Category">
-                  <div class="bm-svcLabel">{c.label}</div>
-                </div>
-              </div>
-
-              <div class="bm-services__bottom">
-                <div class="bm-services__prices" aria-label="Service price list">
-                  <div class="bm-priceGrid">
-                    {c.services.map((s) => (
-                      <div class="bm-priceRow">
-                        <span class="bm-priceRow__name">{s.name}</span>
-                        <span class="bm-priceRow__dots" aria-hidden="true"></span>
-                        <span class="bm-priceRow__price">{s.priceLabel}</span>
-                      </div>
-                    ))}
+                  <div class="bm-svcLabelWrap" aria-label="Category">
+                    <div class="bm-svcLabel">{c.label}</div>
                   </div>
                 </div>
 
-                <div class="bm-services__mini" aria-label="Social proof">
-                  <div class="bm-mini__badge">+10%</div>
-                  <p class="bm-mini__text">
-                    Most of our first-time clients book again within 30 days. Clean fades. Sharp beards. Zero drama.
-                  </p>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
+                <div class="bm-services__bottom">
+                  <div class="bm-services__prices" aria-label="Service price list">
+                    <div class="bm-priceGrid">
+                      {(Array.isArray(c.services) ? c.services : []).map((s) => (
+                        <div class="bm-priceRow">
+                          <span class="bm-priceRow__name">{String(s?.name ?? "Service")}</span>
+                          <span class="bm-priceRow__dots" aria-hidden="true"></span>
+                          <span class="bm-priceRow__price">{String(s?.priceLabel ?? "—")}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-      <button class="bm-arrow bm-arrow--next" type="button" aria-label="Next category" data-svc-next>
-        <span aria-hidden="true">→</span>
-      </button>
-    </div>
+                  <div class="bm-services__mini" aria-label="Social proof">
+                    <div class="bm-mini__badge">+10%</div>
+                    <p class="bm-mini__text">
+                      Most of our first-time clients book again within 30 days. Clean fades. Sharp beards. Zero drama.
+                    </p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <button class="bm-arrow bm-arrow--next" type="button" aria-label="Next category" data-svc-next>
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    )}
   </div>
 
   <script is:inline>
@@ -87,23 +102,27 @@ const bg = (img) =>
       const root = document.querySelector("[data-svc-root]");
       if (!root) return;
 
+      const viewport = root.querySelector("[data-svc-viewport]");
       const track = root.querySelector("[data-svc-track]");
       const prev = root.querySelector("[data-svc-prev]");
       const next = root.querySelector("[data-svc-next]");
       const slides = track ? Array.from(track.querySelectorAll("[data-svc-slide]")) : [];
 
-      const N = Math.max(0, slides.length);
-      if (!track || !prev || !next || N <= 1) return;
+      // loop: [last, ...cats, first]
+      const N = slides.length;
+      if (!viewport || !track || !prev || !next || N <= 1) return;
 
-      // Jeśli mamy loop: [last, ...cats, first] => real slides = N-2
       const real = N - 2;
       if (real <= 0) return;
 
-      let idx = 1; // start on first real slide
+      let idx = 1;
       let locked = false;
 
+      const ease = "cubic-bezier(.2,.8,.2,1)";
+      const DUR = 460;
+
       const setTransition = (on) => {
-        track.style.transition = on ? "transform 460ms cubic-bezier(.2,.8,.2,1)" : "none";
+        track.style.transition = on ? `transform ${DUR}ms ${ease}` : "none";
       };
 
       const go = (i, animate = true) => {
@@ -112,14 +131,8 @@ const bg = (img) =>
       };
 
       const normalize = () => {
-        // jeśli wjechaliśmy na klona po lewej/prawej, przeskocz bez animacji
-        if (idx === 0) {
-          idx = real;
-          go(idx, false);
-        } else if (idx === real + 1) {
-          idx = 1;
-          go(idx, false);
-        }
+        if (idx === 0) { idx = real; go(idx, false); }
+        else if (idx === real + 1) { idx = 1; go(idx, false); }
       };
 
       const step = (dir) => {
@@ -137,7 +150,82 @@ const bg = (img) =>
         locked = false;
       });
 
-      // init (pewnie)
+      // ===== Swipe / drag =====
+      const THRESH_LOCK = 8;
+      const THRESH_SWIPE = 42;
+
+      let dragging = false;
+      let axis = null;
+      let startX = 0, startY = 0;
+      let dx = 0, dy = 0;
+
+      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+      const begin = (x, y) => {
+        if (locked) return;
+        dragging = true;
+        axis = null;
+        startX = x; startY = y;
+        dx = 0; dy = 0;
+        setTransition(false);
+        viewport.classList.add("is-dragging");
+      };
+
+      const move = (x, y, ev) => {
+        if (!dragging) return;
+
+        dx = x - startX;
+        dy = y - startY;
+
+        if (!axis) {
+          if (Math.hypot(dx, dy) < THRESH_LOCK) return;
+          axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+        }
+
+        if (axis === "x") {
+          ev.preventDefault();
+          const w = viewport.clientWidth || 1;
+          const frac = dx / w;
+          const rubber = clamp(frac, -0.35, 0.35);
+          track.style.transform = `translate3d(${(-idx * 100 + rubber * 100)}%,0,0)`;
+        }
+      };
+
+      const end = () => {
+        if (!dragging) return;
+        dragging = false;
+        viewport.classList.remove("is-dragging");
+
+        if (axis === "x") {
+          const horiz = Math.abs(dx);
+          const vert = Math.abs(dy);
+
+          if (horiz > THRESH_SWIPE && horiz > vert * 1.2) {
+            locked = true;
+            idx += dx > 0 ? -1 : 1;
+            go(idx, true);
+          } else {
+            go(idx, true);
+          }
+        } else {
+          go(idx, false);
+        }
+
+        axis = null;
+        dx = 0; dy = 0;
+      };
+
+      viewport.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        begin(e.clientX, e.clientY);
+        viewport.setPointerCapture?.(e.pointerId);
+      });
+
+      viewport.addEventListener("pointermove", (e) => move(e.clientX, e.clientY, e), { passive: false });
+      viewport.addEventListener("pointerup", end);
+      viewport.addEventListener("pointercancel", end);
+      viewport.addEventListener("lostpointercapture", end);
+
       go(idx, false);
       requestAnimationFrame(() => go(idx, false));
     })();

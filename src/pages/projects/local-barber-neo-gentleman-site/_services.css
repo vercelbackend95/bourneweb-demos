@@ -1,4 +1,4 @@
-/* ===== PRICES & SERVICES (ARROWS CAROUSEL) ===== */
+/* ===== PRICES & SERVICES (ARROWS + SWIPE CAROUSEL) ===== */
 
 .bm-services{
   --bm-services-col: min(760px, 100%);
@@ -32,7 +32,14 @@
 .bm-svcViewport{
   overflow: hidden;
   border-radius: 22px;
+
+  /* ✅ swipe friendly */
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
 }
+
+.bm-svcViewport.is-dragging{ cursor: grabbing; }
 
 .bm-svcTrack{
   display: flex;
