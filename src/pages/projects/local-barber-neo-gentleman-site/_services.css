@@ -1,6 +1,6 @@
 /* =========================
    Neo Gentleman — Services
-   (stable swipe + always snap)
+   (stable swipe + responsive)
    ========================= */
 
 .bms{
@@ -48,6 +48,7 @@
   touch-action: pan-y;
   user-select: none;
   cursor: grab;
+  position: relative; /* for mobile arrow overlay */
 }
 .bms-viewport.is-dragging{ cursor: grabbing; }
 
@@ -217,6 +218,52 @@
   .bms-row{ padding: 11px 2px; }
 }
 
+/* ✅ MOBILE KING: viewport full width, arrows float over image */
+@media (max-width: 640px){
+  /* do not reserve 64px side columns anymore */
+  .bms-carousel{
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* give a little extra bottom space so fixed pill doesn't eat content */
+  .bms{
+    padding-bottom: calc(clamp(28px, 6vw, 84px) + 96px);
+  }
+
+  /* arrows overlay */
+  .bms-nav{
+    position: absolute;
+    z-index: 20;
+    top: clamp(140px, 28vw, 190px); /* roughly center of the circle */
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(0,0,0,.22);
+    backdrop-filter: blur(6px);
+  }
+  .bms-nav:hover{ transform: translateY(-50%); } /* keep hover from jumping on touch */
+  .bms-nav--prev{ left: 10px; }
+  .bms-nav--next{ right: 10px; }
+
+  /* label scales down so it doesn't get cut */
+  .bms-hero__label{
+    font-size: clamp(28px, 8.5vw, 52px);
+    letter-spacing: .12em;
+    padding: 0 14px;
+    transform: translateY(-12px);
+  }
+
+  .bms-hero__media{
+    width: min(320px, 78vw);
+  }
+
+  .bms-slide{
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
 @media (max-width: 420px){
-  .bms-hero__media{ width: min(320px, 78vw); }
+  .bms-hero__media{ width: min(300px, 82vw); }
 }
