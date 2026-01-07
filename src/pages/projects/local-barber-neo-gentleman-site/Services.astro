@@ -1,233 +1,268 @@
 ---
-const { id = "services" } = Astro.props;
+import "./_services.css";
 
-import { SERVICE_CATEGORIES } from "./servicesCatalog";
-
-// ✅ pancerne dane (nigdy nie wybuchnie)
-const catsRaw = Array.isArray(SERVICE_CATEGORIES) ? SERVICE_CATEGORIES : [];
-const cats = catsRaw.map((c) => ({
-  key: String(c?.key ?? ""),
-  label: String(c?.label ?? "Category"),
-  img: String(c?.img ?? ""),
-  services: Array.isArray(c?.services) ? c.services : [],
-}));
-
-const N = cats.length;
-
-// loop: [last, ...cats, first] dla nieskończonej karuzeli
-const loop = N > 1 ? [cats[N - 1], ...cats, cats[0]] : cats;
-
-const bg = (img) =>
-  `radial-gradient(700px 520px at 35% 30%, rgba(199,162,106,.18), transparent 60%), url("${img}")`;
+const categories = [
+  {
+    id: "cuts",
+    label: "CUTS",
+    image:
+      "https://images.unsplash.com/photo-1520975958225-9e049b9f3fd1?auto=format&fit=crop&w=1200&q=80",
+    items: [
+      ["Men’s haircut", "£22"],
+      ["Men’s haircut “Admiral”", "£26"],
+      ["Haircut + beard", "£30"],
+      ["Skin fade", "£28"],
+      ["Children’s haircut", "£17"],
+      ["Hair treatments", "£7–£15"],
+    ],
+  },
+  {
+    id: "beard",
+    label: "BEARD & SHAVE",
+    image:
+      "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?auto=format&fit=crop&w=1200&q=80",
+    items: [
+      ["Beard care (shape)", "£7"],
+      ["Beard trim", "£14"],
+      ["Beard sculpt + line-up", "£16"],
+      ["Beard colouring", "£15"],
+      ["Shaving (regular)", "£12"],
+      ["Hot towel shave", "£18"],
+    ],
+  },
+  {
+    id: "extras",
+    label: "EXTRAS",
+    image:
+      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1200&q=80",
+    items: [
+      ["Eyebrows", "£6"],
+      ["Nose wax", "£8"],
+      ["Head massage", "£10"],
+      ["Face cleanse", "£9"],
+      ["Grey blending", "£12"],
+      ["Beard oil treatment", "£7"],
+    ],
+  },
+];
 ---
 
-<section class="bm-services" id={id} aria-label="Prices & Services" data-svc-root>
-  <div class="bm-services__inner">
-    <header class="bm-gal__head">
-      <div>
-        <p class="bm-gal__kicker">PRICES &amp; SERVICES.</p>
-        <h2 class="bm-gal__title">Pick your service</h2>
-        <p class="bm-gal__sub">Use arrows or swipe — image, label and prices move together.</p>
-      </div>
+<section class="bms" aria-label="Prices and services" id="services">
+  <div class="bms__inner">
+    <header class="bms__head">
+      <p class="bms__eyebrow">PRICES</p>
+      <h2 class="bms__title">Pick your service</h2>
+      <p class="bms__hint">Use arrows or swipe — image, label and prices move together.</p>
     </header>
 
-    {N === 0 ? (
-      <div class="bm-services__bottom">
-        <div class="bm-services__prices">
-          <div class="bm-priceGrid">
-            <div class="bm-priceRow">
-              <span class="bm-priceRow__name">No services found</span>
-              <span class="bm-priceRow__price">—</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    ) : (
-      <div class="bm-svcCarousel" aria-roledescription="carousel">
-        <button class="bm-arrow bm-arrow--prev" type="button" aria-label="Previous category" data-svc-prev>
-          <span aria-hidden="true">←</span>
-        </button>
+    <div class="bms-carousel" data-carousel>
+      <button class="bms-nav bms-nav--prev" type="button" aria-label="Previous category" data-prev>
+        <span class="bms-nav__icon" aria-hidden="true">←</span>
+        <span class="bms-nav__ghost" data-prev-label>EXTRAS</span>
+      </button>
 
-        <div class="bm-svcViewport" data-svc-viewport>
-          <div class="bm-svcTrack" data-svc-track style="transform: translate3d(-100%,0,0);">
-            {loop.map((c) => (
-              <article class="bm-svcSlide" aria-roledescription="slide" aria-label={c.label} data-svc-slide>
-                <div class="bm-svcStage">
-                  <div
-                    class="bm-svcCircle"
-                    role="img"
-                    aria-label={`Service preview: ${c.label}`}
-                    style={`background-image: ${bg(c.img)}`}
-                  ></div>
-
-                  <div class="bm-svcLabelWrap" aria-label="Category">
-                    <div class="bm-svcLabel">{c.label}</div>
-                  </div>
+      <div class="bms-viewport" data-viewport>
+        <div class="bms-track" data-track>
+          {categories.map((cat) => (
+            <article class="bms-slide" data-slide data-id={cat.id} aria-label={cat.label}>
+              <div class="bms-hero">
+                <div class="bms-hero__media">
+                  <img class="bms-hero__img" src={cat.image} alt="" loading="lazy" />
+                  <span class="bms-hero__ring" aria-hidden="true"></span>
                 </div>
 
-                <div class="bm-services__bottom">
-                  <div class="bm-services__prices" aria-label="Service price list">
-                    <div class="bm-priceGrid">
-                      {(Array.isArray(c.services) ? c.services : []).map((s) => (
-                        <div class="bm-priceRow">
-                          <span class="bm-priceRow__name">{String(s?.name ?? "Service")}</span>
-                          <span class="bm-priceRow__dots" aria-hidden="true"></span>
-                          <span class="bm-priceRow__price">{String(s?.priceLabel ?? "—")}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                <!-- ✅ NAPIS NAD ZDJĘCIEM (czytelny) -->
+                <h3 class="bms-hero__label">{cat.label}</h3>
+              </div>
 
-                  <div class="bm-services__mini" aria-label="Social proof">
-                    <div class="bm-mini__badge">+10%</div>
-                    <p class="bm-mini__text">
-                      Most of our first-time clients book again within 30 days. Clean fades. Sharp beards. Zero drama.
-                    </p>
+              <div class="bms-list" role="list">
+                {cat.items.map(([name, price]) => (
+                  <div class="bms-row" role="listitem">
+                    <div class="bms-row__name">{name}</div>
+                    <div class="bms-row__price">{price}</div>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                ))}
+              </div>
+            </article>
+          ))}
         </div>
-
-        <button class="bm-arrow bm-arrow--next" type="button" aria-label="Next category" data-svc-next>
-          <span aria-hidden="true">→</span>
-        </button>
       </div>
-    )}
+
+      <button class="bms-nav bms-nav--next" type="button" aria-label="Next category" data-next>
+        <span class="bms-nav__ghost" data-next-label>CUTS</span>
+        <span class="bms-nav__icon" aria-hidden="true">→</span>
+      </button>
+    </div>
+
+    <aside class="bms-pill" aria-label="Quick stat">
+      <div class="bms-pill__badge">+10%</div>
+      <p class="bms-pill__text">
+        Most of our first-time clients book again within 30 days. Clean fades. Sharp beards. Zero drama.
+      </p>
+    </aside>
   </div>
 
   <script is:inline>
     (() => {
-      const root = document.querySelector("[data-svc-root]");
+      const root = document.querySelector("[data-carousel]");
       if (!root) return;
 
-      const viewport = root.querySelector("[data-svc-viewport]");
-      const track = root.querySelector("[data-svc-track]");
-      const prev = root.querySelector("[data-svc-prev]");
-      const next = root.querySelector("[data-svc-next]");
-      const slides = track ? Array.from(track.querySelectorAll("[data-svc-slide]")) : [];
+      const viewport = root.querySelector("[data-viewport]");
+      const track = root.querySelector("[data-track]");
+      const prevBtn = root.querySelector("[data-prev]");
+      const nextBtn = root.querySelector("[data-next]");
+      const prevLabelEl = root.querySelector("[data-prev-label]");
+      const nextLabelEl = root.querySelector("[data-next-label]");
 
-      // loop: [last, ...cats, first]
-      const N = slides.length;
-      if (!viewport || !track || !prev || !next || N <= 1) return;
+      if (!viewport || !track || !prevBtn || !nextBtn || !prevLabelEl || !nextLabelEl) return;
 
-      const real = N - 2;
-      if (real <= 0) return;
+      const baseSlides = Array.from(track.querySelectorAll("[data-slide]"));
+      if (baseSlides.length < 2) return;
 
-      let idx = 1;
-      let locked = false;
+      const names = baseSlides.map((s) => (s.getAttribute("aria-label") || "").trim());
 
-      const ease = "cubic-bezier(.2,.8,.2,1)";
-      const DUR = 460;
+      // --- build infinite loop: clone last + first
+      const firstClone = baseSlides[0].cloneNode(true);
+      const lastClone = baseSlides[baseSlides.length - 1].cloneNode(true);
+      firstClone.setAttribute("data-clone", "true");
+      lastClone.setAttribute("data-clone", "true");
+
+      track.insertBefore(lastClone, baseSlides[0]);
+      track.appendChild(firstClone);
+
+      const slides = () => Array.from(track.children);
+
+      let index = 1; // start at first real slide (because 0 is lastClone)
+      let width = 0;
+      let isDragging = false;
+      let startX = 0;
+      let currentX = 0;
+      let baseTranslate = 0;
+      let raf = 0;
 
       const setTransition = (on) => {
-        track.style.transition = on ? `transform ${DUR}ms ${ease}` : "none";
+        track.style.transition = on ? "transform 420ms cubic-bezier(.22,1,.36,1)" : "none";
       };
 
-      const go = (i, animate = true) => {
+      const setTranslate = (x) => {
+        track.style.transform = `translate3d(${x}px,0,0)`;
+      };
+
+      const snapToIndex = (i, animate = true) => {
+        index = i;
+        baseTranslate = -index * width;
         setTransition(animate);
-        track.style.transform = `translate3d(${-i * 100}%,0,0)`;
+        setTranslate(baseTranslate);
+        updateGhostLabels();
       };
 
-      const normalize = () => {
-        if (idx === 0) { idx = real; go(idx, false); }
-        else if (idx === real + 1) { idx = 1; go(idx, false); }
-      };
+      const normalizeIndex = () => {
+        const total = slides().length; // base + 2 clones
+        const realCount = total - 2;
 
-      const step = (dir) => {
-        if (locked) return;
-        locked = true;
-        idx += dir;
-        go(idx, true);
-      };
-
-      prev.addEventListener("click", () => step(-1));
-      next.addEventListener("click", () => step(1));
-
-      track.addEventListener("transitionend", () => {
-        normalize();
-        locked = false;
-      });
-
-      // ===== Swipe / drag =====
-      const THRESH_LOCK = 8;
-      const THRESH_SWIPE = 42;
-
-      let dragging = false;
-      let axis = null;
-      let startX = 0, startY = 0;
-      let dx = 0, dy = 0;
-
-      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-
-      const begin = (x, y) => {
-        if (locked) return;
-        dragging = true;
-        axis = null;
-        startX = x; startY = y;
-        dx = 0; dy = 0;
-        setTransition(false);
-        viewport.classList.add("is-dragging");
-      };
-
-      const move = (x, y, ev) => {
-        if (!dragging) return;
-
-        dx = x - startX;
-        dy = y - startY;
-
-        if (!axis) {
-          if (Math.hypot(dx, dy) < THRESH_LOCK) return;
-          axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
-        }
-
-        if (axis === "x") {
-          ev.preventDefault();
-          const w = viewport.clientWidth || 1;
-          const frac = dx / w;
-          const rubber = clamp(frac, -0.35, 0.35);
-          track.style.transform = `translate3d(${(-idx * 100 + rubber * 100)}%,0,0)`;
+        // if we moved onto clones, jump (no animation) to corresponding real slide
+        if (index === 0) {
+          // was lastClone -> jump to last real
+          snapToIndex(realCount, false);
+        } else if (index === total - 1) {
+          // was firstClone -> jump to first real
+          snapToIndex(1, false);
         }
       };
 
-      const end = () => {
-        if (!dragging) return;
-        dragging = false;
-        viewport.classList.remove("is-dragging");
+      const updateGhostLabels = () => {
+        const total = slides().length;
+        const realCount = total - 2;
 
-        if (axis === "x") {
-          const horiz = Math.abs(dx);
-          const vert = Math.abs(dy);
+        // map current index (1..realCount) to names array (0..realCount-1)
+        const realIdx = Math.min(Math.max(index - 1, 0), realCount - 1);
 
-          if (horiz > THRESH_SWIPE && horiz > vert * 1.2) {
-            locked = true;
-            idx += dx > 0 ? -1 : 1;
-            go(idx, true);
-          } else {
-            go(idx, true);
-          }
-        } else {
-          go(idx, false);
-        }
+        const prevIdx = (realIdx - 1 + realCount) % realCount;
+        const nextIdx = (realIdx + 1) % realCount;
 
-        axis = null;
-        dx = 0; dy = 0;
+        prevLabelEl.textContent = names[prevIdx] || "";
+        nextLabelEl.textContent = names[nextIdx] || "";
       };
 
-      viewport.addEventListener("pointerdown", (e) => {
+      const measure = () => {
+        width = viewport.getBoundingClientRect().width;
+        snapToIndex(index, false);
+      };
+
+      const goPrev = () => snapToIndex(index - 1, true);
+      const goNext = () => snapToIndex(index + 1, true);
+
+      // buttons
+      prevBtn.addEventListener("click", goPrev);
+      nextBtn.addEventListener("click", goNext);
+
+      // transition end -> normalize for infinite
+      track.addEventListener("transitionend", () => normalizeIndex());
+
+      // pointer swipe (works for touch + mouse)
+      const onDown = (e) => {
+        // only left button for mouse
         if (e.pointerType === "mouse" && e.button !== 0) return;
-        begin(e.clientX, e.clientY);
+
+        isDragging = true;
+        startX = e.clientX;
+        currentX = startX;
+
+        // stop any running animation
+        cancelAnimationFrame(raf);
+        setTransition(false);
+
+        // capture pointer
         viewport.setPointerCapture?.(e.pointerId);
+      };
+
+      const onMove = (e) => {
+        if (!isDragging) return;
+        currentX = e.clientX;
+        const dx = currentX - startX;
+
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          setTranslate(baseTranslate + dx);
+        });
+      };
+
+      const onUp = () => {
+        if (!isDragging) return;
+        isDragging = false;
+
+        const dx = currentX - startX;
+        const threshold = Math.max(44, width * 0.18);
+
+        if (dx > threshold) {
+          goPrev();
+        } else if (dx < -threshold) {
+          goNext();
+        } else {
+          snapToIndex(index, true);
+        }
+      };
+
+      viewport.addEventListener("pointerdown", onDown);
+      viewport.addEventListener("pointermove", onMove);
+      viewport.addEventListener("pointerup", onUp);
+      viewport.addEventListener("pointercancel", onUp);
+      viewport.addEventListener("lostpointercapture", onUp);
+
+      // keyboard
+      root.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") goPrev();
+        if (e.key === "ArrowRight") goNext();
       });
 
-      viewport.addEventListener("pointermove", (e) => move(e.clientX, e.clientY, e), { passive: false });
-      viewport.addEventListener("pointerup", end);
-      viewport.addEventListener("pointercancel", end);
-      viewport.addEventListener("lostpointercapture", end);
+      // resize
+      const ro = new ResizeObserver(() => measure());
+      ro.observe(viewport);
 
-      go(idx, false);
-      requestAnimationFrame(() => go(idx, false));
+      // init
+      measure();
+      updateGhostLabels();
+      snapToIndex(1, false);
     })();
   </script>
 </section>
