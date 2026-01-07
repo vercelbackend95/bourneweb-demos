@@ -112,7 +112,7 @@ const categories = [
 
       const names = baseSlides.map((s) => (s.getAttribute("aria-label") || "").trim());
 
-      // ---- infinite clones (safe) ----
+      // ---- infinite clones ----
       const firstClone = baseSlides[0].cloneNode(true);
       const lastClone = baseSlides[baseSlides.length - 1].cloneNode(true);
       firstClone.setAttribute("data-clone", "true");
@@ -126,6 +126,9 @@ const categories = [
       let width = 1;
 
       let isDragging = false;
+      let isAnimating = false;
+      let animTimer = 0;
+
       let axis = null; // "x" | "y" | null
       let pointerId = null;
 
@@ -137,6 +140,11 @@ const categories = [
       let raf = 0;
 
       let idleTimer = 0;
+
+      const clearAnimTimer = () => {
+        if (animTimer) window.clearTimeout(animTimer);
+        animTimer = 0;
+      };
 
       const setTransition = (on) => {
         track.style.transition = on ? "transform 520ms cubic-bezier(.22,1,.36,1)" : "none";
@@ -157,20 +165,40 @@ const categories = [
         nextLabelEl.textContent = names[nextIdx] || "";
       };
 
-      const snapToIndex = (i, animate = true) => {
-        index = i;
-        baseTranslate = -index * width;
-        setTransition(animate);
-        setTranslate(baseTranslate);
-        updateGhostLabels();
+      const clampIndex = (i) => {
+        const total = slides().length;
+        if (i < 0) return 0;
+        if (i > total - 1) return total - 1;
+        return i;
       };
 
       const normalizeIndex = () => {
         const total = slides().length;
         const realCount = total - 2;
 
+        // if we're sitting on clones, jump to the matching real slide (no animation)
         if (index === 0) snapToIndex(realCount, false);
         else if (index === total - 1) snapToIndex(1, false);
+      };
+
+      const snapToIndex = (i, animate = true) => {
+        const total = slides().length;
+        index = clampIndex(i);
+
+        baseTranslate = -index * width;
+        setTransition(animate);
+        setTranslate(baseTranslate);
+        updateGhostLabels();
+
+        if (animate) {
+          isAnimating = true;
+          clearAnimTimer();
+          // fallback: if transitionend doesn't fire, we still normalize
+          animTimer = window.setTimeout(() => {
+            isAnimating = false;
+            normalizeIndex();
+          }, 620);
+        }
       };
 
       const measure = () => {
@@ -178,14 +206,27 @@ const categories = [
         snapToIndex(index, false);
       };
 
-      const goPrev = () => snapToIndex(index - 1, true);
-      const goNext = () => snapToIndex(index + 1, true);
+      const goPrev = () => {
+        if (isDragging || isAnimating) return;
+        snapToIndex(index - 1, true);
+      };
+
+      const goNext = () => {
+        if (isDragging || isAnimating) return;
+        snapToIndex(index + 1, true);
+      };
 
       prevBtn.addEventListener("click", goPrev);
       nextBtn.addEventListener("click", goNext);
-      track.addEventListener("transitionend", () => normalizeIndex());
 
-      // ====== Drag that always ends in a full card ======
+      track.addEventListener("transitionend", (e) => {
+        if (e.target !== track) return;
+        isAnimating = false;
+        clearAnimTimer();
+        normalizeIndex();
+      });
+
+      // ===== Drag that always ends in a full card =====
       const clearIdle = () => {
         if (idleTimer) window.clearTimeout(idleTimer);
         idleTimer = 0;
@@ -194,7 +235,7 @@ const categories = [
       const armIdleSnap = () => {
         clearIdle();
         idleTimer = window.setTimeout(() => {
-          if (isDragging) onUp(); // force end if events got lost
+          if (isDragging) onUp(); // safety: end drag if events get lost
         }, 140);
       };
 
@@ -218,6 +259,7 @@ const categories = [
 
       const onDown = (e) => {
         if (e.pointerType === "mouse" && e.button !== 0) return;
+        if (isAnimating) return; // don't let user yeet it mid-flight
 
         isDragging = true;
         axis = null;
@@ -252,6 +294,9 @@ const categories = [
 
           // vertical gesture = let page scroll, snap back
           if (axis === "y") {
+            cancelAnimationFrame(raf);
+            raf = 0;
+
             isDragging = false;
             viewport.classList.remove("is-dragging");
             removeGlobalEnd();
@@ -289,10 +334,9 @@ const categories = [
         const dx = lastX - startX;
         const threshold = Math.max(48, width * 0.18);
 
-        // Always end at a full slide
         if (axis === "x") {
-          if (dx > threshold) goPrev();
-          else if (dx < -threshold) goNext();
+          if (dx > threshold) snapToIndex(index - 1, true);
+          else if (dx < -threshold) snapToIndex(index + 1, true);
           else snapToIndex(index, true);
         } else {
           snapToIndex(index, true);
