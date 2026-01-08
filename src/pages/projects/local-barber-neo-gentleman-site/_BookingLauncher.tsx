@@ -212,16 +212,15 @@ export default function BookingLauncher({
                 if (shouldClose) setOpen(false);
               }}
             >
-              {/* Mobile grab */}
-              {isMobile && (
-                <button
-                  className="bw-launcher__grab"
-                  type="button"
-                  aria-label="Drag down to close"
-                  onPointerDown={(e) => dragControls.start(e as any)}
-                  onClick={() => setOpen(false)}
-                />
-              )}
+{/* Mobile drag zone (no visible bar, still swipe-down to close) */}
+{isMobile && (
+  <div
+    className="bw-launcher__dragZone"
+    aria-hidden="true"
+    onPointerDown={(e) => dragControls.start(e as any)}
+  />
+)}
+
 
               {/* Body */}
               <div

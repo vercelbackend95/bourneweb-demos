@@ -1399,3 +1399,27 @@
     overscroll-behavior: contain;
   }
 }
+/* ✅ Mobile: no visible handle bar — swipe down still works */
+@media (max-width: 900px){
+  /* legacy handle off (if any styles still exist) */
+  .bw-launcher__portal.is-mobile .bw-launcher__grab{
+    display: none !important;
+  }
+
+  /* invisible drag strip at the very top of the sheet */
+  .bw-launcher__portal.is-mobile .bw-launcher__dragZone{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 18px;          /* tiny, not annoying */
+    z-index: 60;
+    background: transparent;
+    touch-action: none;     /* keeps drag crisp on iOS */
+  }
+
+  /* lift content up a bit */
+  .bw-launcher__portal.is-mobile .bw-launcher__sheet.is-mobile{
+    padding-top: max(6px, env(safe-area-inset-top));
+  }
+}
