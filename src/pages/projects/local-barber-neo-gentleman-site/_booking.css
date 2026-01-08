@@ -1369,3 +1369,33 @@
     font-size: 10px;     /* było 12px */
   }
 }
+/* ✅ Mobile: keep "Book online / title / steps" always visible inside the bottom-sheet */
+@media (max-width: 900px){
+  /* 1) Kill outer scroll (sheet body) so we don't get double scroll */
+  .bw-launcher__portal.is-mobile .bw-launcher__body{
+    overflow: hidden !important;
+  }
+
+  /* 2) Sticky header panel (in case anything above tries to scroll) */
+  .bw-launcher__portal.is-mobile .bmw__topbar{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+
+    /* premium panel look */
+    background:
+      radial-gradient(900px 420px at 30% -10%, rgba(210,170,110,0.10), transparent 62%),
+      rgba(0,0,0,0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+  }
+
+  /* 3) Make ONLY the content scroll */
+  .bw-launcher__portal.is-mobile .bmw__content{
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
