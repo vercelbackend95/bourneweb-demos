@@ -1344,3 +1344,28 @@
     transition: none;
   }
 }
+/* ✅ Mobile: category chips ~25% smaller */
+@media (max-width: 640px){
+  .bmw__chips{
+    gap: 8px;
+    padding: 2px 2px 6px;
+  }
+
+  .bmw__chip{
+    gap: 8px;
+    padding: 8px 10px;   /* było 10px 12px */
+    min-height: 32px;    /* było 40px */
+  }
+
+  .bmw__chipLabel{
+    font-size: 10px;     /* było 12px */
+    letter-spacing: 0.11em;
+  }
+
+  .bmw__chipCount{
+    min-width: 20px;     /* było 26px */
+    height: 20px;        /* było 26px */
+    padding: 0 6px;
+    font-size: 10px;     /* było 12px */
+  }
+}
