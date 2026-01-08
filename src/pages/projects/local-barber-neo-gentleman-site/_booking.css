@@ -1423,3 +1423,33 @@
     padding-top: max(6px, env(safe-area-inset-top));
   }
 }
+/* ✅ Mobile: sticky top panel + scroll only inside BookingWidget content */
+@media (max-width: 900px){
+  /* sheet body is NOT scrollable (prevents double scroll) */
+  .bw-launcher__portal.is-mobile .bw-launcher__body{
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* keep header always visible */
+  .bw-launcher__portal.is-mobile .bmw__topbar{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background:
+      radial-gradient(900px 420px at 30% -10%, rgba(210,170,110,0.10), transparent 62%),
+      rgba(0,0,0,0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+  }
+
+  /* ✅ the only scroll container */
+  .bw-launcher__portal.is-mobile .bmw__content{
+    overflow: auto;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}

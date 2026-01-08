@@ -76,10 +76,6 @@ export default function BookingLauncher({
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const bodyRef = useRef<HTMLDivElement | null>(null);
 
-  // allow body-initiated drag when scrolled to top
-  const startYRef = useRef<number | null>(null);
-  const canBodyDragRef = useRef(false);
-
   const CLOSE_DRAG_PX = 120;
   const CLOSE_VEL = 850;
 
@@ -118,26 +114,6 @@ export default function BookingLauncher({
   const backdropTransition = reduce
     ? { type: "tween" as const, duration: 0.18 }
     : { type: "tween" as const, duration: 0.22 };
-
-  function canStartBodyDrag(e: PointerEvent) {
-    const body = bodyRef.current;
-    if (!body) return false;
-
-    if ((e as any).button != null && (e as any).button !== 0) return false;
-    if (body.scrollTop > 0) return false;
-
-    const target = e.target as Element | null;
-    if (!target) return false;
-
-    if (
-      target.closest(
-        "button, a, input, select, textarea, [role='button'], [data-no-drag]"
-      )
-    )
-      return false;
-
-    return true;
-  }
 
   return (
     <>
@@ -212,48 +188,17 @@ export default function BookingLauncher({
                 if (shouldClose) setOpen(false);
               }}
             >
-{/* Mobile drag zone (no visible bar, still swipe-down to close) */}
-{isMobile && (
-  <div
-    className="bw-launcher__dragZone"
-    aria-hidden="true"
-    onPointerDown={(e) => dragControls.start(e as any)}
-  />
-)}
+              {/* ✅ Invisible drag zone at the very top (no handle bar) */}
+              {isMobile && (
+                <div
+                  className="bw-launcher__dragZone"
+                  aria-hidden="true"
+                  onPointerDown={(e) => dragControls.start(e as any)}
+                />
+              )}
 
-
-              {/* Body */}
-              <div
-                className="bw-launcher__body"
-                ref={bodyRef}
-                onPointerDownCapture={(e) => {
-                  if (!isMobile) return;
-                  const pe = e.nativeEvent as PointerEvent;
-                  startYRef.current = pe.clientY;
-                  canBodyDragRef.current = canStartBodyDrag(pe);
-                }}
-                onPointerMoveCapture={(e) => {
-                  if (!isMobile) return;
-                  if (!canBodyDragRef.current) return;
-                  const pe = e.nativeEvent as PointerEvent;
-                  if (startYRef.current == null) return;
-
-                  const dy = pe.clientY - startYRef.current;
-                  if (dy > 6) {
-                    dragControls.start(e as any);
-                    canBodyDragRef.current = false;
-                    startYRef.current = null;
-                  }
-                }}
-                onPointerUpCapture={() => {
-                  startYRef.current = null;
-                  canBodyDragRef.current = false;
-                }}
-                onPointerCancel={() => {
-                  startYRef.current = null;
-                  canBodyDragRef.current = false;
-                }}
-              >
+              {/* Body (NO body-drag hijack → scroll works) */}
+              <div className="bw-launcher__body" ref={bodyRef}>
                 <BookOnline />
               </div>
             </motion.div>
