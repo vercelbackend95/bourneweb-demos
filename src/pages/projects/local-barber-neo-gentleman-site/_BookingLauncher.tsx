@@ -141,7 +141,7 @@ export default function BookingLauncher({
 
   return (
     <>
-      {/* ✅ Launcher CTA (the one from your screenshot) */}
+      {/* ✅ Launcher CTA */}
       <button
         className="bw-launcher__cta"
         type="button"
@@ -222,12 +222,6 @@ export default function BookingLauncher({
                   onClick={() => setOpen(false)}
                 />
               )}
-
-              {/* Header (matches your section copy vibe) */}
-              <div className="bw-launcher__head">
-                <p className="bw-launcher__kicker">BOOK ONLINE</p>
-                <h3 className="bw-launcher__headline">Book fast. Look sharp.</h3>
-              </div>
 
               {/* Body */}
               <div
