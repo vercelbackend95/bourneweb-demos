@@ -1453,3 +1453,44 @@
     overscroll-behavior: contain;
   }
 }
+/* ✅ Bottom-sheet on mobile:
+   - TOP panel (Book online + title + progress) stays always visible
+   - Only the form content scrolls (services / barbers / etc.)
+*/
+@media (max-width: 900px){
+  /* Make sheet a strict container (no outer scrolling) */
+  .bw-launcher__sheet.is-mobile{
+    overflow: hidden;
+  }
+
+  /* 🔒 Kill outer scroll completely — inner widget handles scrolling */
+  .bw-launcher__portal.is-mobile .bw-launcher__body{
+    flex: 1;
+    min-height: 0;
+    overflow: hidden !important;
+  }
+
+  /* Ensure BookingWidget fills the sheet */
+  .bw-launcher__sheet .bmw{
+    height: 100%;
+  }
+
+  .bw-launcher__sheet .bmw__card{
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* ✅ This is the ONLY scroll container */
+  .bw-launcher__sheet .bmw__content{
+    overflow: auto;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Optional: lift header up a touch on mobile */
+  .bw-launcher__sheet.is-mobile .bmw__topbar{
+    padding-top: 12px;
+    padding-bottom: 10px;
+  }
+}
